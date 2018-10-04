@@ -1,0 +1,24 @@
+image:
+        centre: [616.89188, 617.06417] 
+        outfilename: HERCULES_A_ggmfiltered.fits
+data:
+        - filename: HERCULES_A_1.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [1,1,0,0,0,0,0,0]
+        - filename: HERCULES_A_2.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [2,2,2,0,0,0,0,0]
+        - filename: HERCULES_A_4.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [0,4,4,4,0,0,0,0]
+        - filename: HERCULES_A_8.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [0,0,8,8,8,0,0,0]
+        - filename: HERCULES_A_16.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [0,0,0,10,10,10,0,0]
+        - filename: HERCULES_A_32.fits
+          weightrad: [0,19,39,77,154,308,616,616]
+          weightvals: [0,0,0,0,10,10,10,10]
+
+

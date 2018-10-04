@@ -1,0 +1,49 @@
+To run the automated reduction process: 
+
+Assuming using hubble parameters of: Hubble_Constant=70, Omega_M=0.3, Omega_Vac=0.7
+
+Create a data folder, and copy: reduce/ checks/ & ggm_combine, from here into it
+
+Copy the following files from the newly copied directories: the 2 "verify_*.py" files 
+from check/ and the 3 "*_all_data.py" files from reduce.
+
+You should now have data folder, containing three subfolders, and 5 files.
+
+Step 1)
+
+open the terminal and enter you data folder, start ciao by typing [ciao] into the terminal
+
+Run "get_all_data.py" [python get_all_data.py]
+
+After this finishes, run "verify_reproj.py" and check "good.txt" for any error messages
+if an error is recorded, you have to redownload and reproj that cluster. Do so by running 
+the command for that cluster contained within "get_all_data.py" on your terminal.
+Flags in this verify file are irrelevant and arent read in.
+
+Step 2)
+
+Once you have the clusters you want, and have no error messages, begin the ROI and point sources analysis.
+(for more on this, read "POINT_README" in reduce/)
+
+Upon completion of the point source analysis, run "verify_coords.py" to check that you saved all your 
+region files in the proper coodinates. If you didn't, resave it in ds9 properly, overwritting the 
+previous file.
+
+Once you have no errors and all clusters have been analyzed, move on to step 3
+
+Step 3) in "process_all_data.py", ensure the proper flags for bad clusters "b" and done clusters "d" are set
+if ciao is not running, start ciao again. 
+run "process_all_data.py".
+
+Once this is finished you will have a "chandastats.txt" file that contains relevant
+information about each cluster, and specifically the asymmetry and cluminess of each cluster. Bad clusters
+will simply have ",,," where the CAS parameters would go. 
+You will also find an "unsharp.fits" image in clusterName/bin=2/UM
+
+Step 4) ensure that flags in "ggm_all_data.py" are corrrect as in the previous step
+ensure that ciao IS NOT RUNNING for this step (easiest way is to open a new terminal)
+
+from within the data directory, as with all other steps, run "ggm_all_data.py"
+
+This will produce several images in the clusters own ggm_combine folder. The important one
+is "*_ggm_filtered.fits"
