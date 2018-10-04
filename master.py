@@ -3,8 +3,8 @@
     SUMMER RESEARCH 2016/2017/2018
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
-    SUPERVISOR: Chris O'Dea (odeac@umanitoba.ca)
-    VERSION:    2018-Sep-20
+    SUPERVISOR: Chris O'Dea
+    VERSION:    2018-Oct-1
     
     PURPOSE: Plot various parameters from multiple data tables while calculating
              Spearman rank correlations and associated p-values using SciPy.
