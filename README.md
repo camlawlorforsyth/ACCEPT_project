@@ -1,14 +1,14 @@
 # ACCEPT_project
 Relevant scripts used in the analysis and preparation of a paper regarding cooling cores and the dynamical state of galaxy clusters within the ACCEPT sample.
 
-#---1 DATA---
+---1 DATA---
 
-#---1.1 SAMPLE SIZE---
+---1.1 SAMPLE SIZE---
 
 'accept_main.txt', 'accept_20kpc.txt', 'accept_SFR.txt', 'accept_CAS.txt', 'accept_SPA_cavpow.txt', and 'accept_Fraser_BCG_SFR.txt' all have 241 entries
  and are the complete ACCEPT sample.
 
-#---1.2 DATA FILES---
+---1.2 DATA FILES---
 
 'accept_main.txt' is adapted from the 'accept_main.tab' file found at http://www.pa.msu.edu/astro/MC2/accept/ under the 'Useful Data and Figures' header. This file is comma delimited to accomodate the zero (0) value entries for bolometric, Halpha, and radio luminosity.
 
@@ -23,7 +23,7 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 'accept_Fraser_BCG_SFR.txt' contains the BCG stellar mass and BCG SFR data for 72 clusters present in the ACCEPT sample, coming from the Fraser-McKelvie et al. (2014) paper, recommended by Yjan. Data was downloaded via Vizier. This file is comma delimited.
 
 
-#---2 PROGRAMS---
+---2 PROGRAMS---
 
 'master.py' is the master program responsible for creating the most current plots, and determining Spearman rank coefficients as well as p-values.
 
