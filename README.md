@@ -16,7 +16,7 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 
 'accept_SFR.txt' is adapted from the Table 7 data file found at http://iopscience.iop.org/article/10.1088/0067-0049/199/1/23, from the Hoffer et al. paper. This file is comma delimited.
 
-'accept_CAS.txt' was produced by determining the CAS parameters for the clusters that have sufficient counts for statistically significant analysis and represents the culmination of nearly six months of work for Cam Lawlor-Forsyth, as well as likely longer for Michael Radica. Criag McRae, Yashashvi Bharani, Brynne Blaikie were all instrumental in completing the CAS analysis for the full ACCEPT sample and this work could not have been completed without them. This file is comma delimited.
+'accept_CAS.txt' was produced by determining the CAS parameters for the clusters that have sufficient counts for statistically significant analysis and represents the culmination of nearly six months of work for Cam Lawlor-Forsyth, as well as likely longer for Michael Radica, Criag McRae, Yashashvi Bharani, Brynne Blaikie were all instrumental in completing the CAS analysis for the full ACCEPT sample and this work could not have been completed without them. This file is comma delimited.
 
 'accept_SPA_cavpow.txt' contains the SPA parameters determined by Mantz et al. (2015), as well as the cavity powers [coming from Rafferty et al. (2006), Cavagnolo et al. (2010), O'Sullivan et al. (2011), Hlavacek-Larrondo et al. (2012)] for the various clusters. Data was downloaded via Vizier. This file is comma delimited.
 
