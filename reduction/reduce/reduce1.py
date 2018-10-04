@@ -1,16 +1,18 @@
+# assumes Python 2.7 is installed
+
 import sys
 import os
 from math import *
 
 #to run this file from within your data folder, type in the terminal with ciao running:
  
-#python reduce1.py [Clustername] obsid1 obsid2 z R_out
+#python reduce1.py [cluster_name] obsid1 obsid2 ... obsidN z R_out
 
 #Assumes you run this from within your data folder, and that your data folder contains asymm_dream.py, clumpy_dream.py, ggm_combine
 
 #this file will direct you through the reduction steps and process to obtain the CAS parameters
-
 #for each cluster
+
 #Record useful information in chandra_stats.txt
 
 #================================== 1. GET DATA FROM ARCHIVE ==================================#
@@ -21,13 +23,13 @@ z = float(sys.argv[length-2])
 Rout = float(sys.argv[length-1])
 clusterName = sys.argv[1]
 
-os.system("mkdir " + clusterName)
-os.system("cp -r ggm_combine/ " + clusterName)
-os.chdir(clusterName)
+os.system("mkdir " + clusterName) # create a new directory for the cluster
+os.system("cp -r ggm_combine/ " + clusterName) # copy the ggm_combine/ directory to the new cluster directory
+os.chdir(clusterName) # change directory to the cluster directory
 
-cmd = "download_chandra_obsid "
+cmd = "download_chandra_obsid " # download Chandra data as per http://cxc.harvard.edu/ciao/threads/archivedownload/
 for i in range(2, length - 3):
-	cmd += str(sys.argv[i]) + ","
+	cmd += str(sys.argv[i]) + "," # creates a comma-separated list of the passed ObsIds from sys.arv(...)
 cmd += str(sys.argv[length-3])
 os.system("echo " + cmd)
 os.system(cmd)
