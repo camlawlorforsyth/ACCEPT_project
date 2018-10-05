@@ -1,6 +1,6 @@
 # README #
 
-These steps outline the procedure to run an automated reduction process which will reduce the *Chandra* data, compute the CAS parameters, and create GGM and unsharp-masked (UM) images. This reduction assumes Hubble parameters of Hubble_Constant = 70, Omega_M = 0.3, and Omega_Vac = 0.7.
+These steps outline the procedure to run an automated reduction process which will reduce the *Chandra* data, compute the CAS parameters, and create GGM and unsharp-masked (UM) images. This reduction adopts the standard Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
 
 ## Step 0 ##
 
@@ -20,48 +20,39 @@ Your data/ directory will now contain three (3) subdirectories (and files therei
 
 ## Step 1 ##
 
-Open a terminal and enter you data directory, and start CIAO by entering
-`ciao`
-into the terminal.
+Open a terminal and navigate to your data/ directory, and start CIAO by entering `ciao` into the terminal.
 
-Once CIAO is confirmed to be running, run
-`python get_all_data.py`.
+Once CIAO is confirmed to be running, run `python get_all_data.py`.
 
-Upon completion of the previous command, run
-`python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: reproj) the data for that cluster. Do so by running the command for that cluster contained within "get_all_data.py" in your terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
+Upon completion of the previous command, run `python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
 
 ## Step 2 ##
-START HERE
-Once you have the clusters you want, and have no error messages, begin the ROI and point sources analysis.
-(for more on this, see the [POINT_README](reduce/POINT_README) in [reduce/](reduce))
 
-Upon completion of the point source analysis, run
-`python verify_coords.py` to check that the region files are in the proper coodinates. If there are any issues, re-save the region files in the proper coordinates and re-run
-`python verify_coords.py`.
+Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/good.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
 
-Once you have no errors and all clusters have been analyzed, move on to step 3
+Upon completion of the point source analysis, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
+
+Once there are no errors present in "data/good.txt", and all clusters have been analyzed for point sources, continue to Step 3 below.
 
 ## Step 3 ##
 
-In "process_all_data.py", ensure the proper flags for bad clusters "b" and done clusters "d" are set
-if ciao is not running, start ciao again. 
-run "process_all_data.py".
+In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters `b` and done clusters `d` are correctly appended.
 
-Once this is finished you will have a "chandastats.txt" file that contains relevant
-information about each cluster, and specifically the asymmetry and cluminess of each cluster. Bad clusters
-will simply have ",,," where the CAS parameters would go. 
-You will also find an "unsharp.fits" image in clusterName/bin=2/UM
+Ensure that CIAO is running, and then run `python process_all_data.py`.
+
+Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. Clusters that had insufficient counts for statistically significant analysis (ie. 'bad' clusters) will have ",,," in the "data/chandrastats.txt" file, where the CAS parameters would be present for 'done' clusters (ie. clusters that had sufficient counts for analysis).
+
+An unsharp-masked (UM) image ("unsharp.fits") will also be created, and can be found in [cluster_name]/bin=2/UM.
 
 ## Step 4 ##
 
-Ensure that flags in "ggm_all_data.py" are corrrect as in the previous step.
-Ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
+As in Step 3, ensure that flags in [ggm_all_data.py](ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
+
+It is important to ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
 
 From within data/, as with all other steps, run `python ggm_all_data.py`
 
-This will produce several images in the cluster's own ggm_combine/ folder. The important one
-is "[clustername]_ggm_filtered.fits".
-
+This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[clustername]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
 
 #### Acknowledgements ####
-Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting and presentation by C. Lawlor-Forsyth.
+Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting, presentation, and subsequent revisions and maintenance by C. Lawlor-Forsyth.
