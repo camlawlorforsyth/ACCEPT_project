@@ -28,3 +28,7 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 'master.py' is the master program responsible for creating the most current plots, and determining Spearman rank coefficients as well as p-values.
 
 'correlations.xlsx' is the master table of correlations found when plotting all parameters against one-another. Sheet 1 contains the Spearman rank coefficients, while Sheet 2 contains the associated two-tailed p-values.
+
+## Automated Reduction Process ##
+
+Scripts and files relevant to the automated reduction process, including explanatory READMEs and instructions, can be found in [reduction/](reduction).
