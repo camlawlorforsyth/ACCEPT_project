@@ -36,13 +36,15 @@ Once there are no errors present in "data/good.txt", and all clusters have been 
 
 ## Step 3 ##
 
-In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters `b` and done clusters `d` are correctly appended.
+In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended. 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
 
 Ensure that CIAO is running, and then run `python process_all_data.py`.
 
-Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. Clusters that had insufficient counts for statistically significant analysis (ie. 'bad' clusters) will have ",,," in the "data/chandrastats.txt" file, where the CAS parameters would be present for 'done' clusters (ie. clusters that had sufficient counts for analysis).
+Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Bad' clusters will have ",,," in the "data/chandrastats.txt" file, where the ASC parameters would normally be present for 'done' clusters.
 
 An unsharp-masked (UM) image ("unsharp.fits") will also be created, and can be found in [cluster_name]/bin=2/UM.
+
+As the concentration parameter must be computed by hand, navigate to each cluster's directory and open the requisite image. Refer to [concentration_README](reduce/concentration_README.md) for further instructions to compute the concentration value. The corresponding value must then be recorded in "chandrastats.txt".
 
 ## Step 4 ##
 
@@ -52,7 +54,7 @@ It is important to ensure that CIAO **is not running** for this step. It is reco
 
 From within data/, as with all other steps, run `python ggm_all_data.py`
 
-This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[clustername]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
+This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[cluster_name]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
 
 #### Acknowledgements ####
 Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting, presentation, and subsequent revisions and maintenance by C. Lawlor-Forsyth.
