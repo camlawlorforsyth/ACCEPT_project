@@ -8,7 +8,7 @@ Create a new data/ directory:
 ```
 mkdir data
 ```
-Copy reduce/, checks/, and ggm_combine/ into it.
+Copy [reduce/](reduce), [checks/](checks), and [ggm_combine/](ggm_combine) into it.
 
 Copy the following files from the newly copied directories:
 ```
@@ -33,11 +33,11 @@ Upon completion of the previous command, run
 ## Step 2 ##
 START HERE
 Once you have the clusters you want, and have no error messages, begin the ROI and point sources analysis.
-(for more on this, read "POINT_README" in reduce/)
+(for more on this, see the [POINT_README](reduce/POINT_README) in [reduce/](reduce))
 
-Upon completion of the point source analysis, run "verify_coords.py" to check that you saved all your 
-region files in the proper coodinates. If you didn't, resave it in ds9 properly, overwritting the 
-previous file.
+Upon completion of the point source analysis, run
+`python verify_coords.py` to check that the region files are in the proper coodinates. If there are any issues, re-save the region files in the proper coordinates and re-run
+`python verify_coords.py`.
 
 Once you have no errors and all clusters have been analyzed, move on to step 3
 
