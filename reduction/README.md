@@ -11,7 +11,8 @@ You should now have data folder, containing three subfolders, and 5 files.
 
 Step 1)
 
-open the terminal and enter you data folder, start ciao by typing [ciao] into the terminal
+open the terminal and enter you data folder, start ciao by typing
+`<ciao>` into the terminal
 
 Run "get_all_data.py" [python get_all_data.py]
 
