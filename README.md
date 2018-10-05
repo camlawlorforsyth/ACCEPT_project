@@ -6,27 +6,27 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 
 ### Sample Size ###
 
-'accept_main.txt', 'accept_20kpc.txt', 'accept_SFR.txt', 'accept_CAS.txt', 'accept_SPA_cavpow.txt', and 'accept_Fraser_BCG_SFR.txt' all have 241 entries and are the complete ACCEPT sample.
+[accept_main.txt](accept_main.txt), [accept_20kpc.txt](accept_20kpc.txt), [accept_SFR.txt](accept_SFR.txt), [accept_CAS.txt](accept_CAS.txt), [accept_SPA_cavpow.txt](accept_SPA_cavpow.txt), and [accept_Fraser_BCG_SFR.txt](accept_Fraser_BCG_SFR.txt) all have 241 entries and are the complete ACCEPT sample.
 
 ### Data Files ###
 
-'accept_main.txt' is adapted from the 'accept_main.tab' file found at http://www.pa.msu.edu/astro/MC2/accept/ under the 'Useful Data and Figures' header. This file is comma delimited to accomodate the zero (0) value entries for bolometric, Halpha, and radio luminosity.
+[accept_main.txt](accept_main.txt) is adapted from the [accept_main.tab](https://web.pa.msu.edu/astro/MC2/accept/accept_main.tab) file found at http://www.pa.msu.edu/astro/MC2/accept/ under the **Useful Data and Figures** header. This file is comma delimited to accomodate the zero (0) value entries for bolometric, Halpha, and radio luminosity.
 
-'accept_20kpc.txt' is an adaptation of sorts of the 'all_profiles.dat' file from http://www.pa.msu.edu/astro/MC2/accept/, under the 'Useful Data and Figures' header. As each cluster has many annulii, the values presented in this file reflect the various parameters for an annulus with an inner radius of /~20 kpc from the centre of the cluster. This file is comma delimited.
+[accept_20kpc.txt](accept_20kpc.txt) is an adaptation of sorts of the [all_profiles.dat](https://web.pa.msu.edu/astro/MC2/accept/data/all_profiles.dat) file from http://www.pa.msu.edu/astro/MC2/accept/, under the **Useful Data and Figures** header. As each cluster has many annulii, the values presented in this file reflect the various parameters for an annulus with an inner radius of ~20 kpc from the centre of the cluster. This file is comma delimited.
 
-'accept_SFR.txt' is adapted from the Table 7 data file found at http://iopscience.iop.org/article/10.1088/0067-0049/199/1/23, from the Hoffer et al. (2012) paper. This file is comma delimited.
+[accept_SFR.txt](accept_SFR.txt) is adapted from the **Table 7** data file found at http://iopscience.iop.org/article/10.1088/0067-0049/199/1/23, from the Hoffer et al. (2012) paper. This file is comma delimited.
 
-'accept_CAS.txt' was produced by determining the CAS parameters for the clusters that have sufficient counts for statistically significant analysis and represents the culmination of nearly six months of work for C. Lawlor-Forsyth, as well as likely longer for M. Radica. Additionally, C. McRae, Y. Bharani, and B. Blaikie were all instrumental in completing the CAS analysis for the full ACCEPT sample and this work could not have been completed without them. This file is comma delimited.
+[accept_CAS.txt](accept_CAS.txt) was produced by determining the CAS parameters for the clusters that have sufficient counts for statistically significant analysis and represents the culmination of six months of work for C. Lawlor-Forsyth, as well as likely longer for M. Radica. Additionally, C. McRae, Y. Bharani, and B. Blaikie were all instrumental in completing the CAS analysis for the full ACCEPT sample and this work could not have been completed without them. This file is comma delimited.
 
-'accept_SPA_cavpow.txt' contains the SPA parameters determined by Mantz et al. (2015), as well as the cavity powers (coming from Rafferty et al. (2006), Cavagnolo et al. (2010), O'Sullivan et al. (2011), Hlavacek-Larrondo et al. (2012)) for the various clusters. Data was downloaded via Vizier. This file is comma delimited.
+[accept_SPA_cavpow.txt](accept_SPA_cavpow.txt) contains the SPA parameters determined by Mantz et al. (2015), as well as the cavity powers (coming from Rafferty et al. (2006), Cavagnolo et al. (2010), O'Sullivan et al. (2011), Hlavacek-Larrondo et al. (2012)) for the various clusters. Data was downloaded via Vizier. This file is comma delimited.
 
-'accept_Fraser_BCG_SFR.txt' contains the BCG stellar mass and BCG SFR data for 72 clusters present in the ACCEPT sample, coming from the Fraser-McKelvie et al. (2014) paper, recommended by Y. Gordon. Data was downloaded via Vizier. This file is comma delimited.
+[accept_Fraser_BCG_SFR.txt](accept_Fraser_BCG_SFR.txt) contains the BCG stellar mass and BCG SFR data for 72 clusters present in the ACCEPT sample, coming from the Fraser-McKelvie et al. (2014) paper, recommended by Y. Gordon. Data was downloaded via Vizier. This file is comma delimited.
 
 ## Programs ##
 
-'master.py' is the master program responsible for creating the most current plots, and determining Spearman rank coefficients as well as p-values.
+[master.py](master.py) is the master program responsible for creating the most current plots, and determining Spearman rank coefficients as well as p-values.
 
-'correlations.xlsx' is the master table of correlations found when plotting all parameters against one-another. Sheet 1 contains the Spearman rank coefficients, while Sheet 2 contains the associated two-tailed p-values.
+[correlations.xlsx](correlations.xlsx) is the master table of correlations found when plotting all parameters against one-another. Sheet 1 contains the Spearman rank coefficients, while Sheet 2 contains the associated two-tailed p-values.
 
 ## Automated Reduction Process ##
 
