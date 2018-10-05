@@ -2,7 +2,7 @@ To run the automated reduction process:
 
 Assuming using hubble parameters of: Hubble_Constant=70, Omega_M=0.3, Omega_Vac=0.7
 
-Create a data folder, and copy: reduce/ checks/ & ggm_combine, from here into it
+Create a new data folder and copy: reduce/, checks/, and ggm_combine/ into it
 
 Copy the following files from the newly copied directories: the 2 "verify_*.py" files 
 from check/ and the 3 "*_all_data.py" files from reduce.
@@ -12,9 +12,11 @@ You should now have data folder, containing three subfolders, and 5 files.
 Step 1)
 
 open the terminal and enter you data folder, start ciao by typing
-`<ciao>` into the terminal
+`ciao`
+into the terminal
 
-Run "get_all_data.py" [python get_all_data.py]
+Run
+`python get_all_data.py`
 
 After this finishes, run "verify_reproj.py" and check "good.txt" for any error messages
 if an error is recorded, you have to redownload and reproj that cluster. Do so by running 
