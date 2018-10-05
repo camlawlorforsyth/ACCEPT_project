@@ -56,5 +56,5 @@ From within data/, as with all other steps, run `python ggm_all_data.py`
 
 This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[cluster_name]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
 
-#### Acknowledgements ####
+### Acknowledgements ###
 Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting, presentation, and subsequent revisions and maintenance by C. Lawlor-Forsyth.
