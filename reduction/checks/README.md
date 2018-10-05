@@ -1,3 +1,5 @@
+# checks/ README #
+
 To perform these checks, copy this checks/ folder into your data directory.
 After that, move the two verify_*.py files into the data directory from this now copied directiory. 
 run: python verify_*.py  
