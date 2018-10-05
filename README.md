@@ -1,6 +1,6 @@
 # ACCEPT_project #
 
-Relevant scripts used in the analysis and preparation of a paper regarding cooling cores and the dynamical state of galaxy clusters within the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. See [*"Intracluster Medium Entropy Profiles for a Chandra Archival Sample of Galaxy Clusters"*, Cavagnolo et al. 2009, *ApJS*, 182, 12](http://adsabs.harvard.edu/abs/2009ApJS..182...12C) for further information and background.
+Relevant scripts used in the analysis and preparation of a paper regarding cooling cores and the dynamical state of galaxy clusters within the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. See [*"Intracluster Medium Entropy Profiles for a Chandra Archival Sample of Galaxy Clusters"*, Cavagnolo et al. 2009, *ApJS*, 182, 12](http://adsabs.harvard.edu/abs/2009ApJS..182...12C) for further information and background regarding the ACCEPT sample.
 
 ## Data ##
 
