@@ -61,3 +61,7 @@ From within data/, as with all other steps, run `python ggm_all_data.py`
 
 This will produce several images in the cluster's own ggm_combine/ folder. The important one
 is "[clustername]_ggm_filtered.fits".
+
+
+#### Acknowledgements ####
+Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting and presentation by C. Lawlor-Forsyth.
