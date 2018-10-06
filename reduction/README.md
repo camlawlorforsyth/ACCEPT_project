@@ -30,13 +30,15 @@ Upon completion of the previous command, run `python verify_reproj.py` and check
 
 Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/good.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
 
-Upon completion of the point source analysis, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
+Upon completion of the ROI and point source analysis, ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended in [verify_coords.py](reduce/verify_coords.py). 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
 
-Once there are no errors present in "data/good.txt", and all clusters have been analyzed for point sources, continue to Step 3 below.
+Next, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
+
+Once there are no errors present in "data/good.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
-In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended. 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
+In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
 
 Ensure that CIAO is running, and then run `python process_all_data.py`.
 
