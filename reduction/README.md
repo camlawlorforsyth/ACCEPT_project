@@ -28,7 +28,11 @@ Upon completion of the previous command, run `python verify_reproj.py` and check
 
 ## Step 2 ##
 
+#### Step 2a ####
+
 Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/good.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
+
+#### Step 2b ####
 
 Upon completion of the ROI and point source analysis, ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended in [verify_coords.py](reduce/verify_coords.py). 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
 
