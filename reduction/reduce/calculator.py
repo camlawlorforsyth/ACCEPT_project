@@ -1,3 +1,9 @@
+'''
+Downloaded from http://www.astro.ucla.edu/~wright/CC.python. Python version written by James Schombert.
+
+Original Javascript version © 1999-2016 Edward L. Wright. For further informatin, please see http://adsabs.harvard.edu/abs/2006PASP..118.1711W.
+'''
+
 #!/usr/bin/env python
   
 import sys
