@@ -1,39 +1,37 @@
-To begin point source extraction and statistical significance analysis, 
-enter you data directory in your terminal.
+# Point Source Analysis README #
 
-for each cluster you'll want to open the data.txt file [gedit data.txt &]
-and the broad_thresh.img in clusterName/expcor_mosaic_2 [ds9 -log broad_thresh.img &]
+To begin point source extraction and statistical significance analysis, enter the data/ directory through the terminal. This analysis assumes that SAOImageDS9 is installed on the system, and is accessible from the terminal via `ds9`.
 
-Once open, click on the image and a green circle should appear. Double click within
-the circle to edit it's properties. Enter the radius found in data.txt and the RA and Dec
-found on the ACCEPT site as center cordinates. You have now created the Region of Extraction (ROI)
+## Defining the Region of Extraction ##
 
-In the circle window, open analysis. If the sum counts are less than what is found
-in the data.txt file (20000*(1+z)^4), than the cluster data is statistically insignificant
-and should be labelled bad with a "b" flag in all files where applicable. 
+Navigate to the directory of the cluster of interest. Open the "data.txt" file and the bin=2 "broad_thresh.img" by running:
+```
+gedit data.txt &
+ds9 -log /expcor_mosaic_2/broad_thresh.img &
+```
 
-If it's good (not bad) you can move on to point source extraction. Save the ROI you have
-created in the cluster directory. Save it with the name "ds9_fk.reg" with coordinates of ds9 & fk5.
+Once the image is open in DS9, enter the 'Edit' menu and select 'Region'. Click on the image and a green circular region should appear. Double click within the circle to edit it's properties. Enter the radius found in "data.txt" and the right ascension (RA) and declination (Dec) found on the [ACCEPT site](https://web.pa.msu.edu/astro/MC2/accept/) as the coordinates for the center. The region of extraction (ROI) has now been created.
 
-Save it once again, this time in clusterName/expcor_mosaic_2 with the name "bk.reg"
-Use the coodinates ciao & physical this time. 
+In the properties window, enter the 'Analysis' menu and select 'Statistics'. This will open a new statistics window for the defined region. If the sum of counts (lower left of the window) are less than 20000*(1+z)^4, found in the "data.txt" file, then the cluster has insufficient data for statistically significant analysis. These clusters should be labelled as 'bad' with a `b` flag in all applicable files (namely [process_all_data.py](process_all_data.py), [verify_coords.py](../checks/verify_coords.py), and [ggm_all_data.py](ggm_all_data.py)).
 
-Now create circles around every bright source found in the ROI. See reduction/example for a sample
-of this. Ensure that the point source regions you make are as tight as possible. 
+If the cluster has sufficient counts, it should be labelled as 'done' with a `d` flag in the three files named above. Save the created ROI as `ds9_fk.reg` in the cluster's directory, using the 'ds9' format, with 'WCS - FK5' as the coordinate system.
 
-Once you have surrounded every point source in the ROI tightly with a circular region, save it in 
-clusterName/expcor_mosaic_2 as "sources_mod.reg" with coordinates ciao & physical, just like bk.reg
-ENSURE THE CIRCLE FOR THE ROI ITSELF IS NOT INCLUDED IN THE POINT SOURCE REGION FILES
+Additionally, save the ROI as `bk.reg` into the "[cluster_name]/expcor_mosaic_2 directory", using the 'CIAO' format with 'Physical' as the coordinate system.
 
-Save it once more in clusterName/expcor_mosaic with the same name "sources_mod.reg" and same coordinates
-ciao & physical
+## Point Source Removal ##
 
-close ds9, and now from clusterName/expcor_mosaic, open broad_thresh.img in ds9
-this is a more fine grained version of the previous image you had open.
-Open sources_mod.reg and ensure that you are not missing any point sources, and
-that you dont have any regions that are not around point sources.
+Once the ROI has been successfully saved, the point source analysis can be started.
 
-If the regions have changed, overwrite the previous "sources_mod.reg" in expcor_mosaic
-do NOT overwrite the "sources_mod.reg" in expcor_mosaic_2
+Create circular regions around every bright point source found within the ROI. Ensure that the point source regions are as small as possible while containing the entire point source, without encompassing any additional background. 
 
-Now you are ready to move on to the next step, found in Reduction/README
+Once every point source has been enclosed within a circular region in the ROI, save these regions in the "[cluster_name]/expcor_mosaic_2" directory as `sources_mod.reg` using the 'CIAO' format with 'Physical' as the coordinate system. This is the same style as for the `bk.reg` file from earlier. It is important to ensure that the entire ROI itself **is not** included in the point source regions.
+
+Save the point source regions once more in the "[cluster_name]/expcor_mosaic" directory, again as `sources_mod.reg` using the 'CIAO' format with 'Physical' as the coordinate system. Close DS9.
+
+### Bin=0.5 Confirmation ###
+
+Open the "broad_thresh.img" image within the "[cluster_name]/expcor_mosaic" directory by running `ds9 -log /expcor_mosaic/broad_thresh.img &`. This image has different binning than the image found in "expcor_mosaic_2/". Open "sources_mod.reg" inside DS9, and ensure that all point sources have a circular region enclosing them. As well, if any source regions appear to lack a point source, remove said region.
+
+If the regions have changed, overwrite the previous "sources_mod.reg" in the "[cluster_name]/expcor_mosaic" directory, but **do not** overwrite the "sources_mod.reg" in the "[cluster_name]/expcor_mosaic_2" directory.
+
+DS9 can once again be closed, and the next step (Step 2b) in the automated reduction process can be completed. Refer to the main reduction [README](../README.md) in [reduction/](..).
