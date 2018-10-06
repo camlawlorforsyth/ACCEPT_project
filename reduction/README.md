@@ -1,6 +1,6 @@
 # README #
 
-These steps outline the procedure to run an automated reduction process which will reduce the *Chandra* data, compute the CAS parameters, and create GGM and unsharp-masked (UM) images. This reduction adopts the standard Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
+These steps outline the procedure to run an automated reduction process which will reduce archival *Chandra* data, compute the concentration, asymmetry, and clumpiness (CAS) parameters, and create Gaussian-Gradient Magnitude (GGM) and unsharp-masked (UM) images for clusters of galaxies present in the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. This reduction adopts the standard Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
 
 ## Step 0 ##
 
@@ -61,6 +61,10 @@ It is important to ensure that CIAO **is not running** for this step. It is reco
 From within data/, as with all other steps, run `python ggm_all_data.py`
 
 This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[cluster_name]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
+
+## Conclusion ##
+
+The purpose of this guide was to assist in downloading, reducing, and analyzing archival *Chandra* data, while creating GGM-filtered and UM images, as well as determining the CAS parameters. Hopefully it was both an informative and useful tool in this regard. Comments, suggestions, and prospective improvements can be sent to C. Lawlor-Forsyth at [lawlorfc@myumanitoba.ca](mailto:lawlorfc@myumanitoba.ca).
 
 ### Acknowledgements ###
 Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting, presentation, and subsequent revisions and maintenance by C. Lawlor-Forsyth.
