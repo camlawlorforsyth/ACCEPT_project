@@ -1,6 +1,6 @@
 # Concentration README #
 
-To determine the concentration (C) parameter for a given cluster, first open the "threshed_broad.fits" image (located in bin=2/) in DS9:
+To determine the concentration (C) parameter for a given cluster, first open the "threshed_broad.fits" image (located in /bin=2/) in DS9:
 ```
 ds9 -log /bin=2/threshed_broad.fits &
 ```
