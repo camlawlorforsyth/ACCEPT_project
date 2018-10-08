@@ -4,7 +4,7 @@ import sys
 '''
 The calling code used in verify_coords.py for this file, is of the form:
 python checks/check_coords.py 1E0657_56 d
-arg[-]       arg[0]           arg[1]    arg[2]
+argv[-]       argv[0]         argv[1]   argv[2]
 '''
 
 clusterName = sys.argv[1]
