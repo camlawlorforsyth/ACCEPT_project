@@ -6,7 +6,7 @@ f = open("good.txt", "a")
 '''
 The calling code used in verify_reproj.py for this file, is of the form:
 python checks/expcor_count.py 1E0657_56 3184 5356 5361 0.296 1.1945
-arg[-]       arg[0]             arg[1]  arg[3]...arg[-3] arg[-2] arg[-1]
+argv[-]       argv[0]         argv[1]   argv[3]...argv[-3] argv[-2] argv[-1]
 '''
 
 length = len(sys.argv) # length = 7 for the example above
