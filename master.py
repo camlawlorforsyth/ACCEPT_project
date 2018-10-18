@@ -12,6 +12,12 @@
 
 # imports
 import numpy as np
+
+#import matplotlib as mpl # for publication-quality plots
+#mpl.rcParams['font.serif'] = "Times New Roman"
+#mpl.rcParams['font.family'] = "serif"
+#mpl.rcParams['text.usetex'] = True
+
 import matplotlib.pyplot as plt
 import scipy.stats as sp
 from scipy import linalg
@@ -162,8 +168,8 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         
         ax = fig.add_subplot(111) # set axes, figure location
         
-        ax.set_xlim(xmin, xmax)
-        ax.set_ylim(ymin, ymax)
+#        ax.set_xlim(xmin, xmax)
+#        ax.set_ylim(ymin, ymax)
         
         if (errors == False) :
             if (logx == True) and (logy == False) and (linear == False) :
