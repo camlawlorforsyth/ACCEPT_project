@@ -168,9 +168,6 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         
         ax = fig.add_subplot(111) # set axes, figure location
         
-#        ax.set_xlim(xmin, xmax)
-#        ax.set_ylim(ymin, ymax)
-        
         if (errors == False) :
             if (logx == True) and (logy == False) and (linear == False) :
                 ax.semilogx(xvals, yvals, 'bo') # use semilogx to plot peakiness vs ...
@@ -178,10 +175,15 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.semilogy(xvals, yvals, 'bo')
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.plot(xvals, yvals, 'bo')
+                slope, intercept, xx = fit(xvals, yvals, lin=True)
+                ax.plot(xx, slope*xx + intercept, 'k-')
             elif (logx == True) and (logy == True) and (linear == False) :
                 ax.loglog(xvals, yvals, 'bo') # use loglog to look for power laws
             else :
                 ax.loglog(xvals, yvals, 'bo')
+                slope, intercept, xx = fit(xvals, yvals, lin=False)
+                ys = (xx**(slope))*(10**(intercept))
+                ax.loglog(xx, ys, 'k-')
         else :
             if (logx == True) and (logy == False) and (linear == False) :
                 ax.set_xscale('log')
@@ -211,6 +213,9 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         
         ax.set_xlabel("%s" % DICT[xlab], fontsize = 15 )
         ax.set_ylabel("%s" % DICT[ylab], fontsize = 15 )
+        
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
         
     #    ax.plot([0.01,1000],[0.01,1000],linewidth=1,color='black',ls='--') # plot
             # a dotted line increasing from bottom left to top right
@@ -311,7 +316,7 @@ def checkcommon(param1, param2, noprint=False) :
     for i in range(241) :
         if (~np.isnan(param1[i])) and (~np.isnan(param2[i])) :
             count += 1
-#            print("%6g   %6g" % (param1[i], param2[i]) )
+            print("%6g   %6g" % (param1[i], param2[i]) )
     
     if noprint==False :
         print("\nNumber in common is %g." % count)
@@ -411,6 +416,41 @@ def draftPlots() :
 #    cavPow(asymm, 'asymm', location='lower left')
     
     return
+
+#............................................................................fit
+def fit(param1, param2, lin=False) :
+    
+    from scipy.optimize import curve_fit
+    
+    x, y = getcommon(param1, param2) # get the common values that aren't nans
+    xs = np.linspace(min(x), max(x), 1000)
+    if (lin == True) :
+        popt, pcov = curve_fit(linear, x, y)
+    else :
+        logparam1, logparam2 = np.log10(x), np.log10(y) # this will break for any 0 values
+        popt, pcov = curve_fit(linear, logparam1, logparam2)
+#    perr = np.sqrt( np.diag(pcov) )
+
+#    badfit1 = linear(popt[0]+perr[0], xs, popt[1]-perr[1])
+#    badfit2 = linear(popt[0]-perr[0], xs, popt[1]+perr[1])
+    
+    return popt[0], popt[1], xs
+
+#......................................................................getcommon
+def getcommon(param1, param2) :
+    
+    newList1 = []
+    newList2 = []
+    for i in range(241) :
+        if (~np.isnan(param1[i])) and (~np.isnan(param2[i])) :
+            newList1.append(param1[i])
+            newList2.append(param2[i])
+    
+    return newList1, newList2
+
+#.........................................................................linear
+def linear(m, x, b) : # helper function for fit function
+        return m*x + b
 
 #...........................................................................misc
 def misc() :
@@ -581,4 +621,10 @@ def showTermination() :
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
 
-main(asymm, 'asymm', clump, 'clump')
+#main(asymm, 'asymm', clump, 'clump')
+
+
+main(BCGmass, 'BCGmass', cavpow, 'cavpow', errors=False)
+#main(cavpow, 'cavpow', BCGmass, 'BCGmass', errors=False)
+
+main(clump, 'clump', asymm, 'asymm', errors=False, linear=True)
