@@ -51,6 +51,8 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 (nameACCEPT, nameFraser, BCGalt, SFRalt) = np.genfromtxt(
     "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
 
+(tcool) = np.genfromtxt("tcool.txt", unpack=True)
+
 # axis label dictionary
 DICT = {
         # parameters from main table for entire cluster
@@ -175,15 +177,15 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.semilogy(xvals, yvals, 'bo')
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.plot(xvals, yvals, 'bo')
-                slope, intercept, xx = fit(xvals, yvals, lin=True)
-                ax.plot(xx, slope*xx + intercept, 'k-')
+#                slope, intercept, xx = fit(xvals, yvals, lin=True)
+#                ax.plot(xx, slope*xx + intercept, 'k-')
             elif (logx == True) and (logy == True) and (linear == False) :
                 ax.loglog(xvals, yvals, 'bo') # use loglog to look for power laws
             else :
                 ax.loglog(xvals, yvals, 'bo')
-                slope, intercept, xx = fit(xvals, yvals, lin=False)
-                ys = (xx**(slope))*(10**(intercept))
-                ax.loglog(xx, ys, 'k-')
+#                slope, intercept, xx = fit(xvals, yvals, lin=False)
+#                ys = (xx**(slope))*(10**(intercept))
+#                ax.loglog(xx, ys, 'k-')
         else :
             if (logx == True) and (logy == False) and (linear == False) :
                 ax.set_xscale('log')
@@ -624,7 +626,16 @@ def showTermination() :
 #main(asymm, 'asymm', clump, 'clump')
 
 
-main(BCGmass, 'BCGmass', cavpow, 'cavpow', errors=False)
+#main(BCGmass, 'BCGmass', cavpow, 'cavpow', errors=False)
 #main(cavpow, 'cavpow', BCGmass, 'BCGmass', errors=False)
 
-main(clump, 'clump', asymm, 'asymm', errors=False, linear=True)
+#main(clump, 'clump', asymm, 'asymm', errors=False, linear=True)
+
+
+main(coolingtime, 'coolingtime', K0, 'K0')
+main(coolingtime, 'coolingtime', cavpow, 'cavpow', errors=False)
+main(coolingtime, 'coolingtime', BCGmass, 'BCGmass', errors=False)
+
+main(tcool, 'coolingtime', K0, 'K0', errors=False)
+main(tcool, 'coolingtime', cavpow, 'cavpow', errors=False)
+main(tcool, 'coolingtime', BCGmass, 'BCGmass', errors=False)
