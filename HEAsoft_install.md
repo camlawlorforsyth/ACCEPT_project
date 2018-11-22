@@ -1,4 +1,4 @@
-# HEASOFT Install #
+# HEAsoft Install #
 
 Instructions to properly install HEAsoft, FTOOLS, and PyXspec, as required by the SPA analysis.
 
