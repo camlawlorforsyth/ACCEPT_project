@@ -65,15 +65,15 @@ DICT = {
         'Lrad':'Cluster Radio Luminosity ($10^{40}$ ergs s$^{-1}$)',
         
         # parameters for annulus with inner radius ~20 kpc
-        'eDen':'Electron Density (cm$^{-3}$) at ~20 kpc',
-        'PLent':'Entropy using a Power Law (keV$\cdot$cm$^2$) at ~20 kpc',
-        'flatent':'Entropy using a Flat Relation (keV$\cdot$cm$^2$) at ~20 kpc',
+        'eDen':'Electron Density (cm$^{-3}$)',
+        'PLent':'Entropy using a Power Law (keV$\cdot$cm$^2$)',
+        'flatent':'Entropy using a Flat Relation (keV$\cdot$cm$^2$)',
         'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Power Law (dyne cm$^{-2}$)',
         'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Flat Relation (dyne cm$^{-2}$)',
-        'clusmass':'Cluster Mass ($M_\odot$) at ~20 kpc',
-        'clustemp':'Cluster X-ray Temperature (keV) at ~20 kpc',
-        'coolingtime52':'Cooling Time using the 5/2 Model (Gyr) at ~20 kpc', # note: 5*0.6 = 3
-        'coolingtime':'Cooling Time (Gyr) at ~20 kpc', # uses the 3/2 model
+        'clusmass':'Cluster Mass ($M_\odot$)',
+        'clustemp':'Cluster X-ray Temperature (keV)',
+        'coolingtime52':'Cooling Time using the 5/2 Model (Gyr)', # note: 5*0.6 = 3
+        'coolingtime':'Cooling Time (Gyr)', # uses the 3/2 model
         
         # star-formation parameters for Brightest Cluster Galaxy (BCG)
         'UVSFR':'UV SFR ($M_\odot$ yr$^{-1}$)',
