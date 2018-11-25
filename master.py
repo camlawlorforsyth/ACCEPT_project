@@ -151,7 +151,7 @@ currentFig = 1 # first figure will be numbered as 'Figure 1'
 #...........................................................................main
 def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
          ymax=None, logx=False, logy=False, linear=False, errors=True,
-         showplot=True) :
+         showplot=True, printfit=False) :
     """
     This function plots one parameter against the other, while labelling
     the respective axes correctly.
@@ -184,9 +184,10 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.loglog(xvals, yvals, 'ko') # use loglog to look for power laws
             else :
                 ax.loglog(xvals, yvals, 'ko')
-                slope, intercept, xx = fit(xvals, yvals, lin=False) # powerlaw fit
-                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
-                ax.loglog(xx, ys, 'k-') # plot the powerlaw
+#                slope, intercept, xx = fit(xvals, yvals, lin=False,
+#                                           show_mb=printfit) # powerlaw fit
+#                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
+#                ax.loglog(xx, ys, 'k-') # plot the powerlaw
 #                theoreticals = (xx**(1.5))*(10**(intercept)) # to compare K0 vs tcool
 #                ax.loglog(xx, theoreticals, 'r-')
         else :
@@ -433,7 +434,7 @@ def draftPlots() :
     return
 
 #............................................................................fit
-def fit(param1, param2, lin=False) :
+def fit(param1, param2, lin=False, show_mb=False) :
     
     from scipy.optimize import curve_fit
     
@@ -447,8 +448,9 @@ def fit(param1, param2, lin=False) :
         popt, pcov = curve_fit(linear, logparam1, logparam2)
     perr = np.sqrt( np.diag(pcov) )
     
-#    print('\nSlope: %.3g +/- %.1g' % (popt[0], perr[0]) )
-#    print('Intercept: %.3g +/- %.1g' % (popt[1], perr[1]) )
+    if show_mb == True :
+        print('\nSlope: %.3g +/- %.1g' % (popt[0], perr[0]) )
+        print('Intercept: %.3g +/- %.1g' % (popt[1], perr[1]) )
     
 #    badfit1 = linear(popt[0]+perr[0], xs, popt[1]-perr[1])
 #    badfit2 = linear(popt[0]-perr[0], xs, popt[1]+perr[1])
