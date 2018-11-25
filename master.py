@@ -184,9 +184,11 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.loglog(xvals, yvals, 'ko') # use loglog to look for power laws
             else :
                 ax.loglog(xvals, yvals, 'ko')
-#                slope, intercept, xx = fit(xvals, yvals, lin=False)
-#                ys = (xx**(slope))*(10**(intercept))
-#                ax.loglog(xx, ys, 'k-')
+                slope, intercept, xx = fit(xvals, yvals, lin=False) # powerlaw fit
+                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
+                ax.loglog(xx, ys, 'k-') # plot the powerlaw
+#                theoreticals = (xx**(1.5))*(10**(intercept)) # to compare K0 vs tcool
+#                ax.loglog(xx, theoreticals, 'r-')
         else :
             if (logx == True) and (logy == False) and (linear == False) :
                 ax.set_xscale('log')
@@ -316,7 +318,7 @@ def cavPow(yvals, ylab, ymin=None, ymax=None, linear=False,
 def checkcommon(param1, param2, noprint=False) :
     
     count = 0
-    for i in range(241) :
+    for i in range(len(param1)) :
         if (~np.isnan(param1[i])) and (~np.isnan(param2[i])) :
             count += 1
             print("%6g   %6g" % (param1[i], param2[i]) )
@@ -344,7 +346,7 @@ def checknonnan(param, noprint=False) :
 def checkunique1(param1, param2) :
     
     count = 0
-    for i in range(241) :
+    for i in range(len(param1)) :
         if (~np.isnan(param1[i])) or (~np.isnan(param2[i])) :
             count += 1
 #            print("%6g   %6g" % (param1[i], param2[i]) )
@@ -377,6 +379,16 @@ def checkunique(param1, param2) :
               "unique elements.")
     
     return
+
+#.....................................................................delete_val
+def delete_val(param1, param2, param_of_interest, value) :
+    
+    badIndex = np.where(param_of_interest == value)
+    
+    newparam1 = np.delete(param1, badIndex)
+    newparam2 = np.delete(param2, badIndex)
+    
+    return newparam1, newparam2
 
 #.....................................................................draftPlots
 def draftPlots() :
@@ -433,8 +445,11 @@ def fit(param1, param2, lin=False) :
         logparam1, logparam2 = np.log10(x), np.log10(y) # this will break for
                                                         # any values of 0
         popt, pcov = curve_fit(linear, logparam1, logparam2)
-#    perr = np.sqrt( np.diag(pcov) )
-
+    perr = np.sqrt( np.diag(pcov) )
+    
+#    print('\nSlope: %.3g +/- %.1g' % (popt[0], perr[0]) )
+#    print('Intercept: %.3g +/- %.1g' % (popt[1], perr[1]) )
+    
 #    badfit1 = linear(popt[0]+perr[0], xs, popt[1]-perr[1])
 #    badfit2 = linear(popt[0]-perr[0], xs, popt[1]+perr[1])
     
@@ -445,7 +460,7 @@ def getcommon(param1, param2) :
     
     newList1 = []
     newList2 = []
-    for i in range(241) :
+    for i in range(len(param1)) :
         if (~np.isnan(param1[i])) and (~np.isnan(param2[i])) :
             newList1.append(param1[i])
             newList2.append(param2[i])
