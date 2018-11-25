@@ -171,6 +171,7 @@ os.system("python reduce/reduce1.py MACS_J1115.2+5320 3253 5008 5350 0.439 0.846
 os.system("python reduce/reduce1.py MACS_J1115.8+0129 3275 9375 0.3521 0.86051")
 os.system("python reduce/reduce1.py MACS_J1131.8-1955 3276 15300 0.307 0.79534")
 os.system("python reduce/reduce1.py MACS_J1149.5+2223 1656 3589 16238 16239 16306 16582 17595 17596 0.544 1.301")
+os.system("python reduce/reduce1.py MACS_J1149.5+2223 1656 3589 16238 16239 16306 16582 17595 17596 0.544 1.301")
 os.system("python reduce/reduce1.py MACS_J1206.2-0847 3277 0.44 1.0019")
 os.system("python reduce/reduce1.py MACS_J1311.0-0310 3258 6110 7721 9381 0.494 0.69392")
 os.system("python reduce/reduce1.py MACS_J1621.3+3810 3254 3594 6109 6172 7720 9379 10785 0.461 0.49317")
