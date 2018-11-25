@@ -4,7 +4,7 @@
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
     SUPERVISOR: Chris O'Dea
-    VERSION:    2018-Oct-1
+    VERSION:    2018-Nov-24
     
     PURPOSE: Plot various parameters from multiple data tables while calculating
              Spearman rank correlations and associated p-values using SciPy.
@@ -13,10 +13,10 @@
 # imports
 import numpy as np
 
-#import matplotlib as mpl # for publication-quality plots
-#mpl.rcParams['font.serif'] = "Times New Roman"
-#mpl.rcParams['font.family'] = "serif"
-#mpl.rcParams['text.usetex'] = True
+import matplotlib as mpl # for publication-quality plots
+mpl.rcParams['font.serif'] = "Times New Roman"
+mpl.rcParams['font.family'] = "serif"
+mpl.rcParams['text.usetex'] = True
 
 import matplotlib.pyplot as plt
 import scipy.stats as sp
@@ -86,7 +86,7 @@ DICT = {
         'asymm':'Asymmetry',
         'clump':'Clumpiness',
         'concen':'Concentration',
-#        'Rout':'Outer Radius (Mpc)',
+#        'ROIout':'Outer Radius of Region of Interest (Mpc)',
 #        'angsize':'Angular Size Distance (Mpc)',
         
         # SPA parameters and cavity power for entire cluster
@@ -139,7 +139,7 @@ UNCERTS = {
 #           'sym':sym_err,
 #           'peak':peak_err,
 #           'align':align_err,
-#           'cavpow':cavpow_err,
+#           'cavpow':cavpow_err, # there is both an upper and lower error
           
 #           'BCGalt':BCGalt_err, # there is both an upper and lower error
 #           'SFRalt':SFRalt_err # there is both an upper and lower error
@@ -172,17 +172,17 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         
         if (errors == False) :
             if (logx == True) and (logy == False) and (linear == False) :
-                ax.semilogx(xvals, yvals, 'bo') # use semilogx to plot peakiness vs ...
+                ax.semilogx(xvals, yvals, 'ko') # use semilogx to plot peakiness vs ...
             elif (logx == False) and (logy == True) and (linear == False) :
-                ax.semilogy(xvals, yvals, 'bo')
+                ax.semilogy(xvals, yvals, 'ko')
             elif (logx == False) and (logy == False) and (linear == True) :
-                ax.plot(xvals, yvals, 'bo')
+                ax.plot(xvals, yvals, 'ko')
 #                slope, intercept, xx = fit(xvals, yvals, lin=True)
 #                ax.plot(xx, slope*xx + intercept, 'k-')
             elif (logx == True) and (logy == True) and (linear == False) :
-                ax.loglog(xvals, yvals, 'bo') # use loglog to look for power laws
+                ax.loglog(xvals, yvals, 'ko') # use loglog to look for power laws
             else :
-                ax.loglog(xvals, yvals, 'bo')
+                ax.loglog(xvals, yvals, 'ko')
 #                slope, intercept, xx = fit(xvals, yvals, lin=False)
 #                ys = (xx**(slope))*(10**(intercept))
 #                ax.loglog(xx, ys, 'k-')
@@ -191,27 +191,27 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.set_xscale('log')
                 ax.set_yscale('linear')
                 ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='bo', elinewidth=0.3, capsize=1.5, errorevery=1)
+                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
             elif (logx == False) and (logy == True) and (linear == False) :
                 ax.set_xscale('linear')
                 ax.set_yscale('log')
                 ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='bo', elinewidth=0.3, capsize=1.5, errorevery=1)
+                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.set_xscale('linear')
                 ax.set_yscale('linear')
                 ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='bo', elinewidth=0.3, capsize=1.5, errorevery=1)
+                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
             elif (logx == True) and (logy == True) and (linear == False) :
                 ax.set_xscale('log')
                 ax.set_yscale('log')
                 ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='bo', elinewidth=0.3, capsize=1.5, errorevery=1)
+                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
             else :
                 ax.set_xscale('log')
                 ax.set_yscale('log')
                 ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='bo', elinewidth=0.3, capsize=1.5, errorevery=1)
+                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
         
         ax.set_xlabel("%s" % DICT[xlab], fontsize = 15 )
         ax.set_ylabel("%s" % DICT[ylab], fontsize = 15 )
@@ -222,9 +222,9 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
     #    ax.plot([0.01,1000],[0.01,1000],linewidth=1,color='black',ls='--') # plot
             # a dotted line increasing from bottom left to top right
             
-        ax.annotate('Spearman: %.3g, pval: %.2g' % (spear[0], spear[1]), 
-                    xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
-                    ha='right', va='bottom') # show Spearman rank on the plot
+#        ax.annotate('Spearman: %.3g, pval: %.2g' % (spear[0], spear[1]), 
+#                    xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
+#                    ha='right', va='bottom') # show Spearman rank on the plot
                                              # in the bottom right corner
                                              
         plt.show() # show the figure
@@ -246,34 +246,34 @@ def all_corrs(param, label, plots=True) :
     main(param, label, LHa, 'LHa', showplot=plots)
     main(param, label, Lrad, 'Lrad', showplot=plots)
     
-#    main(param, label, eDen, 'eDen')
-#    main(param, label, PLent, 'PLent')
-#    main(param, label, flatent, 'flatent')
-#    main(param, label, PLpress, 'PLpress')
-#    main(param, label, flatpress, 'flatpress')
-#    main(param, label, clusmass, 'clusmass')
-#    main(param, label, clustemp, 'clustemp')
-#    main(param, label, coolingtime52, 'coolingtime52')
-#    main(param, label, coolingtime, 'coolingtime')
+    main(param, label, eDen, 'eDen', showplot=plots)
+    main(param, label, PLent, 'PLent', showplot=plots)
+    main(param, label, flatent, 'flatent', showplot=plots)
+    main(param, label, PLpress, 'PLpress', showplot=plots)
+    main(param, label, flatpress, 'flatpress', showplot=plots)
+    main(param, label, clusmass, 'clusmass', showplot=plots)
+    main(param, label, clustemp, 'clustemp', showplot=plots)
+    main(param, label, coolingtime52, 'coolingtime52', showplot=plots)
+    main(param, label, coolingtime, 'coolingtime', showplot=plots)
     
-#    main(param, label, UVSFR, 'UVSFR')
-#    main(param, label, IRSFR, 'IRSFR')
-#    main(param, label, seventySFR, 'seventySFR')
-#    main(param, label, twentyfourSFR, 'twentyfourSFR')
-#    main(param, label, BCGmass, 'BCGmass')
+    main(param, label, UVSFR, 'UVSFR', showplot=plots)
+    main(param, label, IRSFR, 'IRSFR', showplot=plots)
+    main(param, label, seventySFR, 'seventySFR', showplot=plots)
+    main(param, label, twentyfourSFR, 'twentyfourSFR', showplot=plots)
+    main(param, label, BCGmass, 'BCGmass', showplot=plots)
     
-#    main(param, label, asymm, 'asymm', logx=True)
-#    main(param, label, clump, 'clump', logx=True)
-#    main(param, label, concen, 'concen', logx=True)
+    main(param, label, asymm, 'asymm', logx=True, showplot=plots)
+    main(param, label, clump, 'clump', logx=True, showplot=plots)
+    main(param, label, concen, 'concen', logx=True, showplot=plots)
     
-#    main(param, label, sym, 'sym', logx=True)
-#    main(param, label, peak, 'peak', logx=True)
-#    main(param, label, align, 'align', logx=True)
+    main(param, label, sym, 'sym', logx=True, showplot=plots)
+    main(param, label, peak, 'peak', logx=True, showplot=plots)
+    main(param, label, align, 'align', logx=True, showplot=plots)
 #    main(param, label, raff, 'cavpow') # individual cavity powers may have
 #    main(param, label, cavag, 'cavpow') # insufficient entries for
 #    main(param, label, osul, 'cavpow') # statistically significant analysis
 #    main(param, label, hlava, ' cavpow')
-#    main(param, label, cavpow, 'cavpow')
+    main(param, label, cavpow, 'cavpow', showplot=plots)
     
     return
 
@@ -623,19 +623,6 @@ def showTermination() :
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
 
-#main(asymm, 'asymm', clump, 'clump')
+# Nov 24 - remaking plots
+#main(coolingtime, 'coolingtime', K0, 'K0')
 
-
-#main(BCGmass, 'BCGmass', cavpow, 'cavpow', errors=False)
-#main(cavpow, 'cavpow', BCGmass, 'BCGmass', errors=False)
-
-#main(clump, 'clump', asymm, 'asymm', errors=False, linear=True)
-
-
-main(coolingtime, 'coolingtime', K0, 'K0')
-main(coolingtime, 'coolingtime', cavpow, 'cavpow', errors=False)
-main(coolingtime, 'coolingtime', BCGmass, 'BCGmass', errors=False)
-
-main(tcool, 'coolingtime', K0, 'K0', errors=False)
-main(tcool, 'coolingtime', cavpow, 'cavpow', errors=False)
-main(tcool, 'coolingtime', BCGmass, 'BCGmass', errors=False)
