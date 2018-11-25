@@ -19,14 +19,13 @@ if len(sys.argv) == 5:
 	B = sys.argv[3] # the background image
 	T = sys.argv[4] # the original science image
 else: # this should only be necessary if not using the automated reduction scripts
-	print "input number of pixels"
+	print "Input the number of pixels (ie. one dimension of the square image):"
 	A = input('')
-	print "input path to rotated image"
+	print "Input the path to the rotated image:"
 	R = raw_input('')
-	print "input path to background image"
-	print "If there is no background enter 'no'"
+	print "Input the path to the background image (if there is no background image, enter 'no'):"
 	B = raw_input('')
-	print "input path to original image"
+	print "Input the path to the original science image:"
 	T = raw_input('')
 
 img_r = read_file(R) # read the rotated image
@@ -39,19 +38,19 @@ orig_pix_vals_t = img_t.get_image().values # get the pixel values from the origi
 
 r, b, t = 0, 0, 0 # inital values
 
-if B == 'no': # if there is no background image
-	for x in range(0, A): # loop for every pixel in the square image
-		for y in range(0, A):
-			r += ( img_t.get_image().values[x,y] - img_r.get_image().values[x,y] )**2
-			t += 2*( ( img_t.get_image().values[x,y] )**2 )
-else:
+if B == 'no' : # if there is no background image
+	for x in range(0, A) : # loop for every pixel in the square image
+		for y in range(0, A) :
+			r += ( orig_pix_vals_t[x,y] - orig_pix_vals_r[x,y] )**2
+			t += 2*( ( orig_pix_vals_t[x,y] )**2 )
+else :
 	img_b = read_file(B)
 	orig_pix_vals_b = img_b.get_image().values
-	for x in range(0, A):
-		for y in range(0, A):
-			r += ( img_t.get_image().values[x,y] - img_r.get_image().values[x,y] )**2
-			b += ( img_b.get_image().values[x,y] )**2
-			t += 2*( ( img_t.get_image().values[x,y] )**2 )
+	for x in range(0, A) :
+		for y in range(0, A) :
+			r += ( orig_pix_vals_t[x,y] - orig_pix_vals_r[x,y] )**2
+			b += ( orig_pix_vals_b[x,y] )**2
+			t += 2*( ( orig_pix_vals_t[x,y] )**2 )
 
 print (r-b)/t
 '''
@@ -59,15 +58,15 @@ print (r-b)/t
 num = 0
 denom = 0
 
-for x in range(0, A): # loop for every pixel in the square image
-    for y in range (0, A):
-        if B == 'no': # if there is no background image
-            num += ( img_t.get_image().values[x,y] - img_r.get_image().values[x,y] )**2
-            denom += 2*( ( img_t.get_image().values[x,y] )**2 )
+for x in range(0, A) : # loop for every pixel in the square image
+    for y in range(0, A) :
+        if B == 'no' : # if there is no background image
+            num += ( orig_pix_vals_t[x,y] - orig_pix_vals_r[x,y] )**2
+            denom += 2*( ( orig_pix_vals_t[x,y] )**2 )
         else:
             img_b = read_file(B) # read the background image
             orig_pix_vals_b = img_b.get_image().values # get the pixel values from the background image
-            num += ( img_t.get_image().values[x,y] - img_b.get_image().values[x,y] - img_r.get_image().values[x,y] )**2
-            denom += 2*( ( img_t.get_image().values[x,y] - img_b.get_image().values[x,y] )**2 )
+            num += ( orig_pix_vals_t[x,y] - orig_pix_vals_b[x,y] - orig_pix_vals_r[x,y] )**2
+            denom += 2*( ( orig_pix_vals_t[x,y] - orig_pix_vals_b[x,y] )**2 )
 
 print num/denom
