@@ -10,7 +10,7 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 
 ### Data Files ###
 
-[accept_main.txt](accept_main.txt) is adapted from the [accept_main.tab](https://web.pa.msu.edu/astro/MC2/accept/accept_main.tab) file found at http://www.pa.msu.edu/astro/MC2/accept/ under the **Useful Data and Figures** header. This file is comma delimited to accomodate the zero (0) value entries for bolometric, Halpha, and radio luminosity.
+[accept_main.txt](accept_main.txt) is adapted from the [accept_main.tab](https://web.pa.msu.edu/astro/MC2/accept/accept_main.tab) file found at http://www.pa.msu.edu/astro/MC2/accept/ under the **Useful Data and Figures** header. This file is comma delimited to accomodate the zero (0) value entries for bolometric, Halpha, and radio luminosity, which were removed.
 
 [accept_20kpc.txt](accept_20kpc.txt) is an adaptation of sorts of the [all_profiles.dat](https://web.pa.msu.edu/astro/MC2/accept/data/all_profiles.dat) file from http://www.pa.msu.edu/astro/MC2/accept/, under the **Useful Data and Figures** header. As each cluster has many annulii, the values presented in this file reflect the various parameters for an annulus with an inner radius of ~20 kpc from the centre of the cluster. This file is comma delimited.
 
