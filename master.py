@@ -4,7 +4,7 @@
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
     SUPERVISOR: Chris O'Dea
-    VERSION:    2018-Nov-24
+    VERSION:    2018-Nov-25
     
     PURPOSE: Plot various parameters from multiple data tables while calculating
              Spearman rank correlations and associated p-values using SciPy.
@@ -68,8 +68,8 @@ DICT = {
         'eDen':'Electron Density (cm$^{-3}$) at ~20 kpc',
         'PLent':'Entropy using a Power Law (keV$\cdot$cm$^2$) at ~20 kpc',
         'flatent':'Entropy using a Flat Relation (keV$\cdot$cm$^2$) at ~20 kpc',
-        'PLpress':'Pressure using a Power Law (dyne cm$^{-2}$) at ~20 kpc',
-        'flatpress':'Pressure using a Flat Relation (dyne cm$^{-2}$) at ~20 kpc',
+        'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Power Law (dyne cm$^{-2}$)',
+        'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Flat Relation (dyne cm$^{-2}$)',
         'clusmass':'Cluster Mass ($M_\odot$) at ~20 kpc',
         'clustemp':'Cluster X-ray Temperature (keV) at ~20 kpc',
         'coolingtime52':'Cooling Time using the 5/2 Model (Gyr) at ~20 kpc', # note: 5*0.6 = 3
@@ -127,7 +127,7 @@ UNCERTS = {
            'coolingtime':ct_err,
           
            'UVSFR':UV_err,
-           'IRSFR':IR_err, # no error for BCGmass, therefore equal to 0
+           'IRSFR':IR_err, # no error for IRSFR, therefore equal to 0
            'seventySFR':seventy_err,
            'twentyfourSFR':twentyfour_err,
            'BCGmass':BCGmass_err, # no error for BCGmass, therefore equal to 0
@@ -161,7 +161,8 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
     spear = sp.spearmanr(xvals, yvals, nan_policy='omit') # find Spearman rank
                                                           # of the correlation
     print("Figure %2.1d   %13s vs %-13s   Spearman: %8.3g   pvalue: %8.2g" % 
-        (currentFig, ylab, xlab, spear[0], spear[1]) ) # print Spearman rank in the console
+        (currentFig, ylab, xlab, spear[0], spear[1]) ) # print Spearman rank in
+                                                      # the console
     
     if (showplot == True) :
         fig = plt.figure(currentFig)  # the current figure
@@ -172,7 +173,7 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         
         if (errors == False) :
             if (logx == True) and (logy == False) and (linear == False) :
-                ax.semilogx(xvals, yvals, 'ko') # use semilogx to plot peakiness vs ...
+                ax.semilogx(xvals, yvals, 'ko') # use semilogx for peakiness
             elif (logx == False) and (logy == True) and (linear == False) :
                 ax.semilogy(xvals, yvals, 'ko')
             elif (logx == False) and (logy == False) and (linear == True) :
@@ -429,7 +430,8 @@ def fit(param1, param2, lin=False) :
     if (lin == True) :
         popt, pcov = curve_fit(linear, x, y)
     else :
-        logparam1, logparam2 = np.log10(x), np.log10(y) # this will break for any 0 values
+        logparam1, logparam2 = np.log10(x), np.log10(y) # this will break for
+                                                        # any values of 0
         popt, pcov = curve_fit(linear, logparam1, logparam2)
 #    perr = np.sqrt( np.diag(pcov) )
 
@@ -622,7 +624,4 @@ def showTermination() :
 # test the partial correlation function
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
-
-# Nov 24 - remaking plots
-#main(coolingtime, 'coolingtime', K0, 'K0')
 
