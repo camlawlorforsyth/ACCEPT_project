@@ -68,8 +68,8 @@ DICT = {
         'eDen':'Electron Density (cm$^{-3}$)',
         'PLent':'Entropy using a Power Law (keV$\cdot$cm$^2$)',
         'flatent':'Entropy using a Flat Relation (keV$\cdot$cm$^2$)',
-        'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Power Law (dyne cm$^{-2}$)',
-        'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Flat Relation (dyne cm$^{-2}$)',
+        'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Power Law',
+        'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Flat Relation',
         'clusmass':'Cluster Mass ($M_\odot$)',
         'clustemp':'Cluster X-ray Temperature (keV)',
         'coolingtime52':'Cooling Time using the 5/2 Model (Gyr)', # note: 5*0.6 = 3
@@ -96,7 +96,7 @@ DICT = {
         'cavpow':'Cavity Power ($10^{42}$ ergs s$^{-1}$)',
         
         # BCG and SFR parameters coming from Fraser-McKelvie et al. (2014)
-        'BCGalt':'BCG Stellar Mass ($10^{10} \/ M_\odot$)\nfrom Fraser-McKelvie et al. (2014)',
+        'BCGalt':'BCG Stellar Mass ($10^{10} \/ M_\odot$)\nfrom Fraser-McKelvie+ (2014)',
         'SFRalt':'SFR ($M_\odot$ yr$^{-1}$)\nfrom Fraser-McKelvie et al. (2014)',
         
         # general axes titles and legend entries for mutli-plots
