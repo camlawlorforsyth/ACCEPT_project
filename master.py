@@ -184,11 +184,11 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.loglog(xvals, yvals, 'ko') # use loglog to look for power laws
             else :
                 ax.loglog(xvals, yvals, 'ko')
-#                slope, intercept, xx = fit(xvals, yvals, lin=False,
-#                                           show_mb=printfit) # powerlaw fit
-#                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
-#                ax.loglog(xx, ys, 'k-') # plot the powerlaw
-#                theoreticals = (xx**(1.5))*(10**(intercept)) # to compare K0 vs tcool
+                slope, intercept, xx = fit(xvals, yvals, lin=False,
+                                           show_mb=printfit) # fit powerlaw
+                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
+                ax.loglog(xx, ys, 'k-') # plot the powerlaw
+#                theoreticals = (xx**(2/3))*(10**(intercept)) # to compare tcool vs K0
 #                ax.loglog(xx, theoreticals, 'r-')
         else :
             if (logx == True) and (logy == False) and (linear == False) :
