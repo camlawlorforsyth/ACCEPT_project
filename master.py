@@ -469,6 +469,24 @@ def getcommon(param1, param2) :
     
     return newList1, newList2
 
+#.........................................................................histo
+def histo(param, label, num_bins) :
+    
+    global currentFig
+    fig = plt.figure(currentFig)
+    currentFig += 1
+    plt.clf()
+    
+    vals, dummy_vals = getcommon(param, param)
+    
+    ax = fig.add_subplot(111)
+    ax.hist(vals, bins=num_bins, density=True, color='k')
+    plt.xlabel("%s" % DICT[label], fontsize = 15)
+    
+    plt.show()
+    
+    return
+
 #.........................................................................linear
 def linear(m, x, b) : # helper function for fit function
         return m*x + b
