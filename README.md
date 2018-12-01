@@ -31,3 +31,5 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 ## Automated Reduction Process ##
 
 Scripts and files relevant to the automated reduction process, including explanatory READMEs and instructions, can be found in [reduction/](reduction).
+
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
