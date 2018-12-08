@@ -4,7 +4,7 @@
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
     SUPERVISOR: Chris O'Dea
-    VERSION:    2018-Nov-25
+    VERSION:    2018-Dec-8
     
     PURPOSE: Plot various parameters from multiple data tables while calculating
              Spearman rank correlations and associated p-values using SciPy.
