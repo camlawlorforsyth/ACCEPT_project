@@ -13,12 +13,12 @@ python clumpy_dream.py dimension smoothed.fits background.fits threshed_broad.fi
 argv[-]    argv[0]     argv[1]   argv[2]           argv[3]          argv[4]
 '''
 
-if len(sys.argv) == 5:
+if len(sys.argv) == 5 :
 	A = int(sys.argv[1]) # the one size dimension of the image, where the image is assumed to be square
 	S = sys.argv[2] # the smoothed image
 	B = sys.argv[3] # the background image
 	T = sys.argv[4] # the original science image
-else: # this should only be necessary if not using the automated reduction scripts
+else : # this should only be necessary if not using the automated reduction scripts
 	print "Input the number of pixels (ie. one dimension of the square image):"
 	A = input('')
 	print "Input the path to the smoothed image:"
