@@ -114,8 +114,8 @@ if bad == "d":
 
     os.system("mv threshed_broad.fits ../ggm_combine")#move threshed in bin0.5 to ggm 
     os.chdir('..')
-    os.system("cp ../reduce/asymm_dream.py bin=2/asymm")
-    os.system("cp ../reduce/clumpy_dream.py bin=2/clumpy")
+    os.system("cp ../reduce/asymm_calc.py bin=2/asymm")
+    os.system("cp ../reduce/clumpy_calc.py bin=2/clumpy")
     #===============================================================================================#
 
     #================================== 6. APPLY GGM FILTER ========================================#
@@ -180,7 +180,7 @@ if bad == "d":
     #When prompted for background image enter: background.fits
     os.system("dmregrid2 threshed_broad.fits rot.fits resolution=0 theta=180 rotxcenter=" + rxc + " rotycenter=" + ryc)
     #num pixels = val/2
-    os.system("python asymm_dream.py " + str(val/2) + " rot.fits background.fits threshed_broad.fits >> ../../data.txt")#outputs A
+    os.system("python asymm_calc.py " + str(val/2) + " rot.fits background.fits threshed_broad.fits >> ../../data.txt")#outputs A
 
     #sum pixels in residual image, subtract the sum of the square of pixels in the background and divide by
     #twice the sum in the squared original to get the asymmetry A=(Io-Ir)^2/2Io^2
@@ -195,7 +195,7 @@ if bad == "d":
     os.chdir('../clumpy')
     os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
     os.system("dmcopy \"smoothed.fits[sky=region(../../ds9_fk.reg)]\" smoothed.fits clobber=yes")			#retrim to get rid of edge effects
-    os.system("python clumpy_dream.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
+    os.system("python clumpy_calc.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
     #===============================================================================================#
 
     os.chdir('../..')
