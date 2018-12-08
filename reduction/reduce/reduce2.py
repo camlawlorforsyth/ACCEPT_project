@@ -5,7 +5,8 @@ from math import *
 #sources_mod.reg ciao&physical bk.reg
 #The following is adapted from the Chandra imaging diffuse emission thread
 clusterName = sys.argv[1]
-bad = sys.argv[2]
+redshift = sys.argv[2]
+bad = sys.argv[3]
 
 os.chdir(clusterName)
 
@@ -95,6 +96,7 @@ if bad == "d":
     os.chdir('..')
     os.system("mkdir bin=2")
     os.chdir('bin=2')
+    os.system("mkdir concen")
     os.system("mkdir asymm")
     os.system("mkdir clumpy")
     os.system("mkdir UM")	#make a UM directory in the bin=2 directory
@@ -105,6 +107,7 @@ if bad == "d":
     os.chdir('../bin=2')
     os.system("cp threshed_broad.fits UM")
 
+    os.system("cp threshed_broad.fits concen")
     os.system("cp background.fits asymm")
     os.system("cp threshed_broad.fits asymm")
     os.system("cp background.fits clumpy")
@@ -114,6 +117,7 @@ if bad == "d":
 
     os.system("mv threshed_broad.fits ../ggm_combine")#move threshed in bin0.5 to ggm 
     os.chdir('..')
+    os.system("cp ../reduce/concen_calc.py bin=2/concen")
     os.system("cp ../reduce/asymm_calc.py bin=2/asymm")
     os.system("cp ../reduce/clumpy_calc.py bin=2/clumpy")
     #===============================================================================================#
@@ -213,6 +217,19 @@ if bad == "d":
     os.system("python clumpy_calc.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
     #===============================================================================================#
 
+    #================================ 10. CONCENTRATION PARAMETER ===================================#
+    #isolate region of extraction 
+    #determine radii that contain 20% and 80% of the total counts within the image
+    #alter radius of region until it encompasses 20% and 80% of the total emission in ds9
+    
+    os.chdir('../concen')
+    
+    os.system('python concen_calc.py threshed_broad.fits ' + redshift + ' >> ../../data.txt')
+    
+    #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
+    #===============================================================================================#
+
+
     os.chdir('../..')
     #Cluster_name,R_out,D_A,A,S,C
     f = open("data.txt", "r")
@@ -223,16 +240,10 @@ if bad == "d":
     f.readline()
     asym = f.readline().strip()
     clump = f.readline().strip()
+    concen = f.readline().strip()
     f.close()
-    stat = stat + asym + "," + clump +",\n"
-
-    #================================ 10. CONCENTRATION PARAMETER ===================================#
-    #isolate region of extraction 
-    #determine radii that contain 20% and 80% of the total counts within the image
-    #alter radius of region until it encompasses 20% and 80% of the total emission in ds9
-
-    #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
-    #===============================================================================================#
+    stat = stat + concen + "," + asym + "," + clump +",\n"
+    
 else:
     stat = stat +",,\n"
     
