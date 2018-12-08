@@ -53,6 +53,8 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
 
+(RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
+
 # axis label dictionary
 DICT = {
         # parameters from main table for entire cluster
