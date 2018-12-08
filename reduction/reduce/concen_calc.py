@@ -18,30 +18,36 @@ import sys
 
 '''
 The calling code used in reduce2.py for this file, is of the form:
-python concen_calc.py science_image.fits integer
+python concen_calc.py science_image.fits redshift
 argv[-]    argv[0]         argv[1]       argv[2]
 '''
 
-#if len(sys.argv) == 3 :
-    
+if len(sys.argv) == 2 :
+    file = sys.argv[1]
+    redshift = sys.argv[2]
+else : # this should only be necessary if not using the automated scripts
+    print('Input the path to the original science image:')
+    file = input('')
+    print('Input the redshift to use:')
+    redshift = float(input(''))
+    print('Input confirmed. Continuing with script.')
 
-(nameMain, RA, Dec, zz, zz_err, K0, K0_err, K100, K100_err,
+(nameMain, zz, zz_err, K0, K0_err, K100, K100_err,
      alpha, Tx, Tx_err, Lbol, Lbol_err, LbolUL, LHa, LHa_err,
      LHaUL, Lrad, Lrad_err) = np.genfromtxt(
     "../../accept_main.txt", delimiter = ',', unpack = True)
+
+(RAs, Decs) = np.genfromtxt("../../accept_coordinates.txt",
+                            unpack = True, dtype=str)
 
 (nameCAS, ROIout, angsize, asymm, asymm_err, clump, clump_err,
     concen, concen_err) = np.genfromtxt(
     "../../accept_CAS.txt", delimiter = ',', unpack = True)
 
-(RAs, Decs) = np.genfromtxt("../../accept_coordinates.txt",
-                            unpack = True, dtype=str)
-
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
 
-#science = fits.open('threshed_broad_0.fits') # open the science image, 1E 0567-56
-science = fits.open('threshed_broad_1.fits') # open the science image, 2A 0335+96
+science = fits.open(file) # open the science image
 #science.info()
 header = science[0].header # define the header, in order to get the WCS
 image = science[0].data # create the image that will be used
@@ -49,12 +55,9 @@ science.close()
 
 world_cs = WCS(header)
 
-# the following are values that must get populated prior to running the script
-i = 1
-
-RA = Angle(RAs[i], u.hour)
+i = int(np.where(zz==redshift)[0]) # requires redshifts in 'zz' to be unique
+RA = Angle(RAs[i], u.hour) # get the RA, Dec, ROIout for this cluster
 Dec = Angle(Decs[i], u.deg)
-redshift = zz[i]
 R_out = ROIout[i]*u.Mpc
 
 D_A = cosmo.angular_diameter_distance(redshift)
@@ -92,6 +95,5 @@ def concentration() :
     return 5*np.log10(r_80 / r_20), uncertainty
 
 CC, CC_err = concentration()
-print(CC)
-print(CC_err)
 
+print('C: {0:g}, C_err: {1:.2g}'.format(CC, CC_err))
