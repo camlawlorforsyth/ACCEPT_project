@@ -27,9 +27,11 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 
 # create numpy arrays from *.txt data tables
 # all '*.txt' data tables have 241 total entries
-(nameMain, RA, Dec, zz, zz_err, K0, K0_err, K100, K100_err, alpha, Tx, Tx_err,
+(nameMain, zz, zz_err, K0, K0_err, K100, K100_err, alpha, Tx, Tx_err,
      Lbol, Lbol_err, LbolUL, LHa, LHa_err, LHaUL, Lrad, Lrad_err) = np.genfromtxt(
     "accept_main.txt", delimiter = ',', unpack = True)
+
+(RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
 
 (name20kpc, Rin, Rout, eDen, eDen_err, PLent, flatent, ent_err, PLpress,
     flatpress, press_err, clusmass, clusmass_err, clustemp, clustemp_err, 
@@ -52,8 +54,6 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
     "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
-
-(RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
 
 # axis label dictionary
 DICT = {
