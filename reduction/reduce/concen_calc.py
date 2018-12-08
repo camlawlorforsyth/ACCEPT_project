@@ -96,4 +96,4 @@ def concentration() :
 
 CC, CC_err = concentration()
 
-print('C: {0:g}, C_err: {1:.2g}'.format(CC, CC_err))
+print('C: {0:g}, C_err: {1:g}'.format(CC, CC_err))
