@@ -190,10 +190,25 @@ if bad == "d":
 
     #================================= 9. CLUMPINESS PARAMETER =====================================#
     #Smooth a copy of threshed_broad.fits and subtract from original image to isolate high freq structure
-
+    f = open("../../data.txt", "r")
+    f.readline()
+    f.readline()
+    D_A_Mpc = f.readline().strip()
+    f.close()
+    
+    D_A_kpc = D_A_Mpc*1000.0
+    
+    pi = 3.141592653589793
+    
+    pixel_scale = (15*180*3600/pi)*(1/0.984)/D_A_kpc
+    
+    scale = pixel_scale
+    
+    string = str(scale)
 
     os.chdir('../clumpy')
-    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
+#    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
+    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=" + string + " sclmax=" + string + " sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
     os.system("dmcopy \"smoothed.fits[sky=region(../../ds9_fk.reg)]\" smoothed.fits clobber=yes")			#retrim to get rid of edge effects
     os.system("python clumpy_calc.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
     #===============================================================================================#
