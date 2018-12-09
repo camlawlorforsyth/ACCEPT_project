@@ -40,9 +40,9 @@ cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
 #..........................................................................main
 def main() :
     
-    if len(sys.argv) == 2 :
+    if len(sys.argv) == 3 :
         file = sys.argv[1]
-        redshift = sys.argv[2]
+        redshift = float(sys.argv[2])
     else : # this should only be necessary if not using the automated scripts
         file = get_image()
         redshift = get_redshift()
