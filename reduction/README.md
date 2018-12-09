@@ -24,7 +24,7 @@ Open a terminal and navigate to your data/ directory, and start CIAO by entering
 
 Once CIAO is confirmed to be running, run `python get_all_data.py`.
 
-Upon completion of the previous command, run `python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
+Upon completion of the previous command, run `python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](reduce/get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
 
 ## Step 2 ##
 
@@ -42,7 +42,7 @@ Once there are no errors present in "data/good.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
-In [cas_process_all_data.py](cas_process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
+In [cas_process_all_data.py](reduce/cas_process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 
@@ -54,7 +54,7 @@ As the concentration parameter must be computed by hand, navigate to each cluste
 
 ## Step 4 ##
 
-As in Step 3, ensure that flags in [ggm_all_data.py](ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
+As in Step 3, ensure that flags in [ggm_all_data.py](reduce/ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
 
 It is important to ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
 
