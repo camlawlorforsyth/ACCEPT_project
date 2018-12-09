@@ -42,9 +42,9 @@ Once there are no errors present in "data/good.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
-In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
+In [cas_process_all_data.py](cas_process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
 
-Ensure that CIAO is running, and then run `python process_all_data.py`.
+Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 
 Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Bad' clusters will have ",,," in the "data/chandrastats.txt" file, where the ASC parameters would normally be present for 'done' clusters.
 
