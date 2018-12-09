@@ -11,8 +11,6 @@ import astropy.units as u
 from astropy.wcs import WCS
 from photutils import aperture_photometry
 from photutils import SkyCircularAperture
-import warnings
-warnings.filterwarnings("ignore")
 
 import sys
 
@@ -72,7 +70,27 @@ max_total = phot_table['aperture_sum'][0]
 def search(desired_total) :
     
     eps = 1e-3
-    radius = 1e-10*u.deg
+    
+    aperture = SkyCircularAperture(position, r=0.25*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=world_cs)
+    twentyfive_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.5*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=world_cs)
+    fifty_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.75*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=world_cs)
+    seventyfive_R_max_total = phot_table['aperture_sum'][0]
+    
+    if desired_total > seventyfive_R_max_total :
+        radius = 0.75*R_max
+    elif desired_total > fifty_R_max_total :
+        radius = 0.5*R_max
+    elif desired_total > twentyfive_R_max_total :
+        radius = 0.25*R_max
+    else :
+        radius = 1e-10*u.deg
     
     while radius <= R_max :
         aperture = SkyCircularAperture(position, r=radius)
