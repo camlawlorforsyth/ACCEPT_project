@@ -118,24 +118,60 @@ def search(desired_total, R_max, position, image, wcs) :
     
     eps = 1e-3
     
-    aperture = SkyCircularAperture(position, r=0.25*R_max)
+    aperture = SkyCircularAperture(position, r=0.1*R_max)
     phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    twentyfive_R_max_total = phot_table['aperture_sum'][0]
+    ten_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.2*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    twenty_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.3*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    thirty_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.4*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    forty_R_max_total = phot_table['aperture_sum'][0]
     
     aperture = SkyCircularAperture(position, r=0.5*R_max)
     phot_table = aperture_photometry(image, aperture, wcs=wcs)
     fifty_R_max_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.75*R_max)
+    aperture = SkyCircularAperture(position, r=0.6*R_max)
     phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    seventyfive_R_max_total = phot_table['aperture_sum'][0]
+    sixty_R_max_total = phot_table['aperture_sum'][0]
     
-    if desired_total > seventyfive_R_max_total :
-        radius = 0.75*R_max
+    aperture = SkyCircularAperture(position, r=0.7*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    seventy_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.8*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    eighty_R_max_total = phot_table['aperture_sum'][0]
+    
+    aperture = SkyCircularAperture(position, r=0.9*R_max)
+    phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    ninety_R_max_total = phot_table['aperture_sum'][0]
+
+    if desired_total > ninety_R_max_total :
+        radius = 0.9*R_max
+    elif desired_total > eighty_R_max_total :
+        radius = 0.8*R_max
+    elif desired_total > seventy_R_max_total :
+        radius = 0.7*R_max
+    elif desired_total > sixty_R_max_total :
+        radius = 0.6*R_max
     elif desired_total > fifty_R_max_total :
         radius = 0.5*R_max
-    elif desired_total > twentyfive_R_max_total :
-        radius = 0.25*R_max
+    elif desired_total > forty_R_max_total :
+        radius = 0.4*R_max
+    elif desired_total > thirty_R_max_total :
+        radius = 0.3*R_max
+    elif desired_total > twenty_R_max_total :
+        radius = 0.2*R_max
+    elif desired_total > ten_R_max_total :
+        radius = 0.1*R_max
     else :
         radius = 1e-10*u.deg
     
