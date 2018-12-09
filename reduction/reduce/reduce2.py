@@ -224,7 +224,7 @@ if bad == "d":
     
     os.chdir('../concen')
     
-    os.system('python concen_calc.py threshed_broad.fits ' + redshift + ' >> ../../data.txt')
+    os.system("python concen_calc.py threshed_broad.fits " + redshift + " >> ../../data.txt")
     
     #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
     #===============================================================================================#
