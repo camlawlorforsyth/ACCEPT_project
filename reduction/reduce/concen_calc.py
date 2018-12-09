@@ -71,7 +71,7 @@ def main() :
     
     CC, CC_err = concentration(max_total, R_max, position, image, world_cs)
     
-    print('C: {0:g}, C_err: {1:g}'.format(CC, CC_err))
+    print('{0:g},{1:g} # concen, concen_err'.format(CC, CC_err))
 
 #.....................................................................get_image
 def get_image() :
