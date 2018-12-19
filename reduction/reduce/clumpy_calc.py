@@ -9,8 +9,8 @@ import sys
 
 '''
 The calling code used in reduce2.py for this file, is of the form:
-python clumpy_dream.py dimension smoothed.fits background.fits threshed_broad.fits
-argv[-]    argv[0]     argv[1]   argv[2]           argv[3]          argv[4]
+python asymm_calc.py threshed_broad.fits smoothed.fits
+argv[-]    argv[0]         argv[1]        argv[2]
 '''
 
 if len(sys.argv) == 5 :
