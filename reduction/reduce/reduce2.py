@@ -173,6 +173,7 @@ if bad == "d":
     #rotate broad_thresh counts image and subtract from original. Divide square of the residual by square of the original image
     #Use same pixel from ggm filtering as center of rotation in image coords
 
+    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
 
     #Must be done in a terminal running ciao
     os.chdir('../asymm')
@@ -184,7 +185,7 @@ if bad == "d":
     #When prompted for background image enter: background.fits
     os.system("dmregrid2 threshed_broad.fits rot.fits resolution=0 theta=180 rotxcenter=" + rxc + " rotycenter=" + ryc)
     #num pixels = val/2
-    os.system("python asymm_calc.py " + str(val/2) + " rot.fits background.fits threshed_broad.fits >> ../../data.txt")#outputs A
+    os.system("python asymm_calc.py threshed_broad.fits rot.fits >> ../../data.txt")#outputs A
 
     #sum pixels in residual image, subtract the sum of the square of pixels in the background and divide by
     #twice the sum in the squared original to get the asymmetry A=(Io-Ir)^2/2Io^2
@@ -209,12 +210,14 @@ if bad == "d":
     scale = pixel_scale
     
     string = str(scale)
-
+    
+    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
+    
     os.chdir('../clumpy')
 #    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
     os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=" + string + " sclmax=" + string + " sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
     os.system("dmcopy \"smoothed.fits[sky=region(../../ds9_fk.reg)]\" smoothed.fits clobber=yes")			#retrim to get rid of edge effects
-    os.system("python clumpy_calc.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
+    os.system("python clumpy_calc.py threshed_broad.fits smoothed.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
     #===============================================================================================#
 
     #================================ 10. CONCENTRATION PARAMETER ===================================#
