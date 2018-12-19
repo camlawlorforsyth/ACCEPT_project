@@ -32,6 +32,8 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 
 [correlations.xlsx](correlations.xlsx) is the master table of correlations found when plotting all parameters against one-another. Sheet 1 contains the Spearman rank coefficients, while Sheet 2 contains the associated two-tailed p-values.
 
+[observations.xlsx](observations.xlsx) is the master table of all observations used in the preliminary analysis, and encompasses some 977 observations, totaling more than 28.8 Ms of clean observation time.
+
 ## Automated Reduction Process ##
 
 Scripts and files relevant to the automated reduction process, including explanatory READMEs and instructions, can be found in [reduction/](reduction).
