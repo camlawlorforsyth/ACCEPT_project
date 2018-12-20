@@ -4,7 +4,7 @@
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
     SUPERVISOR: Chris O'Dea
-    VERSION:    2018-Dec-8
+    VERSION:    2018-Dec-19
     
     PURPOSE: Plot various parameters from multiple data tables while
              calculating Spearman rank correlations and associated p-values
@@ -56,9 +56,6 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
     "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
-
-(new_concen, new_concen_err) = np.genfromtxt("output.txt", delimiter = ',',
-                                             unpack=True)
 
 # axis label dictionary
 DICT = {
@@ -115,7 +112,7 @@ DICT = {
 # dictionary to access associated errors
 
 UNCERTS = {
-           'zz':zz_err,
+           'zz':np.zeros(241), # zz_err,
            'K0':K0_err,
            'K100':K100_err,
            'Tx':Tx_err, # error for Tx: standard dev. of individual temps
@@ -185,16 +182,17 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.semilogy(xvals, yvals, 'ko')
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.plot(xvals, yvals, 'ko')
-#                slope, intercept, xx = fit(xvals, yvals, lin=True)
-#                ax.plot(xx, slope*xx + intercept, 'k-')
+#                slope, intercept, xx = fit(xvals, yvals, lin=True,
+#                                           show_mb=printfit)
+#                ax.plot(xx, slope*xx + intercept, 'r-')
             elif (logx == True) and (logy == True) and (linear == False) :
                 ax.loglog(xvals, yvals, 'ko') # use loglog for power laws
             else :
                 ax.loglog(xvals, yvals, 'ko')
-                slope, intercept, xx = fit(xvals, yvals, lin=False,
-                                           show_mb=printfit) # fit powerlaw
-                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
-                ax.loglog(xx, ys, 'k-') # plot the powerlaw
+#                slope, intercept, xx = fit(xvals, yvals, lin=False,
+#                                           show_mb=printfit) # fit powerlaw
+#                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
+#                ax.loglog(xx, ys, 'k-') # plot the powerlaw
 #                theoreticals = (xx**(2/3))*(10**(intercept)) # for tcool vs K0
 #                ax.loglog(xx, theoreticals, 'r-')
         else :
