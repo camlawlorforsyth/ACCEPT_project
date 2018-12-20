@@ -55,7 +55,8 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
      hlava, hlava_err, cavpow, cavpow_low, cavpow_high) = np.genfromtxt(
     "accept_SPA_cavpow.txt", delimiter = ',', unpack = True)
 
-(nameACCEPT, nameFraser, BCGalt, SFRalt) = np.genfromtxt(
+(nameACCEPT, nameFraser, BCGalt, BCGalt_high, BCGalt_low,
+     SFRalt, SFRalt_high, SFRalt_low) = np.genfromtxt(
     "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
@@ -146,10 +147,10 @@ UNCERTS = {
            'sym':sym_err,
            'peak':peak_err,
            'align':align_err,
-           'cavpow':[cavpow_low,cavpow_high] # both an upper and lower error
+           'cavpow':[cavpow_low,cavpow_high], # both an upper and lower error
           
-#           'BCGalt':BCGalt_err, # there is both an upper and lower error
-#           'SFRalt':SFRalt_err # there is both an upper and lower error
+           'BCGalt':[BCGalt_low,BCGalt_high], # both an upper and lower error
+           'SFRalt':[SFRalt_low,SFRalt_high] # both an upper and lower error
           }
 
 # constants
@@ -327,6 +328,8 @@ def cavPow(yvals, ylab, ymin=None, ymax=None, linear=False,
     ax.set_ylabel('%s' % DICT[ylab], fontsize = 15)
     
     plt.legend(loc = location)
+    
+    plt.tight_layout()
     plt.show()
     
     return
@@ -561,13 +564,13 @@ def misc() :
     return
 
 #.........................................................................multi
-def multi(xvals1, yvals1, xvals2, yvals2, xaxislabel, yaxislabel, 
-          legend1, legend2, xmin=None, xmax=None, ymin=None,
+def multi(xvals, xlab, yvals1, ylab1, yvals2, ylab2, #legend1, legend2,
+          xmin=None, xmax=None, ymin=None,
           ymax=None, location='upper right') :
     
     global currentFig
-    spear1 = sp.spearmanr(xvals1, yvals1, nan_policy='omit')
-    spear2 = sp.spearmanr(xvals2, yvals2, nan_policy='omit')
+    spear1 = sp.spearmanr(xvals, yvals1, nan_policy='omit')
+    spear2 = sp.spearmanr(xvals, yvals2, nan_policy='omit')
     print("Figure %2.1d   Spearman: %6.3g   pvalue: %8.2g" % 
         (currentFig, spear1[0], spear1[1]) )
     print("Figure %2.1d   Spearman: %6.3g   pvalue: %8.2g" % 
@@ -579,23 +582,29 @@ def multi(xvals1, yvals1, xvals2, yvals2, xaxislabel, yaxislabel,
     
     ax = fig.add_subplot(111)
     
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.errorbar(xvals, yvals1, xerr=UNCERTS[xlab],
+                yerr=UNCERTS[ylab1], fmt='ko', elinewidth=0.3,
+                capsize=1.5, errorevery=1, label = "%s" % DICT[ylab1])
+    ax.errorbar(xvals, yvals2, xerr=UNCERTS[xlab],
+                yerr=UNCERTS[ylab2], fmt='ro', elinewidth=0.3,
+                capsize=1.5, errorevery=1, label = "%s" % DICT[ylab2])
+    
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
     
-    ax.loglog(xvals1, yvals1, 'bo', label = "%s" % DICT[legend1] )
-    ax.loglog(xvals2, yvals2, 'ro', label = "%s" % DICT[legend2] )
-    
-    ax.set_xlabel("%s" % DICT[xaxislabel], fontsize = 15 )
-    ax.set_ylabel("%s" % DICT[yaxislabel], fontsize = 15 )
+    ax.set_xlabel("%s" % DICT[xlab], fontsize = 15 )
+    ax.set_ylabel("%s" % DICT[ylab1], fontsize = 15 )
     
     plt.legend(loc = location)
     
-    ax.annotate('Power Law Spearman: %.3g, pval: %.2g' %(spear1[0], spear1[1]), 
-                xy=(0.98, 0.05), fontsize = 13, xycoords='axes fraction',
-                ha='right', va='bottom')
-    ax.annotate('Flat Spearman: %.3g, pval: %.2g' % (spear2[0], spear2[1]), 
-                xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
-                ha='right', va='bottom')
+#    ax.annotate('Power Law Spearman: %.3g, pval: %.2g' %(spear1[0], spear1[1]), 
+#                xy=(0.98, 0.05), fontsize = 13, xycoords='axes fraction',
+#                ha='right', va='bottom')
+#    ax.annotate('Flat Spearman: %.3g, pval: %.2g' % (spear2[0], spear2[1]), 
+#                xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
+#                ha='right', va='bottom')
     
     plt.tight_layout()
     plt.show()
