@@ -14,6 +14,7 @@
 # imports
 import numpy as np
 
+import linmix
 import matplotlib as mpl # for publication-quality plots
 mpl.rcParams['font.serif'] = "Times New Roman"
 mpl.rcParams['font.family'] = "serif"
@@ -505,6 +506,39 @@ def histo(param, label, num_bins) :
 def linear(m, x, b) : # helper function for fit function
         return m*x + b
 
+#...................................................................linmix_test
+def linmix_test() :
+    
+    main(K0, 'K0', coolingtime, 'coolingtime') # for comparison
+    
+    newK0_err, newct_err = delete_val(K0_err, ct_err, K0, 0)
+    newK0, newcoolingtime = delete_val(K0, coolingtime, K0, 0)
+    
+    logK0 = np.log10(newK0)
+    logK0_err = np.log10(newK0_err)
+    logct = np.log10(newcoolingtime)
+    logct_err = np.log10(newct_err)
+    
+    
+    lm = linmix.LinMix(logK0, logct, logK0_err, logct_err)
+    lm.run_mcmc(silent=True)
+    
+    fig = plt.figure(currentFig)
+    plt.clf()
+    ax = fig.add_subplot(111)
+    
+    ax.set_xlabel("log[%s]" % DICT['K0'], fontsize = 15 )
+    ax.set_ylabel("log[%s]" % DICT['coolingtime'], fontsize = 15 )
+            
+    ax.plot(logK0, logct, 'ko')
+    ax.errorbar(logK0, logct, xerr=logK0_err, yerr=logct_err,
+                fmt='ko', elinewidth=0.3, capsize=1.5)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return
+
 #..........................................................................misc
 def misc() :
     # miscellaneous functions that are sometimes helpful
@@ -675,38 +709,3 @@ def showTermination() :
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
 
-
-import linmix
-
-#main(K0, 'K0', coolingtime, 'coolingtime')
-
-import time
-t = time.process_time()
-
-K0 = np.log10(K0)
-K0_err = np.log10(K0_err)
-ct = np.log10(coolingtime)
-ct_err = np.log10(ct_err)
-
-lm = linmix.LinMix(K0, coolingtime, K0_err, ct_err)
-lm.run_mcmc(silent=True)
-
-elapsed_time = time.process_time() - t
-
-print(elapsed_time)
-
-#fig = plt.figure(currentFig)
-#plt.clf()
-#ax = fig.add_subplot(111)
-#
-#ax.set_xlabel("log[%s]" % DICT['K0'], fontsize = 15 )
-#ax.set_ylabel("log[%s]" % DICT['coolingtime'], fontsize = 15 )
-#        
-#ax.plot(K0, ct, 'ko')
-##ax.errorbar(K0, ct, xerr=K0_err, yerr=ct_err, fmt='ko', elinewidth=0.3, capsize=1.5)
-#
-#
-#
-#fig.tight_layout()
-#
-#plt.show()
