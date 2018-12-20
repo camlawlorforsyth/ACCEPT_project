@@ -509,7 +509,7 @@ def linear(m, x, b) : # helper function for fit function
 #...................................................................linmix_test
 def linmix_test() :
     
-    main(K0, 'K0', coolingtime, 'coolingtime') # for comparison
+#    main(K0, 'K0', coolingtime, 'coolingtime') # for comparison
     
     newK0_err, newct_err = delete_val(K0_err, ct_err, K0, 0)
     newK0, newcoolingtime = delete_val(K0, coolingtime, K0, 0)
@@ -519,20 +519,31 @@ def linmix_test() :
     logct = np.log10(newcoolingtime)
     logct_err = np.log10(newct_err)
     
-    
     lm = linmix.LinMix(logK0, logct, logK0_err, logct_err)
     lm.run_mcmc(silent=True)
     
+    global currentFig    
     fig = plt.figure(currentFig)
+    currentFig += 1
     plt.clf()
     ax = fig.add_subplot(111)
     
-    ax.set_xlabel("log[%s]" % DICT['K0'], fontsize = 15 )
-    ax.set_ylabel("log[%s]" % DICT['coolingtime'], fontsize = 15 )
-            
-    ax.plot(logK0, logct, 'ko')
-    ax.errorbar(logK0, logct, xerr=logK0_err, yerr=logct_err,
-                fmt='ko', elinewidth=0.3, capsize=1.5)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.errorbar(newK0, newcoolingtime, xerr=newK0_err, yerr=newct_err,
+                fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+    
+#    slope = lm.chain['alpha']
+#    intercept = lm.chain['beta']
+    
+#    xs = np.linspace(min(newK0), max(newK0), 1000)
+#    ys = (xs**(slope))*(10**(intercept)) # transform to logspace
+#    ax.loglog(xs, ys, 'r-') # plot the powerlaw
+#    theoreticals = (xs**(2/3))*(10**(intercept)) # for tcool vs K0
+#    ax.loglog(xs, theoreticals, 'r-')
+    
+    ax.set_xlabel("%s" % DICT['K0'], fontsize = 15 )
+    ax.set_ylabel("%s" % DICT['coolingtime'], fontsize = 15 )
     
     plt.tight_layout()
     plt.show()
