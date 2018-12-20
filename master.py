@@ -496,6 +496,7 @@ def histo(param, label, num_bins) :
     ax.hist(vals, bins=num_bins, density=True, color='k')
     plt.xlabel("%s" % DICT[label], fontsize = 15)
     
+    plt.tight_layout()
     plt.show()
     
     return
@@ -549,6 +550,7 @@ def multi(xvals1, yvals1, xvals2, yvals2, xaxislabel, yaxislabel,
                 xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
                 ha='right', va='bottom')
     
+    plt.tight_layout()
     plt.show()
     
     return
@@ -673,3 +675,38 @@ def showTermination() :
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
 
+
+import linmix
+
+#main(K0, 'K0', coolingtime, 'coolingtime')
+
+import time
+t = time.process_time()
+
+K0 = np.log10(K0)
+K0_err = np.log10(K0_err)
+ct = np.log10(coolingtime)
+ct_err = np.log10(ct_err)
+
+lm = linmix.LinMix(K0, coolingtime, K0_err, ct_err)
+lm.run_mcmc(silent=True)
+
+elapsed_time = time.process_time() - t
+
+print(elapsed_time)
+
+#fig = plt.figure(currentFig)
+#plt.clf()
+#ax = fig.add_subplot(111)
+#
+#ax.set_xlabel("log[%s]" % DICT['K0'], fontsize = 15 )
+#ax.set_ylabel("log[%s]" % DICT['coolingtime'], fontsize = 15 )
+#        
+#ax.plot(K0, ct, 'ko')
+##ax.errorbar(K0, ct, xerr=K0_err, yerr=ct_err, fmt='ko', elinewidth=0.3, capsize=1.5)
+#
+#
+#
+#fig.tight_layout()
+#
+#plt.show()
