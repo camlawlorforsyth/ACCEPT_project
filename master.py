@@ -50,7 +50,9 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
     concen, concen_err) = np.genfromtxt(
     "accept_CAS.txt", delimiter = ',', unpack = True)
 
-(nameSPA, sym, peak, align, raff, cavag, osul, hlava, cavpow) = np.genfromtxt(
+(nameSPA, sym, sym_err, peak, peak_err, align, align_err, raff, raff_low, 
+     raff_high, cavag, cavag_low, cavag_high, osul, osul_low, osul_high,
+     hlava, hlava_err, cavpow, cavpow_low, cavpow_high) = np.genfromtxt(
     "accept_SPA_cavpow.txt", delimiter = ',', unpack = True)
 
 (nameACCEPT, nameFraser, BCGalt, SFRalt) = np.genfromtxt(
@@ -139,12 +141,12 @@ UNCERTS = {
           
            'asymm':asymm_err, # no errors for asymm yet
            'clump':clump_err, # no errors for clump yet
-           'concen':concen_err # no errors for concen yet
+           'concen':concen_err, # no errors for concen yet
           
-#           'sym':sym_err,
-#           'peak':peak_err,
-#           'align':align_err,
-#           'cavpow':cavpow_err, # there is both an upper and lower error
+           'sym':sym_err,
+           'peak':peak_err,
+           'align':align_err,
+           'cavpow':[cavpow_low,cavpow_high] # both an upper and lower error
           
 #           'BCGalt':BCGalt_err, # there is both an upper and lower error
 #           'SFRalt':SFRalt_err # there is both an upper and lower error
