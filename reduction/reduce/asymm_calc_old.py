@@ -9,16 +9,16 @@ import sys
 
 '''
 The calling code used in reduce2.py for this file, is of the form:
-python asymm_dream.py dimension rot.fits background.fits threshed_broad.fits
-argv[-]    argv[0]     argv[1]   argv[2]     argv[3]          argv[4]
+python asymm_calc.py threshed_broad.fits rot.fits
+argv[-]    argv[0]         argv[1]        argv[2]
 '''
 
-if len(sys.argv) == 5:
+if len(sys.argv) == 5 :
 	A = int(sys.argv[1]) # the one size dimension of the image, where the image is assumed to be square
 	R = sys.argv[2] # the rotated image
 	B = sys.argv[3] # the background image
 	T = sys.argv[4] # the original science image
-else: # this should only be necessary if not using the automated reduction scripts
+else : # this should only be necessary if not using the automated reduction scripts
 	print "Input the number of pixels (ie. one dimension of the square image):"
 	A = input('')
 	print "Input the path to the rotated image:"

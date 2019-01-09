@@ -24,7 +24,7 @@ Open a terminal and navigate to your data/ directory, and start CIAO by entering
 
 Once CIAO is confirmed to be running, run `python get_all_data.py`.
 
-Upon completion of the previous command, run `python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
+Upon completion of the previous command, run `python verify_reproj.py` and check "data/good.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](reduce/get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
 
 ## Step 2 ##
 
@@ -34,7 +34,7 @@ Once the desired data has been downloaded, reduced to level 2, reprojected and e
 
 #### Step 2b ####
 
-Upon completion of the ROI and point source analysis, ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended in [verify_coords.py](reduce/verify_coords.py). 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
+Upon completion of the ROI and point source analysis, ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended in [verify_coords.py](checks/verify_coords.py). 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
 
 Next, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
 
@@ -42,9 +42,9 @@ Once there are no errors present in "data/good.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
-In [process_all_data.py](process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
+In [cas_process_all_data.py](reduce/cas_process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
 
-Ensure that CIAO is running, and then run `python process_all_data.py`.
+Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 
 Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Bad' clusters will have ",,," in the "data/chandrastats.txt" file, where the ASC parameters would normally be present for 'done' clusters.
 
@@ -54,7 +54,7 @@ As the concentration parameter must be computed by hand, navigate to each cluste
 
 ## Step 4 ##
 
-As in Step 3, ensure that flags in [ggm_all_data.py](ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
+As in Step 3, ensure that flags in [ggm_all_data.py](reduce/ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
 
 It is important to ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
 

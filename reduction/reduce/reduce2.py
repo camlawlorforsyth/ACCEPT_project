@@ -5,7 +5,8 @@ from math import *
 #sources_mod.reg ciao&physical bk.reg
 #The following is adapted from the Chandra imaging diffuse emission thread
 clusterName = sys.argv[1]
-bad = sys.argv[2]
+redshift = sys.argv[2]
+bad = sys.argv[3]
 
 os.chdir(clusterName)
 
@@ -95,6 +96,7 @@ if bad == "d":
     os.chdir('..')
     os.system("mkdir bin=2")
     os.chdir('bin=2')
+    os.system("mkdir concen")
     os.system("mkdir asymm")
     os.system("mkdir clumpy")
     os.system("mkdir UM")	#make a UM directory in the bin=2 directory
@@ -105,6 +107,7 @@ if bad == "d":
     os.chdir('../bin=2')
     os.system("cp threshed_broad.fits UM")
 
+    os.system("cp threshed_broad.fits concen")
     os.system("cp background.fits asymm")
     os.system("cp threshed_broad.fits asymm")
     os.system("cp background.fits clumpy")
@@ -114,8 +117,9 @@ if bad == "d":
 
     os.system("mv threshed_broad.fits ../ggm_combine")#move threshed in bin0.5 to ggm 
     os.chdir('..')
-    os.system("cp ../reduce/asymm_dream.py bin=2/asymm")
-    os.system("cp ../reduce/clumpy_dream.py bin=2/clumpy")
+    os.system("cp ../reduce/concen_calc.py bin=2/concen")
+    os.system("cp ../reduce/asymm_calc.py bin=2/asymm")
+    os.system("cp ../reduce/clumpy_calc.py bin=2/clumpy")
     #===============================================================================================#
 
     #================================== 6. APPLY GGM FILTER ========================================#
@@ -169,6 +173,7 @@ if bad == "d":
     #rotate broad_thresh counts image and subtract from original. Divide square of the residual by square of the original image
     #Use same pixel from ggm filtering as center of rotation in image coords
 
+    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
 
     #Must be done in a terminal running ciao
     os.chdir('../asymm')
@@ -180,7 +185,7 @@ if bad == "d":
     #When prompted for background image enter: background.fits
     os.system("dmregrid2 threshed_broad.fits rot.fits resolution=0 theta=180 rotxcenter=" + rxc + " rotycenter=" + ryc)
     #num pixels = val/2
-    os.system("python asymm_dream.py " + str(val/2) + " rot.fits background.fits threshed_broad.fits >> ../../data.txt")#outputs A
+    os.system("python asymm_calc.py threshed_broad.fits rot.fits >> ../../data.txt")#outputs A
 
     #sum pixels in residual image, subtract the sum of the square of pixels in the background and divide by
     #twice the sum in the squared original to get the asymmetry A=(Io-Ir)^2/2Io^2
@@ -190,13 +195,43 @@ if bad == "d":
 
     #================================= 9. CLUMPINESS PARAMETER =====================================#
     #Smooth a copy of threshed_broad.fits and subtract from original image to isolate high freq structure
-
-
+    f = open("../../data.txt", "r")
+    f.readline()
+    f.readline()
+    D_A_Mpc = f.readline().strip()
+    f.close()
+    
+    D_A_kpc = D_A_Mpc*1000.0
+    
+    pi = 3.141592653589793
+    
+    pixel_scale = (15*180*3600/pi)*(1/0.984)/D_A_kpc
+    
+    scale = pixel_scale
+    
+    string = str(scale)
+    
+    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
+    
     os.chdir('../clumpy')
-    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
+#    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
+    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=" + string + " sclmax=" + string + " sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
     os.system("dmcopy \"smoothed.fits[sky=region(../../ds9_fk.reg)]\" smoothed.fits clobber=yes")			#retrim to get rid of edge effects
-    os.system("python clumpy_dream.py " + str(val/2) + " smoothed.fits background.fits threshed_broad.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
+    os.system("python clumpy_calc.py threshed_broad.fits smoothed.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
     #===============================================================================================#
+
+    #================================ 10. CONCENTRATION PARAMETER ===================================#
+    #isolate region of extraction 
+    #determine radii that contain 20% and 80% of the total counts within the image
+    #alter radius of region until it encompasses 20% and 80% of the total emission in ds9
+    
+    os.chdir('../concen')
+    
+    os.system("python concen_calc.py threshed_broad.fits " + redshift + " >> ../../data.txt")
+    
+    #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
+    #===============================================================================================#
+
 
     os.chdir('../..')
     #Cluster_name,R_out,D_A,A,S,C
@@ -208,16 +243,10 @@ if bad == "d":
     f.readline()
     asym = f.readline().strip()
     clump = f.readline().strip()
+    concen = f.readline().strip()
     f.close()
-    stat = stat + asym + "," + clump +",\n"
-
-    #================================ 10. CONCENTRATION PARAMETER ===================================#
-    #isolate region of extraction 
-    #determine radii that contain 20% and 80% of the total counts within the image
-    #alter radius of region until it encompasses 20% and 80% of the total emission in ds9
-
-    #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
-    #===============================================================================================#
+    stat = stat + concen + "," + asym + "," + clump +",\n"
+    
 else:
     stat = stat +",,\n"
     

@@ -4,15 +4,17 @@
     ASSIGNMENT: Plot correlations
     AUTHOR:     Cam Lawlor-Forsyth (lawlorfc@myumanitoba.ca)
     SUPERVISOR: Chris O'Dea
-    VERSION:    2018-Nov-25
+    VERSION:    2018-Dec-19
     
-    PURPOSE: Plot various parameters from multiple data tables while calculating
-             Spearman rank correlations and associated p-values using SciPy.
+    PURPOSE: Plot various parameters from multiple data tables while
+             calculating Spearman rank correlations and associated p-values
+             using SciPy.
 """
 
 # imports
 import numpy as np
 
+import linmix
 import matplotlib as mpl # for publication-quality plots
 mpl.rcParams['font.serif'] = "Times New Roman"
 mpl.rcParams['font.family'] = "serif"
@@ -27,9 +29,12 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 
 # create numpy arrays from *.txt data tables
 # all '*.txt' data tables have 241 total entries
-(nameMain, RA, Dec, zz, zz_err, K0, K0_err, K100, K100_err, alpha, Tx, Tx_err,
-     Lbol, Lbol_err, LbolUL, LHa, LHa_err, LHaUL, Lrad, Lrad_err) = np.genfromtxt(
+(nameMain, zz, zz_err, K0, K0_err, K100, K100_err,
+     alpha, Tx, Tx_err, Lbol, Lbol_err, LbolUL, LHa,
+     LHa_err, LHaUL, Lrad, Lrad_err) = np.genfromtxt(
     "accept_main.txt", delimiter = ',', unpack = True)
+
+(RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
 
 (name20kpc, Rin, Rout, eDen, eDen_err, PLent, flatent, ent_err, PLpress,
     flatpress, press_err, clusmass, clusmass_err, clustemp, clustemp_err, 
@@ -45,10 +50,13 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
     concen, concen_err) = np.genfromtxt(
     "accept_CAS.txt", delimiter = ',', unpack = True)
 
-(nameSPA, sym, peak, align, raff, cavag, osul, hlava, cavpow) = np.genfromtxt(
+(nameSPA, sym, sym_err, peak, peak_err, align, align_err, raff, raff_low, 
+     raff_high, cavag, cavag_low, cavag_high, osul, osul_low, osul_high,
+     hlava, hlava_err, cavpow, cavpow_low, cavpow_high) = np.genfromtxt(
     "accept_SPA_cavpow.txt", delimiter = ',', unpack = True)
 
-(nameACCEPT, nameFraser, BCGalt, SFRalt) = np.genfromtxt(
+(nameACCEPT, nameFraser, BCGalt, BCGalt_high, BCGalt_low,
+     SFRalt, SFRalt_high, SFRalt_low) = np.genfromtxt(
     "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
@@ -68,11 +76,11 @@ DICT = {
         'eDen':'Electron Density (cm$^{-3}$)',
         'PLent':'Entropy using a Power Law (keV$\cdot$cm$^2$)',
         'flatent':'Entropy using a Flat Relation (keV$\cdot$cm$^2$)',
-        'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Power Law',
-        'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure using a Flat Relation',
+        'PLpress':'Pressure (dyne cm$^{-2}$)', #'Pressure (Power Law)',
+        'flatpress':'Pressure (dyne cm$^{-2}$)', #'Pressure (Flat Relation)',
         'clusmass':'Cluster Mass ($M_\odot$)',
         'clustemp':'Cluster X-ray Temperature (keV)',
-        'coolingtime52':'Cooling Time using the 5/2 Model (Gyr)', # note: 5*0.6 = 3
+        'coolingtime52':'Cooling Time using the 5/2 Model (Gyr)', # 5*0.6 = 3
         'coolingtime':'Cooling Time (Gyr)', # uses the 3/2 model
         
         # star-formation parameters for Brightest Cluster Galaxy (BCG)
@@ -96,8 +104,8 @@ DICT = {
         'cavpow':'Cavity Power ($10^{42}$ ergs s$^{-1}$)',
         
         # BCG and SFR parameters coming from Fraser-McKelvie et al. (2014)
-        'BCGalt':'BCG Stellar Mass ($10^{10} \/ M_\odot$)\nfrom Fraser-McKelvie+ (2014)',
-        'SFRalt':'SFR ($M_\odot$ yr$^{-1}$)\nfrom Fraser-McKelvie et al. (2014)',
+        'BCGalt':'BCG Stellar Mass ($10^{10} \/ M_\odot$)\nfrom F-M+ (2014)',
+        'SFRalt':'SFR ($M_\odot$ yr$^{-1}$)\nfrom F-M+ (2014)',
         
         # general axes titles and legend entries for mutli-plots
         'pressure':'Pressure (dyne cm$^{-2}$)',
@@ -108,14 +116,14 @@ DICT = {
 # dictionary to access associated errors
 
 UNCERTS = {
-           'zz':zz_err,
-           'K0':K0_err,
-           'K100':K100_err,
-           'Tx':Tx_err, # error for Tx taken as standard dev. of individual temps
+           'zz':np.zeros(241), # zz_err, # NEED TO FINISH GETTING
+           'K0':K0_err, # NEED TO FINISH GETTING
+           'K100':K100_err, # NEED TO FINISH GETTING
+           'Tx':Tx_err, # error for Tx: standard dev. of individual temps # FINISH GETTING
            'Lbol':Lbol_err,
            'LHa':LHa_err,
            'Lrad':Lrad_err,
-          
+           
            'eDen':eDen_err,
            'PLent':ent_err,
            'flatent':ent_err,
@@ -125,30 +133,30 @@ UNCERTS = {
            'clustemp':clustemp_err,
            'coolingtime52':ct52_err,
            'coolingtime':ct_err,
-          
+           
            'UVSFR':UV_err,
            'IRSFR':IR_err, # no error for IRSFR, therefore equal to 0
            'seventySFR':seventy_err,
            'twentyfourSFR':twentyfour_err,
            'BCGmass':BCGmass_err, # no error for BCGmass, therefore equal to 0
-          
+           
            'asymm':asymm_err, # no errors for asymm yet
            'clump':clump_err, # no errors for clump yet
-           'concen':concen_err # no errors for concen yet
-          
-#           'sym':sym_err,
-#           'peak':peak_err,
-#           'align':align_err,
-#           'cavpow':cavpow_err, # there is both an upper and lower error
-          
-#           'BCGalt':BCGalt_err, # there is both an upper and lower error
-#           'SFRalt':SFRalt_err # there is both an upper and lower error
+           'concen':concen_err, # no errors for concen yet
+           
+           'sym':sym_err,
+           'peak':peak_err,
+           'align':align_err,
+           'cavpow':[cavpow_low,cavpow_high],
+           
+           'BCGalt':[BCGalt_low,BCGalt_high],
+           'SFRalt':[SFRalt_low,SFRalt_high]
           }
 
 # constants
 currentFig = 1 # first figure will be numbered as 'Figure 1'
 
-#...........................................................................main
+#..........................................................................main
 def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
          ymax=None, logx=False, logy=False, linear=False, errors=True,
          showplot=True, printfit=False) :
@@ -178,44 +186,50 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
                 ax.semilogy(xvals, yvals, 'ko')
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.plot(xvals, yvals, 'ko')
-#                slope, intercept, xx = fit(xvals, yvals, lin=True)
-#                ax.plot(xx, slope*xx + intercept, 'k-')
+#                slope, intercept, xx = fit(xvals, yvals, lin=True,
+#                                           show_mb=printfit)
+#                ax.plot(xx, slope*xx + intercept, 'r-')
             elif (logx == True) and (logy == True) and (linear == False) :
-                ax.loglog(xvals, yvals, 'ko') # use loglog to look for power laws
+                ax.loglog(xvals, yvals, 'ko') # use loglog for power laws
             else :
                 ax.loglog(xvals, yvals, 'ko')
-                slope, intercept, xx = fit(xvals, yvals, lin=False,
-                                           show_mb=printfit) # fit powerlaw
-                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
-                ax.loglog(xx, ys, 'k-') # plot the powerlaw
-#                theoreticals = (xx**(2/3))*(10**(intercept)) # to compare tcool vs K0
+#                slope, intercept, xx = fit(xvals, yvals, lin=False,
+#                                           show_mb=printfit) # fit powerlaw
+#                ys = (xx**(slope))*(10**(intercept)) # transform to logspace
+#                ax.loglog(xx, ys, 'k-') # plot the powerlaw
+#                theoreticals = (xx**(2/3))*(10**(intercept)) # for tcool vs K0
 #                ax.loglog(xx, theoreticals, 'r-')
         else :
             if (logx == True) and (logy == False) and (linear == False) :
                 ax.set_xscale('log')
                 ax.set_yscale('linear')
-                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab],
+                            yerr=UNCERTS[ylab], fmt='ko', elinewidth=0.3,
+                            capsize=1.5, errorevery=1)
             elif (logx == False) and (logy == True) and (linear == False) :
                 ax.set_xscale('linear')
                 ax.set_yscale('log')
-                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab],
+                            yerr=UNCERTS[ylab], fmt='ko', elinewidth=0.3,
+                            capsize=1.5, errorevery=1)
             elif (logx == False) and (logy == False) and (linear == True) :
                 ax.set_xscale('linear')
                 ax.set_yscale('linear')
-                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab],
+                            yerr=UNCERTS[ylab], fmt='ko', elinewidth=0.3,
+                            capsize=1.5, errorevery=1)
             elif (logx == True) and (logy == True) and (linear == False) :
                 ax.set_xscale('log')
                 ax.set_yscale('log')
-                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab],
+                            yerr=UNCERTS[ylab], fmt='ko', elinewidth=0.3,
+                            capsize=1.5, errorevery=1)
             else :
                 ax.set_xscale('log')
                 ax.set_yscale('log')
-                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab], yerr=UNCERTS[ylab],
-                            fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+                ax.errorbar(xvals, yvals, xerr=UNCERTS[xlab],
+                            yerr=UNCERTS[ylab], fmt='ko', elinewidth=0.3,
+                            capsize=1.5, errorevery=1)
         
         ax.set_xlabel("%s" % DICT[xlab], fontsize = 15 )
         ax.set_ylabel("%s" % DICT[ylab], fontsize = 15 )
@@ -223,14 +237,15 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
         
-    #    ax.plot([0.01,1000],[0.01,1000],linewidth=1,color='black',ls='--') # plot
-            # a dotted line increasing from bottom left to top right
+    #    ax.plot([0.01,1000],[0.01,1000],linewidth=1,color='black',ls='--')
+            # plot a dotted line increasing from bottom left to top right
             
 #        ax.annotate('Spearman: %.3g, pval: %.2g' % (spear[0], spear[1]), 
 #                    xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
 #                    ha='right', va='bottom') # show Spearman rank on the plot
                                              # in the bottom right corner
-                                             
+        
+        plt.tight_layout()
         plt.show() # show the figure
 #        showTermination() # confirm the process completed as expected
         return
@@ -238,7 +253,7 @@ def main(xvals, xlab, yvals, ylab, xmin=None, xmax=None, ymin=None,
 #        showTermination() # confirm the process completed as expected
         return
 
-#......................................................................all_corrs
+#.....................................................................all_corrs
 def all_corrs(param, label, plots=True) :
     # the complete set of all correlations, besides "Rout" and "angsize"
     
@@ -281,7 +296,7 @@ def all_corrs(param, label, plots=True) :
     
     return
 
-#.........................................................................cavPow
+#........................................................................cavPow
 def cavPow(yvals, ylab, ymin=None, ymax=None, linear=False,
            location='upper left') :
     # plots a parameter against the individual cavity powers, but all together
@@ -300,22 +315,26 @@ def cavPow(yvals, ylab, ymin=None, ymax=None, linear=False,
         ax.semilogx(raff, yvals, 'ro', label = 'Rafferty et al. (2006)')
         ax.semilogx(cavag, yvals, 'go', label = 'Cavagnolo et al. (2010)')
         ax.semilogx(osul, yvals, 'bo', label = 'O’Sullivan et al. (2011)')
-        ax.semilogx(hlava, yvals, 'ko', label='Hlavacek-Larrondo et al. (2012)')
+        ax.semilogx(hlava, yvals, 'ko',
+                    label='Hlavacek-Larrondo et al. (2012)')
     else :
         ax.loglog(raff, yvals, 'ro', label = 'Rafferty et al. (2006)')
         ax.loglog(cavag, yvals, 'go', label = 'Cavagnolo et al. (2010)')
         ax.loglog(osul, yvals, 'bo', label = 'O’Sullivan et al. (2011)')
-        ax.loglog(hlava, yvals, 'ko', label = 'Hlavacek-Larrondo et al. (2012)')
+        ax.loglog(hlava, yvals, 'ko',
+                  label = 'Hlavacek-Larrondo et al. (2012)')
     
     ax.set_xlabel('Cavity Power ($10^{42}$ ergs s$^{-1}$)', fontsize = 15)
     ax.set_ylabel('%s' % DICT[ylab], fontsize = 15)
     
     plt.legend(loc = location)
+    
+    plt.tight_layout()
     plt.show()
     
     return
 
-#....................................................................checkcommon
+#...................................................................checkcommon
 def checkcommon(param1, param2, noprint=False) :
     
     count = 0
@@ -331,7 +350,7 @@ def checkcommon(param1, param2, noprint=False) :
     
     return
 
-#....................................................................checknonnan
+#...................................................................checknonnan
 def checknonnan(param, noprint=False) :
     
     num = np.count_nonzero(~np.isnan(param)) # '~' inverts the bool matrix
@@ -343,7 +362,7 @@ def checknonnan(param, noprint=False) :
     
     return
 
-#...................................................................checkunique1
+#..................................................................checkunique1
 def checkunique1(param1, param2) :
     
     count = 0
@@ -355,7 +374,7 @@ def checkunique1(param1, param2) :
     
     return count
 
-#...................................................................checkunique2
+#..................................................................checkunique2
 def checkunique2(param1, param2) :
     
     count = 0
@@ -367,7 +386,7 @@ def checkunique2(param1, param2) :
     
     return count
 
-#....................................................................checkunique
+#...................................................................checkunique
 def checkunique(param1, param2) :
     
     num1 = checkunique1(param1, param2)
@@ -381,7 +400,7 @@ def checkunique(param1, param2) :
     
     return
 
-#.....................................................................delete_val
+#....................................................................delete_val
 def delete_val(param1, param2, param_of_interest, value) :
     
     badIndex = np.where(param_of_interest == value)
@@ -391,7 +410,7 @@ def delete_val(param1, param2, param_of_interest, value) :
     
     return newparam1, newparam2
 
-#.....................................................................draftPlots
+#....................................................................draftPlots
 def draftPlots() :
     # plots in the December 14, 2016 draft of the paper
     
@@ -433,7 +452,7 @@ def draftPlots() :
     
     return
 
-#............................................................................fit
+#...........................................................................fit
 def fit(param1, param2, lin=False, show_mb=False) :
     
     from scipy.optimize import curve_fit
@@ -457,7 +476,7 @@ def fit(param1, param2, lin=False, show_mb=False) :
     
     return popt[0], popt[1], xs
 
-#......................................................................getcommon
+#.....................................................................getcommon
 def getcommon(param1, param2) :
     
     newList1 = []
@@ -483,15 +502,60 @@ def histo(param, label, num_bins) :
     ax.hist(vals, bins=num_bins, density=True, color='k')
     plt.xlabel("%s" % DICT[label], fontsize = 15)
     
+    plt.tight_layout()
     plt.show()
     
     return
 
-#.........................................................................linear
+#........................................................................linear
 def linear(m, x, b) : # helper function for fit function
         return m*x + b
 
-#...........................................................................misc
+#...................................................................linmix_test
+def linmix_test() :
+    
+#    main(K0, 'K0', coolingtime, 'coolingtime') # for comparison
+    
+    newK0_err, newct_err = delete_val(K0_err, ct_err, K0, 0)
+    newK0, newcoolingtime = delete_val(K0, coolingtime, K0, 0)
+    
+    logK0 = np.log10(newK0)
+    logK0_err = np.log10(newK0_err)
+    logct = np.log10(newcoolingtime)
+    logct_err = np.log10(newct_err)
+    
+    lm = linmix.LinMix(logK0, logct, logK0_err, logct_err)
+    lm.run_mcmc(silent=True)
+    
+    global currentFig    
+    fig = plt.figure(currentFig)
+    currentFig += 1
+    plt.clf()
+    ax = fig.add_subplot(111)
+    
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.errorbar(newK0, newcoolingtime, xerr=newK0_err, yerr=newct_err,
+                fmt='ko', elinewidth=0.3, capsize=1.5, errorevery=1)
+    
+#    slope = lm.chain['alpha']
+#    intercept = lm.chain['beta']
+    
+#    xs = np.linspace(min(newK0), max(newK0), 1000)
+#    ys = (xs**(slope))*(10**(intercept)) # transform to logspace
+#    ax.loglog(xs, ys, 'r-') # plot the powerlaw
+#    theoreticals = (xs**(2/3))*(10**(intercept)) # for tcool vs K0
+#    ax.loglog(xs, theoreticals, 'r-')
+    
+    ax.set_xlabel("%s" % DICT['K0'], fontsize = 15 )
+    ax.set_ylabel("%s" % DICT['coolingtime'], fontsize = 15 )
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return
+
+#..........................................................................misc
 def misc() :
     # miscellaneous functions that are sometimes helpful
     
@@ -499,14 +563,14 @@ def misc() :
                                     # the specified value
     return
 
-#..........................................................................multi
-def multi(xvals1, yvals1, xvals2, yvals2, xaxislabel, yaxislabel, 
-          legend1, legend2, xmin=None, xmax=None, ymin=None,
+#.........................................................................multi
+def multi(xvals, xlab, yvals1, ylab1, yvals2, ylab2, #legend1, legend2,
+          xmin=None, xmax=None, ymin=None,
           ymax=None, location='upper right') :
     
     global currentFig
-    spear1 = sp.spearmanr(xvals1, yvals1, nan_policy='omit')
-    spear2 = sp.spearmanr(xvals2, yvals2, nan_policy='omit')
+    spear1 = sp.spearmanr(xvals, yvals1, nan_policy='omit')
+    spear2 = sp.spearmanr(xvals, yvals2, nan_policy='omit')
     print("Figure %2.1d   Spearman: %6.3g   pvalue: %8.2g" % 
         (currentFig, spear1[0], spear1[1]) )
     print("Figure %2.1d   Spearman: %6.3g   pvalue: %8.2g" % 
@@ -518,29 +582,36 @@ def multi(xvals1, yvals1, xvals2, yvals2, xaxislabel, yaxislabel,
     
     ax = fig.add_subplot(111)
     
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.errorbar(xvals, yvals1, xerr=UNCERTS[xlab],
+                yerr=UNCERTS[ylab1], fmt='ko', elinewidth=0.3,
+                capsize=1.5, errorevery=1, label = "%s" % DICT[ylab1])
+    ax.errorbar(xvals, yvals2, xerr=UNCERTS[xlab],
+                yerr=UNCERTS[ylab2], fmt='ro', elinewidth=0.3,
+                capsize=1.5, errorevery=1, label = "%s" % DICT[ylab2])
+    
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
     
-    ax.loglog(xvals1, yvals1, 'bo', label = "%s" % DICT[legend1] )
-    ax.loglog(xvals2, yvals2, 'ro', label = "%s" % DICT[legend2] )
-    
-    ax.set_xlabel("%s" % DICT[xaxislabel], fontsize = 15 )
-    ax.set_ylabel("%s" % DICT[yaxislabel], fontsize = 15 )
+    ax.set_xlabel("%s" % DICT[xlab], fontsize = 15 )
+    ax.set_ylabel("%s" % DICT[ylab1], fontsize = 15 )
     
     plt.legend(loc = location)
     
-    ax.annotate('Power Law Spearman: %.3g, pval: %.2g' % (spear1[0], spear1[1]), 
-                xy=(0.98, 0.05), fontsize = 13, xycoords='axes fraction',
-                ha='right', va='bottom')
-    ax.annotate('Flat Spearman: %.3g, pval: %.2g' % (spear2[0], spear2[1]), 
-                xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
-                ha='right', va='bottom')
+#    ax.annotate('Power Law Spearman: %.3g, pval: %.2g' %(spear1[0], spear1[1]), 
+#                xy=(0.98, 0.05), fontsize = 13, xycoords='axes fraction',
+#                ha='right', va='bottom')
+#    ax.annotate('Flat Spearman: %.3g, pval: %.2g' % (spear2[0], spear2[1]), 
+#                xy=(0.98, 0.02), fontsize = 13, xycoords='axes fraction',
+#                ha='right', va='bottom')
     
+    plt.tight_layout()
     plt.show()
     
     return
 
-#...................................................................partial_corr
+#..................................................................partial_corr
 def partial_corr(C):
     """
     Partial Correlation in Python (clone of Matlab's partialcorr)
@@ -549,16 +620,16 @@ def partial_corr(C):
     correlation (might be slow for a huge number of variables). The 
     algorithm is detailed here:
     
-        http://en.wikipedia.org/wiki/Partial_correlation#Using_linear_regression
+    http://en.wikipedia.org/wiki/Partial_correlation#Using_linear_regression
     
     Taking X and Y two variables of interest and Z the matrix with all
     the variable minus {X, Y}, the algorithm can be summarized as
     
-        1) perform a normal linear least-squares regression with X as the target
-           and Z as the predictor
+        1) perform a normal linear least-squares regression with X as the
+           target and Z as the predictor
         2) calculate the residuals in Step #1
-        3) perform a normal linear least-squares regression with Y as the target
-           and Z as the predictor
+        3) perform a normal linear least-squares regression with Y as the
+           target and Z as the predictor
         4) calculate the residuals in Step #3
         5) calculate the correlation coefficient between the residuals from
            Steps #2 and #4; 
@@ -609,7 +680,7 @@ def partial_corr(C):
     
     return P_corr
 
-#.........................................................................p_corr
+#........................................................................p_corr
 def p_corr(param1, param2) :
     """
     Create a master mask based on the two input arrays, then mask those two
@@ -634,7 +705,7 @@ def p_corr(param1, param2) :
     
     return
 
-#................................................................showTermination
+#...............................................................showTermination
 def showTermination() :
     """
     This function prints a final message identifying the programmer,
@@ -644,7 +715,7 @@ def showTermination() :
     print( "Date: " + ctime() )
     print("End of processing")
     return
-#...............................................................end of functions
+#..............................................................end of functions
 
 # print a table of the CAS and SPA parameters
 #count = 0
