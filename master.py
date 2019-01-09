@@ -116,14 +116,14 @@ DICT = {
 # dictionary to access associated errors
 
 UNCERTS = {
-           'zz':np.zeros(241), # zz_err,
-           'K0':K0_err,
-           'K100':K100_err,
-           'Tx':Tx_err, # error for Tx: standard dev. of individual temps
+           'zz':np.zeros(241), # zz_err, # NEED TO FINISH GETTING
+           'K0':K0_err, # NEED TO FINISH GETTING
+           'K100':K100_err, # NEED TO FINISH GETTING
+           'Tx':Tx_err, # error for Tx: standard dev. of individual temps # FINISH GETTING
            'Lbol':Lbol_err,
            'LHa':LHa_err,
            'Lrad':Lrad_err,
-          
+           
            'eDen':eDen_err,
            'PLent':ent_err,
            'flatent':ent_err,
@@ -133,24 +133,24 @@ UNCERTS = {
            'clustemp':clustemp_err,
            'coolingtime52':ct52_err,
            'coolingtime':ct_err,
-          
+           
            'UVSFR':UV_err,
            'IRSFR':IR_err, # no error for IRSFR, therefore equal to 0
            'seventySFR':seventy_err,
            'twentyfourSFR':twentyfour_err,
            'BCGmass':BCGmass_err, # no error for BCGmass, therefore equal to 0
-          
+           
            'asymm':asymm_err, # no errors for asymm yet
            'clump':clump_err, # no errors for clump yet
            'concen':concen_err, # no errors for concen yet
-          
+           
            'sym':sym_err,
            'peak':peak_err,
            'align':align_err,
-           'cavpow':[cavpow_low,cavpow_high], # both an upper and lower error
-          
-           'BCGalt':[BCGalt_low,BCGalt_high], # both an upper and lower error
-           'SFRalt':[SFRalt_low,SFRalt_high] # both an upper and lower error
+           'cavpow':[cavpow_low,cavpow_high],
+           
+           'BCGalt':[BCGalt_low,BCGalt_high],
+           'SFRalt':[SFRalt_low,SFRalt_high]
           }
 
 # constants
