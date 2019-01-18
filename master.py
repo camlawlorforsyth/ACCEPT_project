@@ -61,6 +61,10 @@ warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 
 (tcool) = np.genfromtxt("tcool.txt", unpack=True)
 
+(name, redshift, o3flux, o3fluxerr,
+     sep_from_target_arcsec, logo3lum) = np.genfromtxt(
+    "accept_OIII_flux_and_lum.txt", delimiter = ',', unpack = True)
+
 # axis label dictionary
 DICT = {
         # parameters from main table for entire cluster
@@ -110,7 +114,10 @@ DICT = {
         # general axes titles and legend entries for mutli-plots
         'pressure':'Pressure (dyne cm$^{-2}$)',
         'PL':'Power Law Model',
-        'flat':'Flat Relation Model'
+        'flat':'Flat Relation Model',
+        
+        'o3flux':'OIII $\lambda 5007$ Flux (erg s$^{-1}$ $cm^{2}$)',
+        'o3lum':'OIII $\lambda 5007$ Luminosity (erg s$^{-1}$)'
         }
 
 # dictionary to access associated errors
@@ -150,7 +157,9 @@ UNCERTS = {
            'cavpow':[cavpow_low,cavpow_high],
            
            'BCGalt':[BCGalt_low,BCGalt_high],
-           'SFRalt':[SFRalt_low,SFRalt_high]
+           'SFRalt':[SFRalt_low,SFRalt_high],
+           'o3flux':o3fluxerr,
+           'o3lum':np.zeros(241)
           }
 
 # constants
@@ -731,3 +740,7 @@ def showTermination() :
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
 
+main(o3flux, 'o3flux', cavpow, 'cavpow')
+o3lum = np.array(10**(logo3lum))
+main(o3lum, 'o3lum', cavpow, 'cavpow')
+main(o3lum, 'o3lum', cavpow, 'cavpow', errors=False, printfit=True)
