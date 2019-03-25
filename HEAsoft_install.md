@@ -30,7 +30,7 @@ Once the Guest Additions have been installed, restart the system.
 
 CIAO must be installed in order to reduce the *Chandra* data.
 
-Download the `ciao-install` installation script from http://cxc.harvard.edu/ciao/download/ and follow the instructions at http://cxc.harvard.edu/ciao/threads/ciao_install_tool/index.html#install to properly install CIAO. Make sure to create a CIAO alias in the `.bashrc` file, as mentioned on the intructions page.
+Download the `ciao-install` installation script from http://cxc.harvard.edu/ciao/download/ and follow the instructions at http://cxc.harvard.edu/ciao/threads/ciao_install_tool/index.html#install to properly install CIAO. Make sure to create a CIAO alias in the `.bashrc` file, as mentioned on the instructions page.
 
 To install Astropy and photutils (an affiliated package of Astropy) follow the instructions at http://cxc.harvard.edu/ciao/scripting/index.html#install to first freeze the Python packages that come included with CIAO. This disables updates for these packages when installing new packages with `pip3` (which comes with CIAO).
 
