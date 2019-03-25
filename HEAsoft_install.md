@@ -1,8 +1,10 @@
 # HEAsoft Install #
 
-Instructions to properly install HEAsoft, FTOOLS, and PyXspec, as required by the SPA analysis.
+Instructions to properly install CIAO, Astropy, photutils, as required for the CAS analysis, as well as HEAsoft, FTOOLS, and PyXspec, as required by the SPA analysis.
 
 ## During CentOS 6.10 Installation ##
+
+Choose the 'Minimal Desktop' group from the install options when using the full DVD iso.
 
 Disable Kdump in order to use as much system memory as possible.
 
@@ -18,9 +20,33 @@ To then ensure the correct compilers are available (again as root):
 ```
 yum -y install gcc gcc-c++ gcc-gfortran
 ```
+An optional restart may be required here.
+
 Next, insert the Guest Additions disc, and follow the on-screen prompts to install the Guest Additions.
 
 Once the Guest Additions have been installed, restart the system.
+
+## Install CIAO, Astropy, SciPy, photutils ##
+
+CIAO must be installed in order to reduce the *Chandra* data.
+
+Download the `ciao-install` installation script from http://cxc.harvard.edu/ciao/download/ and follow the instructions at http://cxc.harvard.edu/ciao/threads/ciao_install_tool/index.html#install to properly install CIAO. Make sure to create a CIAO alias in the `.bashrc` file, as mentioned on the intructions page.
+
+To install Astropy and photutils (an affiliated package of Astropy) follow the instructions at http://cxc.harvard.edu/ciao/scripting/index.html#install to first freeze the Python packages that come included with CIAO. This disables updates for these packages when installing new packages with `pip3` (which comes with CIAO).
+
+In the terminal:
+```
+ciao
+pip3 freeze > $ASCDS_INSTALL/constraints.txt
+pip3 install -c $ASCDS_INSTALL/constraints.txt 'astropy<3.1' scipy
+```
+
+After Astropy (and SciPy) have successfully been installed, photutils can now be installed to perform photometry (required by the [concen_calc.py](/reduction/reduce/concen_calc.py) script). General installation instructions for photutils can be found at https://photutils.readthedocs.io/en/stable/install.html.
+
+In the terminal:
+```
+pip3 install -c $ASCDS_INSTALL/constraints.txt --no-deps photutils
+```
 
 ## Install HEAsoft ##
 
