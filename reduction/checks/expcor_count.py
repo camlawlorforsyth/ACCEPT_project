@@ -1,8 +1,8 @@
 # this script assumes Python 3.5 is in use
 
 # imports
-import sys
 import os
+import sys
 
 file = open("issues.txt", "a")
 
