@@ -34,7 +34,7 @@ Once the desired data has been downloaded, reduced to level 2, reprojected and e
 
 #### Step 2b ####
 
-Upon completion of the ROI and point source analysis, ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended in [verify_coords.py](checks/verify_coords.py). 'Done' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis are referred to as 'bad'.
+Upon completion of the ROI and point source analysis, ensure the proper flags for clusters with insufficient data (`'skip'`) and done clusters (`'complete'`) are correctly appended in [verify_coords.py](checks/verify_coords.py). 'Complete' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis should be 'skip(ped)' for the rest of the analysis.
 
 Next, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
 
@@ -42,11 +42,11 @@ Once there are no errors present in "data/good.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
-In [cas_process_all_data.py](reduce/cas_process_all_data.py), ensure the proper flags for bad clusters (`b`) and done clusters (`d`) are correctly appended.
+In [cas_process_all_data.py](reduce/cas_process_all_data.py), ensure the proper flags for clusters to skip (`'skip'`) and complete clusters (`'complete'`) are correctly appended.
 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 
-Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Bad' clusters will have ",,," in the "data/chandrastats.txt" file, where the ASC parameters would normally be present for 'done' clusters.
+Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Skip(ped)' clusters will have ",,," in the "data/chandrastats.txt" file, where the CAS parameters would normally be present for 'complete' clusters.
 
 An unsharp-masked (UM) image ("unsharp.fits") will also be created, and can be found in [cluster_name]/bin=2/UM.
 
@@ -54,7 +54,7 @@ As the concentration parameter must be computed by hand, navigate to each cluste
 
 ## Step 4 ##
 
-As in Step 3, ensure that flags in [ggm_all_data.py](reduce/ggm_all_data.py) are corrrect for bad clusters (`b`) and done clusters (`d`).
+As in Step 3, ensure that flags in [ggm_all_data.py](reduce/ggm_all_data.py) are corrrect for clusters to skip (`'skip'`) and complete clusters (`'complete'`).
 
 It is important to ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
 
