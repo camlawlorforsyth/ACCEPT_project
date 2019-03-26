@@ -6,7 +6,7 @@ Relevant scripts used in the analysis and preparation of a paper regarding cooli
 
 ### Sample Size ###
 
-[accept_main.txt](accept_main.txt), [accept_coordinates.txt](accept_coordinates.txt), [accept_20kpc.txt](accept_20kpc.txt), [accept_SFR.txt](accept_SFR.txt), [accept_CAS.txt](accept_CAS.txt), [accept_SPA_cavpow.txt](accept_SPA_cavpow.txt), and [accept_Fraser_BCG_SFR.txt](accept_Fraser_BCG_SFR.txt) all have 241 entries and are the complete ACCEPT sample.
+[accept_catalog.csv](accept_catalog.csv) has 241 entries and is the complete ACCEPT sample.
 
 ### Data Files ###
 
