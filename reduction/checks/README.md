@@ -11,7 +11,7 @@ Following this, run `python verify_reproj.py`. This assumes `python get_all_data
 
 Next, run `python verify_coords.py` once all ROIs and point source region files have been created. See the [POINT_README](../reduce/POINT_README.md) in [reduce/](../reduce) for additional information, as well as the main reduction [README](../README.md) in [reduction/](..).
 
-Once each verification process has completed, a "good.txt" file will be created in the data/ directory, listing any errors that the tests may have discovered.
+Once each verification process has completed, a "issues.txt" file will be created in the data/ directory, listing any errors that the tests may have discovered.
 
 ## Main files ##
 
