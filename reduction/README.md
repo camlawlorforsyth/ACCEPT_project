@@ -30,7 +30,7 @@ Upon completion of the previous command, run `python verify_reproj.py` and check
 
 #### Step 2a ####
 
-Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/good.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
+Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/issues.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
 
 #### Step 2b ####
 
@@ -38,7 +38,7 @@ Upon completion of the ROI and point source analysis, ensure the proper flags fo
 
 Next, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
 
-Once there are no errors present in "data/good.txt", continue to Step 3 below.
+Once there are no errors present in "data/issues.txt", continue to Step 3 below.
 
 ## Step 3 ##
 
