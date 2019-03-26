@@ -1,5 +1,6 @@
-# assumes Python 2.7 is installed
+# this script assumes Python 3.5 is in use
 
+# imports
 import sys
 import os
 from math import *
