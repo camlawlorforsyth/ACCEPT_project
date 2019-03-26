@@ -1,5 +1,11 @@
 # this script assumes Python 3.5 is in use
 
+'''
+The calling code used in cas_process_all_data.py for this file, is of the form:
+python reduce/reduce2.py 1E_0657-56 0.296 1.1945 complete
+argv[-]    argv[0]       argv[1]   argv[2] argv[3] argv[4]
+'''
+
 # imports
 import sys
 import os
@@ -9,7 +15,8 @@ from math import *
 #The following is adapted from the Chandra imaging diffuse emission thread
 clusterName = sys.argv[1]
 redshift = sys.argv[2]
-bad = sys.argv[3]
+ROIout = sys.argv[3]
+bad = sys.argv[4]
 
 os.chdir(clusterName)
 
@@ -230,7 +237,7 @@ if bad == "d":
     
     os.chdir('../concen')
     
-    os.system("python concen_calc.py threshed_broad.fits " + redshift + " >> ../../data.txt")
+    os.system("python concen_calc.py threshed_broad.fits " + redshift + ROIout + " >> ../../data.txt")
     
     #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
     #===============================================================================================#
