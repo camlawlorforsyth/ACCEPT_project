@@ -1,4 +1,4 @@
-# this script assumes Python 3.7 is in use
+# this script assumes Python 3.5 is in use
 
 # imports
 import numpy as np
