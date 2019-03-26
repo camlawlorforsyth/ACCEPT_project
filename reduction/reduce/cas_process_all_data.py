@@ -1,3 +1,6 @@
+# this script assumes Python 3.5 is in use
+
+# imports
 import os
 
 os.system("python reduce/reduce2.py 1E_0657-56 0.296 1.1945 complete")
