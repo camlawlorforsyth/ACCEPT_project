@@ -1,15 +1,16 @@
 # this script assumes Python 3.5 is in use
 
-# imports
-from astropy.io import fits
-
-import sys
-
 '''
 The calling code used in reduce2.py for this file, is of the form:
 python asymm_calc.py threshed_broad.fits smoothed.fits
 argv[-]    argv[0]         argv[1]        argv[2]
 '''
+
+# imports
+import numpy as np
+
+from astropy.io import fits
+import sys
 
 #..........................................................................main
 def main() :
@@ -67,14 +68,16 @@ def clumpiness(image, smoothed) :#, background) :
     
     num = 0
     denom = 0
+    values = []
     
     # pixel coordinates are of the form image[y,x]
     for x in range(0, image.shape[1]) : # loop for every pixel in the image
         for y in range(0, image.shape[0]) :
             num += ( image[x,y] - smoothed[x,y] )
             denom += ( image[x,y] )
+            values.append( ( image[x,y] - smoothed[x,y] ) / image[x,y] )
     
-    return num/denom, -1
+    return num/denom, num/denom*np.std(np.array(values), ddof=1)
 #..............................................................end of functions
 
 main()
