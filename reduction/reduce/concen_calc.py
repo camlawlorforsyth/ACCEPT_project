@@ -1,11 +1,18 @@
 # this script assumes Python 3.5 is in use
 
+'''
+The calling code used in reduce2.py for this file, is of the form:
+python concen_calc.py science_image.fits redshift ROIout
+argv[-]    argv[0]         argv[1]       argv[2]  argv[3]
+'''
+
 # imports
 import numpy as np
 
 from astropy.coordinates import Angle
 from astropy.coordinates import SkyCoord
 from astropy.cosmology import FlatLambdaCDM
+from astropy.io import ascii
 from astropy.io import fits
 import astropy.units as u
 from astropy.wcs import WCS
@@ -16,23 +23,11 @@ warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
 
 import sys
 
-'''
-The calling code used in reduce2.py for this file, is of the form:
-python concen_calc.py science_image.fits redshift
-argv[-]    argv[0]         argv[1]       argv[2]
-'''
-
-(nameMain, zz, zz_err, K0, K0_err, K100, K100_err,
-     alpha, Tx, Tx_err, Lbol, Lbol_err, LbolUL, LHa, LHa_err,
-     LHaUL, Lrad, Lrad_err) = np.genfromtxt(
-    "../../accept_main.txt", delimiter = ',', unpack = True)
-
-(RAs, Decs) = np.genfromtxt("../../accept_coordinates.txt",
-                            unpack = True, dtype=str)
-
-(nameCAS, ROIout, angsize, asymm, asymm_err, clump, clump_err,
-    concen, concen_err) = np.genfromtxt(
-    "../../accept_CAS.txt", delimiter = ',', unpack = True)
+# read in the complete catalog
+dat = ascii.read('../../accept_catalog.csv') # requires columns to have unique
+                                             # names
+dat.add_index('z') # index the catalog by redshift so that row queries are
+                  # possible
 
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
@@ -40,12 +35,14 @@ cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
 #..........................................................................main
 def main() :
     
-    if len(sys.argv) == 3 :
+    if len(sys.argv) == 4 :
         file = sys.argv[1]
         redshift = float(sys.argv[2])
+        ROIout = float(sys.argv[3])
     else : # this should only be necessary if not using the automated scripts
         file = get_image()
         redshift = get_redshift()
+        ROIout = get_ROIout()
         print('\nInput confirmed. Continuing with script.\n')
     
     science = fits.open(file) # open the science image
@@ -56,10 +53,10 @@ def main() :
     
     world_cs = WCS(header)
     
-    i = int(np.where(zz==redshift)[0]) # requires redshifts in 'zz' be unique
-    RA = Angle(RAs[i], u.hour) # get the RA, Dec, ROIout for this cluster
-    Dec = Angle(Decs[i], u.deg)
-    R_out = ROIout[i]*u.Mpc
+    index = dat.loc_indices[redshift] # requires redshift in dat['z'] be unique
+    RA = Angle(dat['RA'][index], u.deg) # get the RA, Dec for this cluster
+    Dec = Angle(dat['Dec'][index], u.deg)
+    R_out = ROIout*u.Mpc # the ROIout for this cluster
     
     D_A = cosmo.angular_diameter_distance(redshift)
     R_max = (R_out/D_A)*(180/np.pi)*u.deg # to get maximum radius in degrees
@@ -106,6 +103,27 @@ def get_redshift() :
                 warning = ("You must have the redshift. Please try again.\n\n")
             elif val < 0 :
                 warning = ("Redshifts aren't negative. Please try again.\n\n")
+            else :
+                pass
+        except ValueError :
+            warning = ("Error. Please try again.\n\n") 
+    
+    return val
+
+#....................................................................get_ROIout
+def get_ROIout() :
+    
+    prompt = ('Input the ROIout to use for analysis: ')
+    warning = '\b'
+    while warning : # drop out if empty
+        userIn = input(warning + prompt)
+        warning = ''
+        try :
+            val = float( userIn )
+            if val == None :
+                warning = ("You must have an outer radius. Please try again.\n\n")
+            elif val < 0 :
+                warning = ("Radii aren't negative. Please try again.\n\n")
             else :
                 pass
         except ValueError :
