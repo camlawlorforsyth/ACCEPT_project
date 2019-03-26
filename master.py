@@ -14,12 +14,12 @@
 # imports
 import numpy as np
 
-import linmix
-import matplotlib as mpl # for publication-quality plots
-mpl.rcParams['font.serif'] = "Times New Roman"
-mpl.rcParams['font.family'] = "serif"
-mpl.rcParams['text.usetex'] = True
-
+from astropy.io import ascii
+#import linmix
+#import matplotlib as mpl # for publication-quality plots
+#mpl.rcParams['font.serif'] = "Times New Roman"
+#mpl.rcParams['font.family'] = "serif"
+#mpl.rcParams['text.usetex'] = False # have to install LaTeX and then set to True
 import matplotlib.pyplot as plt
 import scipy.stats as sp
 from scipy import linalg
@@ -27,43 +27,32 @@ from time import ctime
 import warnings
 warnings.filterwarnings("ignore", category = RuntimeWarning) # ignore warnings
 
-# create numpy arrays from *.txt data tables
-# all '*.txt' data tables have 241 total entries
-(nameMain, zz, zz_err, K0, K0_err, K100, K100_err,
-     alpha, Tx, Tx_err, Lbol, Lbol_err, LbolUL, LHa,
-     LHa_err, LHaUL, Lrad, Lrad_err) = np.genfromtxt(
-    "accept_main.txt", delimiter = ',', unpack = True)
+# read in data from sample catalog
+dat = ascii.read('accept_catalog.csv') # requires columns to have unique names
+
+zz, K0, K100, Tx = dat['z'], dat['K0'], dat['K100'], dat['Tx']
+Lbol, LHa, Lrad = dat['Lbol'], dat['LHa'], dat['Lrad']
+
+# these values are for an annulus with inner radius ~20 kpc
+Rin, Rout, eDen, PLent = dat['Rin'], dat['Rout'], dat['nelec'], dat['Kitpl']
+flatent, PLpress, flatpress = dat['Kflat'], dat['Pitpl'], dat['Pflat']
+clusmass, clustemp = dat['Mgrav'], dat['clustemp']
+coolingtime52, coolingtime = dat['tcool5/2'], dat['tcool3/2']
+
+UVSFR, IRSFR, seventySFR = dat['UVSFR'], dat['IRSFR'], dat['70SFR']
+twentyfourSFR, BCGmass = dat['24SFR'], dat['BCGmass']
+
+ROIout, ansize = dat['ROIout'], dat['D_A']
+asymm, clump, concen = dat['asymm_v0'], dat['clumpy_v0'], dat['concen_v0']
+
+sym, peak, align = dat['Symmetry'], dat['Peakiness'], dat['Alignment']
+cavpow = dat['completeCavPow']
+
+BCGalt, SFRalt = dat['BCG_Stellar_Mass'], dat['BCG_SFR']
+
+tcool = dat['alt_tcool']
 
 (RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
-
-(name20kpc, Rin, Rout, eDen, eDen_err, PLent, flatent, ent_err, PLpress,
-    flatpress, press_err, clusmass, clusmass_err, clustemp, clustemp_err, 
-    LL, coolingtime52, ct52_err, coolingtime, ct_err) = np.genfromtxt(
-    "accept_20kpc.txt", delimiter = ',', unpack = True)
-    # values above are for an annulus with inner radius ~20 kpc
-
-(nameSFR, UVSFR, UV_err, IRSFR, IR_err, seventySFR, seventy_err,
-    twentyfourSFR, twentyfour_err, BCGmass, BCGmass_err) = np.genfromtxt(
-    "accept_SFR.txt", delimiter = ',', unpack = True)
-
-(nameCAS, ROIout, angsize, asymm, asymm_err, clump, clump_err,
-    concen, concen_err) = np.genfromtxt(
-    "accept_CAS.txt", delimiter = ',', unpack = True)
-
-(nameSPA, sym, sym_err, peak, peak_err, align, align_err, raff, raff_low, 
-     raff_high, cavag, cavag_low, cavag_high, osul, osul_low, osul_high,
-     hlava, hlava_err, cavpow, cavpow_low, cavpow_high) = np.genfromtxt(
-    "accept_SPA_cavpow.txt", delimiter = ',', unpack = True)
-
-(nameACCEPT, nameFraser, BCGalt, BCGalt_high, BCGalt_low,
-     SFRalt, SFRalt_high, SFRalt_low) = np.genfromtxt(
-    "accept_Fraser_BCG_SFR.txt", delimiter = ',', unpack = True)
-
-(tcool) = np.genfromtxt("tcool.txt", unpack=True)
-
-(name, redshift, o3flux, o3fluxerr,
-     sep_from_target_arcsec, logo3lum) = np.genfromtxt(
-    "accept_OIII_flux_and_lum.txt", delimiter = ',', unpack = True)
 
 # axis label dictionary
 DICT = {
@@ -114,52 +103,46 @@ DICT = {
         # general axes titles and legend entries for mutli-plots
         'pressure':'Pressure (dyne cm$^{-2}$)',
         'PL':'Power Law Model',
-        'flat':'Flat Relation Model',
-        
-        'o3flux':'OIII $\lambda 5007$ Flux (erg s$^{-1}$ $cm^{2}$)',
-        'o3lum':'OIII $\lambda 5007$ Luminosity (erg s$^{-1}$)'
+        'flat':'Flat Relation Model'
         }
 
 # dictionary to access associated errors
-
 UNCERTS = {
-           'zz':np.zeros(241), # zz_err, # NEED TO FINISH GETTING
-           'K0':K0_err, # NEED TO FINISH GETTING
-           'K100':K100_err, # NEED TO FINISH GETTING
-           'Tx':Tx_err, # error for Tx: standard dev. of individual temps # FINISH GETTING
-           'Lbol':Lbol_err,
-           'LHa':LHa_err,
-           'Lrad':Lrad_err,
+           'zz':dat['z_err'], # zz_err, # NEED TO FINISH GETTING
+           'K0':dat['K0_err'], # NEED TO FINISH GETTING
+           'K100':dat['K100_err'], # NEED TO FINISH GETTING
+           'Tx':dat['Tx_err'], # error for Tx: standard dev. of individual temps # FINISH GETTING
+           'Lbol':dat['Lbol_err'],
+           'LHa':dat['LHa_err'],
+           'Lrad':dat['Lrad_err'],
            
-           'eDen':eDen_err,
-           'PLent':ent_err,
-           'flatent':ent_err,
-           'PLpress':press_err,
-           'flatpress':press_err,
-           'clusmass':clusmass_err,
-           'clustemp':clustemp_err,
-           'coolingtime52':ct52_err,
-           'coolingtime':ct_err,
+           'eDen':dat['nelec_err'],
+           'PLent':dat['K_err'],
+           'flatent':dat['K_err'],
+           'PLpress':dat['Perr'],
+           'flatpress':dat['Perr'],
+           'clusmass':dat['Mgrav_err'],
+           'clustemp':dat['clustemp_err'],
+           'coolingtime52':dat['t52err'],
+           'coolingtime':dat['t32err'],
            
-           'UVSFR':UV_err,
-           'IRSFR':IR_err, # no error for IRSFR, therefore equal to 0
-           'seventySFR':seventy_err,
-           'twentyfourSFR':twentyfour_err,
-           'BCGmass':BCGmass_err, # no error for BCGmass, therefore equal to 0
+           'UVSFR':dat['UVerr'],
+           'IRSFR':dat['IR_err'], # no error for IRSFR, therefore equal to 0
+           'seventySFR':dat['70err'],
+           'twentyfourSFR':dat['24err'],
+           'BCGmass':dat['BCGmass_err'], # no error for BCGmass, therefore equal to 0
            
-           'asymm':asymm_err, # no errors for asymm yet
-           'clump':clump_err, # no errors for clump yet
-           'concen':concen_err, # no errors for concen yet
+           'asymm':dat['asymm_v0_err'], # no errors for asymm yet
+           'clump':dat['clump_v0_err'], # no errors for clump yet
+           'concen':dat['concen_v0_err'], # no errors for concen yet
            
-           'sym':sym_err,
-           'peak':peak_err,
-           'align':align_err,
-           'cavpow':[cavpow_low,cavpow_high],
+           'sym':dat['Symm_err'],
+           'peak':dat['Peak_err'],
+           'align':dat['Align_err'],
+           'cavpow':[dat['complete_err_low'],dat['complete_err_high']],
            
-           'BCGalt':[BCGalt_low,BCGalt_high],
-           'SFRalt':[SFRalt_low,SFRalt_high],
-           'o3flux':o3fluxerr,
-           'o3lum':np.zeros(241)
+           'BCGalt':[dat['mass_low'],dat['mass_high']],
+           'SFRalt':[dat['SFR_low'],dat['SFR_high']]
           }
 
 # constants
@@ -739,8 +722,3 @@ def showTermination() :
 # test the partial correlation function
 #p_corr(Lrad, PLpress)
 #main(PLpress, "PLpress", Lrad, "Lrad", errors=False)
-
-main(o3flux, 'o3flux', cavpow, 'cavpow')
-o3lum = np.array(10**(logo3lum))
-main(o3lum, 'o3lum', cavpow, 'cavpow')
-main(o3lum, 'o3lum', cavpow, 'cavpow', errors=False, printfit=True)
