@@ -52,8 +52,6 @@ BCGalt, SFRalt = dat['BCG_Stellar_Mass'], dat['BCG_SFR']
 
 tcool = dat['alt_tcool']
 
-(RAs, Decs) = np.genfromtxt("accept_coordinates.txt", unpack = True, dtype=str)
-
 # axis label dictionary
 DICT = {
         # parameters from main table for entire cluster
