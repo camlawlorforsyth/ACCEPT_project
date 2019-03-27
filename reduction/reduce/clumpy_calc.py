@@ -70,9 +70,12 @@ def clumpiness(image, smoothed) :#, background) :
     denom = 0
     values = []
     
+    dim = min(image.shape[0], image.shape[1]) # images might not be perfectly
+                                              # square
+    
     # pixel coordinates are of the form image[y,x]
-    for x in range(0, image.shape[1]) : # loop for every pixel in the image
-        for y in range(0, image.shape[0]) :
+    for x in range(0, dim) : # loop for every pixel in the image
+        for y in range(0, dim) :
             num += ( image[x,y] - smoothed[x,y] )
             denom += ( image[x,y] )
             values.append( ( image[x,y] - smoothed[x,y] ) / image[x,y] )
