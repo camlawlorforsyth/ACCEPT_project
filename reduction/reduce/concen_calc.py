@@ -215,13 +215,21 @@ def concentration(max_total, R_max, position, image, wcs) :
     
     if r_20 == (-1) :
         r_20 = search(0.2*max_total, R_max, position, image, wcs, 100000)
-        r_20_relative_error = (R_max/100000)/r_20
+        if r_20 == (-1) :
+            r_20 = search(0.2*max_total, R_max, position, image, wcs, 1000000)
+            r_20_relative_error = (R_max/1000000)/r_20
+        else :
+            r_20_relative_error = (R_max/100000)/r_20
     else :
         r_20_relative_error = (R_max/10000)/r_20
     
     if r_80 == (-1) :
         r_80 = search(0.8*max_total, R_max, position, image, wcs, 100000)
-        r_80_relative_error = (R_max/100000)/r_80
+        if r_80 == (-1) :
+             r_80 = search(0.8*max_total, R_max, position, image, wcs, 1000000)
+             r_80_relative_error = (R_max/1000000)/r_80
+        else :
+            r_80_relative_error = (R_max/100000)/r_80
     else :
         r_80_relative_error = (R_max/10000)/r_80
     
