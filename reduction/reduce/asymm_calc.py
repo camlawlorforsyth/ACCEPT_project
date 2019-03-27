@@ -70,9 +70,12 @@ def asymmetry(image, rotated) :#, background) :
     denom = 0
     values = []
     
+    dim = min(image.shape[0], image.shape[1]) # images might not be perfectly
+                                              # square
+    
     # pixel coordinates are of the form image[y,x]
-    for x in range(0, image.shape[1]) : # loop for every pixel in the image
-        for y in range(0, image.shape[0]) :
+    for x in range(0, dim) : # loop for every pixel in the image
+        for y in range(0, dim) :
             num += ( image[x,y] - rotated[x,y] )**2
             denom += 2*( ( image[x,y] )**2 )
             values.append( 0.5*(image[x,y]-rotated[x,y])**2 / (image[x,y])**2 )
