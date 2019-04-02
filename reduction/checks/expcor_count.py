@@ -3,7 +3,7 @@
 '''
 The calling code used in verify_reproj.py for this file, is of the form:
 python checks/expcor_count.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
-argv[-]       argv[0]         argv[1]   argv[3] argv[4] ... argv[N]
+argv[-]       argv[0]         argv[1]   argv[2] argv[3] ... argv[N]
 '''
 
 # imports
