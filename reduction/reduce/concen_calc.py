@@ -200,40 +200,21 @@ def search(desired_total, R_max, position, image, wcs, num_steps) :
         
         if (desired_total-total) > 0 :
             if (desired_total-total) <= eps*max(abs(desired_total),abs(total)) :
-                return radius
+                return radius, (R_max/num_steps)/radius
             else :
                 radius += R_max/num_steps
         else : # if (desired_total-total) < 0, we've gone too far
-            return (-1) # so we return (-1) and try again with finer steps
+               # so we try again with finer steps
+            search(desired_total, R_max, position, image, wcs, 10*num_steps)
 
 #.................................................................concentration
 def concentration(max_total, R_max, position, image, wcs) :
     
     # find radius that encompasses 20% of the emission, then the same for 80%
-    r_20 = search(0.2*max_total, R_max, position, image, wcs, 10000)
-    r_80 = search(0.8*max_total, R_max, position, image, wcs, 10000)
+    r_20, r_20_rel_err = search(0.2*max_total, R_max, position, image, wcs, 10000)
+    r_80, r_80_rel_err = search(0.8*max_total, R_max, position, image, wcs, 10000)
     
-    if r_20 == (-1) :
-        r_20 = search(0.2*max_total, R_max, position, image, wcs, 100000)
-        if r_20 == (-1) :
-            r_20 = search(0.2*max_total, R_max, position, image, wcs, 1000000)
-            r_20_relative_error = (R_max/1000000)/r_20
-        else :
-            r_20_relative_error = (R_max/100000)/r_20
-    else :
-        r_20_relative_error = (R_max/10000)/r_20
-    
-    if r_80 == (-1) :
-        r_80 = search(0.8*max_total, R_max, position, image, wcs, 100000)
-        if r_80 == (-1) :
-             r_80 = search(0.8*max_total, R_max, position, image, wcs, 1000000)
-             r_80_relative_error = (R_max/1000000)/r_80
-        else :
-            r_80_relative_error = (R_max/100000)/r_80
-    else :
-        r_80_relative_error = (R_max/10000)/r_80
-    
-    uncertainty = 5/np.log(10) * ( r_20_relative_error + r_80_relative_error )
+    uncertainty = 5/np.log(10) * ( r_20_rel_err + r_80_rel_err )
     
     return 5*np.log10(r_80 / r_20), uncertainty
 #..............................................................end of functions
