@@ -2,7 +2,7 @@
 
 '''
 The calling code used in verify_reproj.py for this file, is of the form:
-python checks/expcor_count.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
+python checks/merged_count.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
 argv[-]       argv[0]         argv[1]   argv[2] argv[3] ... argv[N]
 '''
 
@@ -18,8 +18,8 @@ file = open("issues.txt", "a") # open for writing, appending to the end of
                                # the file if it exists
 
 if num_obs > 1 : # for clusters with more than 1 observation
-    num_file = len(os.listdir(cluster + "/expcor_mosaic_2")) # the number of
-                            # files present in [cluster_name]/expcor_mosaic_2/
+    num_file = len(os.listdir(cluster + "/merged_2")) # the number of
+                                    # files present in [cluster_name]/merged_2/
     if num_file < (num_obs + 1)*3 : # flux_obs creates 3 files for every ObsId,
                                     # plus 3 additional merged files
         file.write(cluster + " has an issue.\n")
