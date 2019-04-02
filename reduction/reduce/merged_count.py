@@ -2,16 +2,16 @@
 
 '''
 The calling code used in reduce1.py for this file, is of the form:
-python ../reduce/merged_count.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
-argv[-]       argv[0]            argv[1]   argv[2] argv[3] ... argv[N]
+python ../reduce/merged_count.py 1E_0657-56 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
+argv[-]       argv[0]            argv[1]   argv[2] ... argv[N]
 '''
 
 # imports
 import os
 import sys
 
-length = len(sys.argv) # length = 14 for the example above
-num_obs = length - 4 # num_obs = 14 - 4 = 10, as we can see from above
+length = len(sys.argv) # length = 12 for the example above
+num_obs = length - 2 # num_obs = 12 - 2 = 10, as we can see from above
 cluster = sys.argv[1] # the cluster name, as indicated
 
 file = open("../issues.txt", "a") # open for writing in data/, appending to the
