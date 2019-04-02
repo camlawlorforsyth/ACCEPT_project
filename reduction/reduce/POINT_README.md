@@ -12,9 +12,9 @@ ds9 -log /expcor_mosaic_2/broad_thresh.img &
 
 Once the image is open in DS9, enter the 'Edit' menu and select 'Region'. Click on the image and a green circular region should appear. Double click within the circle to edit it's properties. Enter the radius found in "data.txt" and the right ascension (RA) and declination (Dec) found on the [ACCEPT site](https://web.pa.msu.edu/astro/MC2/accept/) as the coordinates for the center. The region of extraction (ROI) has now been created.
 
-In the properties window, enter the 'Analysis' menu and select 'Statistics'. This will open a new statistics window for the defined region. If the sum of counts (lower left of the window) are less than 20000*(1+z)^4, found in the "data.txt" file, then the cluster has insufficient data for statistically significant analysis. These clusters should be labelled as 'bad' with a `b` flag in all applicable files (namely [process_all_data.py](process_all_data.py), [verify_coords.py](../checks/verify_coords.py), and [ggm_all_data.py](ggm_all_data.py)).
+In the properties window, enter the 'Analysis' menu and select 'Statistics'. This will open a new statistics window for the defined region. If the sum of counts (lower left of the window) are less than 20000*(1+z)^4, found in the "data.txt" file, then the cluster has insufficient data for statistically significant analysis. These clusters should be labelled as 'skip' with a `skip` flag in all applicable files (namely [process_all_data.py](process_all_data.py), [verify_coords.py](../checks/verify_coords.py), and [ggm_all_data.py](ggm_all_data.py)).
 
-If the cluster has sufficient counts, it should be labelled as 'done' with a `d` flag in the three files named above. Save the created ROI as `ds9_fk.reg` in the cluster's directory, using the 'ds9' format, with 'WCS - FK5' as the coordinate system.
+If the cluster has sufficient counts, it should be labelled as 'complete' with a `complete` flag in the three files named above. Save the created ROI as `ds9_fk.reg` in the cluster's directory, using the 'ds9' format, with 'WCS - FK5' as the coordinate system.
 
 Additionally, save the ROI as `bk.reg` into the "[cluster_name]/expcor_mosaic_2 directory", using the 'CIAO' format with 'Physical' as the coordinate system.
 
