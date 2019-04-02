@@ -24,7 +24,7 @@ Open a terminal and navigate to your data/ directory, and start CIAO by entering
 
 Once CIAO is confirmed to be running, run `python get_all_data.py`.
 
-Upon completion of the previous command, run `python verify_reproj.py` and check "data/issues.txt" for any error messages. If an error is recorded, you will have to re-download and reproject (see: `chandra_reproj`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](reduce/get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
+Upon completion of the previous command, run `python verify_reproj.py` and check "data/issues.txt" for any error messages. If an error is recorded, you will have to re-download, reprocess, reproject, and merge (see: `download_chandra_obsid`, `chandra_repro`, `reproject_obs`, `flux_obs`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](reduce/get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
 
 ## Step 2 ##
 
