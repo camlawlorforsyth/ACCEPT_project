@@ -16,7 +16,7 @@ Once each verification process has completed, a "issues.txt" file will be create
 ## Main files ##
 
 1. [verify_reproj.py](verify_reproj.py) - Occasionally, the download and reprojection will skip over some necessary files. This test ensures no files are missing and states if there are any issues. If files are missing, image counts and point sources will be off, and the data for that particular cluster must be first deleted, and then re-downloaded.
-   - [expcor_count.py](expcor_count.py) is called by verify_reproj.py
+   - [merged_count.py](merged_count.py) is called by verify_reproj.py
 
 2. [verify_coords.py](verify_coords.py) - This file goes through all the region files before [process_all_data.py](../reduce/process_all_data.py) is called (which calls [reduce2.py](../reduce/reduce2.py)), and ensures the region files are saved in the proper coordinates. If there are any issues, the region files will have to be re-saved before proceeding.
    - [check_coords.py](check_coords.py) is called by verify_coords.py
