@@ -16,7 +16,7 @@ import sys
 length = len(sys.argv) # length = 14 for the example above
 cluster = sys.argv[1] # the cluster name, as indicated
 redshift = float(sys.argv[2]) # the given redshift
-Rout = float(sys.argv[3]) # the maximal outer radius that was fit by Cavagnolo+
+Rout_Mpc = float(sys.argv[3]) # the maximal outer radius that was fit by Cavagnolo+
 
 ## STEP 0 - CREATE CLUSTER DIRECTORY ##
 
@@ -93,7 +93,7 @@ cmd = ""
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
 
 os.system("python ../reduce/ROI_count.py " + cluster +
-          "merged_2/broad_flux.img " + str(redshift) + " " + str(Rout) +
+          "merged_2/broad_flux.img " + str(redshift) + " " + str(Rout_Mpc) +
           " >> cas_process_all_data.py") # determine if cluster has sufficient
     # data and append quality flag to cas_process_all_data.py
     # if data is sufficient, create ds9_fk5.reg file, and bk.reg file
