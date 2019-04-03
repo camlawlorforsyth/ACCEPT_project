@@ -1,3 +1,3 @@
-[submodule "reduction/ggm"]
-	path = reduction/ggm
+[submodule "ggm"]
+	path = ggm
 	url = https://github.com/camlawlorforsyth/ggm
