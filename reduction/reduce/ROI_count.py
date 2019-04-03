@@ -2,7 +2,7 @@
 
 '''
 The calling code used in reduce1.py for this file, is of the form:
-python ../reduce/ROI_count.py 1E_0657-56 image.img redshift ROIout
+python ../reduce/ROI_count.py 1E_0657-56 image.img redshift Rout_Mpc
 argv[-]       argv[0]         argv[1]     argv[2]  argv[3]  argv[4]
 '''
 
@@ -40,12 +40,12 @@ def main() :
         cluster = sys.argv[1]
         file = sys.argv[2]
         redshift = float(sys.argv[3])
-        ROIout = float(sys.argv[4])
+        Rout_Mpc = float(sys.argv[4])
     else : # this should only be necessary if not using the automated scripts
         cluster = get_cluster()
         file = get_image()
         redshift = get_redshift()
-        ROIout = get_ROIout()
+        Rout_Mpc = get_Rout_Mpc()
         print('\nInput confirmed. Continuing with script.\n')
     
     science = fits.open(file) # open the science image
@@ -59,10 +59,10 @@ def main() :
     index = dat.loc_indices[redshift] # requires redshift in dat['z'] be unique
     RA = Angle(dat['RA'][index], u.deg) # get the RA, Dec for this cluster
     Dec = Angle(dat['Dec'][index], u.deg)
-    R_out = ROIout*u.Mpc # the ROIout for this cluster
+    Rout_Mpc = Rout_Mpc*u.Mpc # the Rout_Mpc for this cluster
     
     D_A = cosmo.angular_diameter_distance(redshift)
-    R_max = (R_out/D_A)*(180/np.pi)*u.deg # to get maximum radius in degrees
+    R_max = (Rout_Mpc/D_A)*(180/np.pi)*u.deg # maximum radius in degrees
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max)
@@ -73,7 +73,7 @@ def main() :
     
     cmd = 'os.system("'
     cmd += ("python reduce/reduce2.py " + cluster + " " + str(redshift) + " " +
-            str(ROIout) )
+            str(Rout_Mpc) )
     
     if total_counts < minimum_necessary_counts :
         cmd += ' skip")' # append the quality flag for further analysis
@@ -159,10 +159,10 @@ def get_redshift() :
     
     return val
 
-#....................................................................get_ROIout
-def get_ROIout() :
+#..................................................................get_Rout_Mpc
+def get_Rout_Mpc() :
     
-    prompt = ('Input the ROIout to use for analysis: ')
+    prompt = ('Input the Rout_Mpc to use for analysis: ')
     warning = '\b'
     while warning : # drop out if empty
         userIn = input(warning + prompt)
