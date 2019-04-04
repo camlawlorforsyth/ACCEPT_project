@@ -25,7 +25,7 @@ import os
 import sys
 
 # read in the complete catalog
-dat = ascii.read('../../accept_catalog.csv') # requires columns to have unique
+dat = ascii.read('../accept_catalog.csv') # requires columns to have unique
                                              # names
 dat.add_index('z') # index the catalog by redshift so that row queries are
                   # possible
@@ -59,10 +59,10 @@ def main() :
     index = dat.loc_indices[redshift] # requires redshift in dat['z'] be unique
     RA = Angle(dat['RA'][index], u.deg) # get the RA, Dec for this cluster
     Dec = Angle(dat['Dec'][index], u.deg)
-    Rout_Mpc = Rout_Mpc*u.Mpc # the Rout_Mpc for this cluster
+    Rout = Rout_Mpc*u.Mpc # the Rout_Mpc for this cluster
     
     D_A = cosmo.angular_diameter_distance(redshift)
-    R_max = (Rout_Mpc/D_A)*(180/np.pi)*u.deg # maximum radius in degrees
+    R_max = (Rout/D_A)*(180/np.pi)*u.deg # maximum radius in degrees
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max)
