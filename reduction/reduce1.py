@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in get_all_data.py for this file, is of the form:
-python reduce/reduce1.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
-argv[-]    argv[0]        argv[1]  argv[2] argv[3] ... argv[N]
+python reduction/reduce1.py 1E_0657-56 0.296 1.1945 554 3184 4984 4985 4986 5355 5356 5357 5358 5361
+argv[-]       argv[0]        argv[1]  argv[2] argv[3] ... argv[N]
 '''
 
 # imports
@@ -16,7 +16,7 @@ import sys
 length = len(sys.argv) # length = 14 for the example above
 cluster = sys.argv[1] # the cluster name, as indicated
 redshift = float(sys.argv[2]) # the given redshift
-Rout_Mpc = float(sys.argv[3]) # the maximal outer radius that was fit by Cavagnolo+
+Rout_Mpc = float(sys.argv[3]) # the maximum outer radius used by Cavagnolo+
 
 ## STEP 0 - CREATE CLUSTER DIRECTORY ##
 
@@ -69,17 +69,17 @@ cmd = ""
 
 os.system("punlearn flux_obs")  # restore system default parameter values
 
-cmd = "flux_obs 'reproj/*reproj_evt.fits' merged/ bin=0.5" # for GGM filtering
-os.system("echo " + cmd)
+cmd = "flux_obs 'reproj/*reproj_evt.fits' merged/ bin=0.5 units=time" # for GGM
+os.system("echo " + cmd)                                            # filtering
 os.system(cmd)
-cmd = "flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2" # for CAS analysis
-os.system("echo " + cmd)                                   # and unsharp mask
+cmd = "flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2 units=time" # for CAS
+os.system("echo " + cmd)                            # analysis and unsharp mask
 os.system(cmd)
 cmd = ""
 
 ## STEP 4 - CHECK MERGED FILES ARE PRESENT ##
 
-cmd = "python ../reduce/merged_count.py " + cluster
+cmd = "python ../reduction/merged_count.py " + cluster
 
 for i in range(4, length) :
     cmd += (" " + str(sys.argv[i])) # a space-separated list of the ObsIds
@@ -92,7 +92,7 @@ cmd = ""
 
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
 
-os.system("python ../reduce/ROI_count.py " + cluster +
+os.system("python ../reduction/ROI_count.py " + cluster +
           "merged_2/broad_flux.img " + str(redshift) + " " + str(Rout_Mpc) +
           " >> cas_process_all_data.py") # determine if cluster has sufficient
     # data and append quality flag to cas_process_all_data.py
