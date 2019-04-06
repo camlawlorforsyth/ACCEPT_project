@@ -2,8 +2,8 @@
 
 '''
 The calling code used in reduce1.py for this file, is of the form:
-python ../reduce/ROI_count.py 1E_0657-56 image.img redshift Rout_Mpc
-argv[-]       argv[0]         argv[1]     argv[2]  argv[3]  argv[4]
+python ../reduction/ROI_count.py 1E_0657-56 image.img redshift Rout_Mpc
+argv[-]          argv[0]         argv[1]     argv[2]  argv[3]  argv[4]
 '''
 
 # imports
@@ -26,7 +26,7 @@ import sys
 
 # read in the complete catalog
 dat = ascii.read('../accept_catalog.csv') # requires columns to have unique
-                                             # names
+                                          # names
 dat.add_index('z') # index the catalog by redshift so that row queries are
                   # possible
 
@@ -67,15 +67,17 @@ def main() :
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max)
     phot_table = aperture_photometry(image, aperture, wcs=world_cs)
-    total_counts = phot_table['aperture_sum'][0]
+    total_counts_per_second = phot_table['aperture_sum'][0]
+    
+    exposure_time = header['EXPOSURE'] # exposure time in seconds
     
     minimum_necessary_counts = 20000*(1 + redshift)**4
     
     cmd = 'os.system("'
-    cmd += ("python reduce/reduce2.py " + cluster + " " + str(redshift) + " " +
-            str(Rout_Mpc) )
+    cmd += ("python reduction/reduce2.py " + cluster + " " + str(redshift) +
+            " " + str(Rout_Mpc) )
     
-    if total_counts < minimum_necessary_counts :
+    if (total_counts_per_second*exposure_time) < minimum_necessary_counts :
         cmd += ' skip")' # append the quality flag for further analysis
         print(cmd)
     else :
@@ -84,11 +86,11 @@ def main() :
         
         ds9_fk5 = ('# Region file format: DS9 version 4.1\n' +
                    'global width=1\n' + 'fk5\n')
-    
+        
         ds9_fk5 += ("circle(" + RA.to_string(unit=u.hour, sep=':') + "," +
                     Dec.to_string(unit=u.degree, sep=':') + "," +
                     str(R_max/u.deg*3600) + '")\n')
-    
+        
         with open('ds9_fk5.reg', 'a') as file :
             file.write(ds9_fk5) # create the ds9_fk5.reg file for further use
         
