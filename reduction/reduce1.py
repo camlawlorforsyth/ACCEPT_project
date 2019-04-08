@@ -85,7 +85,7 @@ merged_count.main(cluster, length-6) # prints to data/issues.txt
 
 quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift,Rout_Mpc)
 
-with open('cas_process_all_data.py', 'a') as file :
+with open('../cas_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
                "','" + str(redshift) + "','" + str(Rout_Mpc) + "','" +
                quality + "'])" )
