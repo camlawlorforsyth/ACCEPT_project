@@ -14,7 +14,7 @@ from photutils import SkyCircularAperture
 import warnings
 warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
 
-import os
+import subprocess
 
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
@@ -59,8 +59,9 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
         
         # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html    
         
-        os.system('dmmakereg "region(ds9_fk5.reg)" bk.reg kernel=ascii ' + 
-                  'wcsfile=merged_2/broad_flux.img') # take the ds9_fk5.reg
-                              # file and create a CIAO physical bk.reg file
+        subprocess.run('dmmakereg "region(ds9_fk5.reg)" bk.reg kernel=ascii ' +
+                       'wcsfile=merged_2/broad_flux.img', shell=True) # take
+                        # the ds9_fk5.reg file and create a CIAO physical
+                        # bk.reg file
         
         return "sufficient"
