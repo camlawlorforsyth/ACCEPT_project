@@ -97,7 +97,7 @@ quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift,Rout_Mpc)
 with open('../cas_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
                "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
-               "','" + str(Rout_Mpc) + "','" + quality + "'])" ) # append
+               "','" + str(Rout_Mpc) + "','" + quality + "'])\n" ) # append
                # quality flag to cas_process_all_data.py
 
 ## STEP 6 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
