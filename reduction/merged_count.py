@@ -10,7 +10,7 @@ def main(cluster, num_obs) :
     
     if num_obs > 1 : # for clusters with more than 1 observation
         
-        num_file = len(os.listdir(cluster + "/merged")) # the number of files
+        num_file = len(os.listdir("merged")) # the number of files
                                             # present in [cluster_name]/merged/
         if num_file < (num_obs + 1)*3 : # flux_obs creates 3 files for every
                                         # ObsID, plus 3 additional merged files
@@ -18,7 +18,7 @@ def main(cluster, num_obs) :
         else :
             file.write(cluster + "'s merged/ directory is fine.\n")
         
-        num_file = len(os.listdir(cluster + "/merged_2")) # the number of files
+        num_file = len(os.listdir("merged_2")) # the number of files
                                           # present in [cluster_name]/merged_2/
         if num_file < (num_obs + 1)*3 :
             file.write(cluster + "'s merged_2/ directory has an issue.\n")
