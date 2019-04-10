@@ -10,6 +10,7 @@ subprocess.run(['python','reduction/reduce1.py','1E_0657-56','104.6234458','-55.
 '''
 
 # imports
+import os
 import sys
 import subprocess
 
@@ -26,9 +27,13 @@ Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
 
 ## STEP 0 - CREATE CLUSTER DIRECTORY ##
 
+# http://cxc.harvard.edu/ciao/threads/all.html
+# http://cxc.harvard.edu/ciao/threads/imag.html
+# http://cxc.harvard.edu/ciao/threads/diffuse_emission/
+
 subprocess.run("mkdir " + cluster, shell=True) # create a new directory for the
                                                # cluster
-subprocess.run("cd " + cluster, shell=True) # change to the cluster directory
+os.chdir(cluster) # change to the cluster directory
 
 ## STEP 1 - OBTAIN DATA FROM THE CHANDRA DATA ARCHIVE ##
 
@@ -41,7 +46,7 @@ cmd = "download_chandra_obsid " # download Chandra data
 for i in range(6, length-1) :
     cmd += str(sys.argv[i]) + "," # creates a comma-separated list of the
                                   # passed ObsIds
-cmd += str(sys.argv[length-1]) + "-q" # append the last ObsId
+cmd += str(sys.argv[length-1]) + " -q" # append the last ObsId
 
 subprocess.run(cmd, shell=True) # pass the download command to the system
 
@@ -57,7 +62,8 @@ subprocess.run(cmd, shell=True) # pass the reprocess command to the system
 ## STEP 3 - REPROJECT AND COMBINE ##
 
 # http://cxc.harvard.edu/ciao/threads/merge_all/
-# http://cxc.cfa.harvard.edu/ciao/threads/combine/
+# http://cxc.harvard.edu/ciao/threads/reproject_image/
+# http://cxc.harvard.edu/ciao/threads/combine/
 # http://cxc.harvard.edu/ciao/ahelp/punlearn.html
 # http://cxc.harvard.edu/ciao/ahelp/merge_obs.html
 # http://cxc.harvard.edu/ciao/ahelp/reproject_obs.html
@@ -68,12 +74,13 @@ subprocess.run("punlearn reproject_obs", shell=True) # restore system default
 cmd = "reproject_obs '*/repro/*evt2*' reproj/" # reproject all ObsIds
 subprocess.run(cmd, shell=True)
 
-subprocess.run("punlearn flux_obs", shell=True)  # restore system default
-                                                 # parameter values
-cmd = "flux_obs 'reproj/*reproj_evt.fits' merged/ bin=0.5 units=time" # for GGM
-subprocess.run(cmd, shell=True)                                     # filtering
-cmd = "flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2 units=time" # for CAS
-subprocess.run(cmd, shell=True)                     # analysis and unsharp mask
+subprocess.run("punlearn flux_obs", shell=True)  # restore system defaults
+cmd = ("flux_obs 'reproj/*reproj_evt.fits' merged/ bin=0.5 units=time " + 
+       "psfecf=0.393 psfmerge=expmap") # for GGM filtering
+subprocess.run(cmd, shell=True)
+cmd = ("flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2 units=time " +
+       "psfecf=0.393 psfmerge=expmap") # for CAS analysis and unsharp mask
+subprocess.run(cmd, shell=True)
 
 ## STEP 4 - CHECK ALL MERGED FILES ARE PRESENT ##
 
@@ -84,32 +91,75 @@ merged_count.main(cluster, length-6) # prints to data/issues.txt
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
 
 quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift,Rout_Mpc)
+    # determine if cluster has sufficient data
+    # if data is sufficient, create ds9_fk5.reg file, and bk.reg file
 
 with open('../cas_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
-               "','" + str(redshift) + "','" + str(Rout_Mpc) + "','" +
-               quality + "'])" )
+               "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
+               "','" + str(Rout_Mpc) + "','" + quality + "'])" ) # append
+               # quality flag to cas_process_all_data.py
 
-## STEP 6 - DETECT POINT SOURCES ##
+## STEP 6 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
 
-    #================================= 6. POINT SOURCES =====================================#
-#Only sources very near to xray bright emission are really necessary to remove: only those in region of extraction
-#Make region around point sources in bin=2 broad_thresh.img and save regions in ciao format with physical coords: 
-#make sure region of extraction is not included
-
-#if quality == "sufficient" :
+if quality == "sufficient" :
     
-#    subprocess.run("", shell=True)
+    subprocess.run("mkdir ROI", shell=True) # trim the images to the ROI
+    subprocess.run("mkdir ROI_2", shell=True)    
     
+    subprocess.run("punlearn dmcopy", shell=True)
+    subprocess.run("dmcopy 'merged/broad_flux.img[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_flux_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged/broad_thresh.img[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged/broad_thresh.expmap[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_expmap_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged/broad_thresh.psfmap[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_psfmap_ROI.fits", shell=True)   
+    
+    subprocess.run("dmcopy 'merged_2/broad_flux.img[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/broad_flux_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged_2/broad_thresh.img[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/broad_thresh_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged_2/broad_thresh.expmap[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/broad_thresh_expmap_ROI.fits", shell=True)
+    subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/broad_thresh_psfmap_ROI.fits", shell=True)  
+    
+## STEP 7 - DETECT POINT SOURCES ##
 
-#os.system("python ../reduction/ROI_count.py " + cluster +
-#          "merged_2/broad_flux.img " + str(redshift) + " " + str(Rout_Mpc) +
-#          " >> cas_process_all_data.py") # determine if cluster has sufficient
-    # data and append quality flag to cas_process_all_data.py
-    # if data is sufficient, create ds9_fk5.reg file, and bk.reg file
+# http://cxc.harvard.edu/ciao/guides/esa.html
+# http://cxc.harvard.edu/ciao/threads/detect_overview/
+# http://cxc.harvard.edu/ciao/threads/wavdetect/
+# http://cxc.harvard.edu/ciao/threads/wavdetect_merged/
+# http://cxc.harvard.edu/ciao/ahelp/wavdetect.html
+    
+    subprocess.run("punlearn wavdetect", shell=True) # restore system defaults
+    subprocess.run("pset wavdetect infile=ROI/broad_thresh_ROI.fits",
+                   shell=True) # wavdetect will not work with fluxed images
+    subprocess.run("pset wavdetect psffile=ROI/broad_thresh_psfmap_ROI.fits",
+                   shell=True)
+    subprocess.run("pset wavdetect expfile=ROI/broad_thresh_expmap_ROI.fits",
+                   shell=True)
+    subprocess.run("pset wavdetect scales='1 2 4 8 16'", shell=True)
+    subprocess.run("pset wavdetect outfile=broad_thresh_src.fits", shell=True)
+    subprocess.run("pset wavdetect scellfile=broad_thresh_scell.fits",
+                   shell=True)
+    subprocess.run("pset wavdetect imagefile=broad_thresh_recon.fits",
+                   shell=True)
+    subprocess.run("pset wavdetect defnbkgfile=broad_thresh_nbkgd.fits",
+                   shell=True)
+    subprocess.run("pset wavdetect regfile=sources.reg", shell=True)
+    subprocess.run("pset wavdetect ellsigma=4", shell=True)
+    subprocess.run("wavdetect", shell=True)
 
-## STEP 7 - CLEANUP ##
+## STEP 8 - CLEANUP ##
 
 # do some cleanup, ie. delete unnecessary ObsIds files
 
-subprocess.run("cd ..", shell=True) # go back to the data/ directory
+os.chdir("..") # go back to the data/ directory
+
+'''
+the sources in sources.reg can now be viewed in ds9 and any spurious detections
+can be deleted. now save this file as 'sources_mod.reg' in CIAO+physical
+'''
