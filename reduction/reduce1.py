@@ -135,11 +135,11 @@ if quality == "sufficient" :
 # http://cxc.harvard.edu/ciao/ahelp/wavdetect.html
     
     subprocess.run("punlearn wavdetect", shell=True) # restore system defaults
-    subprocess.run("pset wavdetect infile=ROI/broad_thresh_ROI.fits",
+    subprocess.run("pset wavdetect infile=ROI_2/broad_thresh_ROI.fits",
                    shell=True) # wavdetect will not work with fluxed images
-    subprocess.run("pset wavdetect psffile=ROI/broad_thresh_psfmap_ROI.fits",
+    subprocess.run("pset wavdetect psffile=ROI_2/broad_thresh_psfmap_ROI.fits",
                    shell=True)
-    subprocess.run("pset wavdetect expfile=ROI/broad_thresh_expmap_ROI.fits",
+    subprocess.run("pset wavdetect expfile=ROI_2/broad_thresh_expmap_ROI.fits",
                    shell=True)
     subprocess.run("pset wavdetect scales='1 2 4 8 16'", shell=True)
     subprocess.run("pset wavdetect outfile=broad_thresh_src.fits", shell=True)
@@ -151,7 +151,13 @@ if quality == "sufficient" :
                    shell=True)
     subprocess.run("pset wavdetect regfile=sources.reg", shell=True)
     subprocess.run("pset wavdetect ellsigma=4", shell=True)
-    subprocess.run("wavdetect", shell=True)
+    subprocess.run("wavdetect infile=ROI_2/broad_thresh_ROI.fits " +
+                   "outfile=broad_thresh_src.fits " +
+                   "scellfile=broad_thresh_scell.fits " +
+                   "imagefile=broad_thresh_recon.fits " +
+                   "defnbkgfile=broad_thresh_nbkgd.fits " +
+                   "scales='1 2 4 8 16' " +
+                   "psffile=ROI_2/broad_thresh_psfmap_ROI.fits", shell=True)
 
 ## STEP 8 - CLEANUP ##
 
