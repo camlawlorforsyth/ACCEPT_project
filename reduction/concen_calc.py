@@ -33,7 +33,7 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     Rout = Rout_Mpc*u.Mpc # the Rout_Mpc for this cluster
     
     D_A = cosmo.angular_diameter_distance(redshift)
-    R_max = (Rout/D_A)*(180/np.pi)*u.deg # maximum radius in degrees
+    R_max = Angle(Rout/D_A*u.rad) # maximum radius in radians
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max)
@@ -111,7 +111,7 @@ def search(desired_total, R_max, position, image, wcs, num_steps) :
     elif desired_total > ten_R_max_total :
         radius = 0.1*R_max
     else :
-        radius = 1e-10*u.deg
+        radius = Angle(1e-10, u.rad)
     
     while radius <= R_max :
         aperture = SkyCircularAperture(position, r=radius)
