@@ -1,7 +1,7 @@
 # this script assumes Python 3.5 is in use
 
 # imports
-import numpy as np
+import subprocess
 
 from astropy.coordinates import Angle
 from astropy.coordinates import SkyCoord
@@ -13,8 +13,6 @@ from photutils import aperture_photometry
 from photutils import SkyCircularAperture
 import warnings
 warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
-
-import subprocess
 
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
@@ -33,7 +31,7 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     Rout = Rout_Mpc*u.Mpc # the Rout_Mpc for this cluster
     
     D_A = cosmo.angular_diameter_distance(redshift)
-    R_max = (Rout/D_A)*(180/np.pi)*u.deg # maximum radius in degrees
+    R_max = Angle(Rout/D_A*u.rad) # maximum radius in radians
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max)
@@ -52,7 +50,7 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
         
         ds9_fk5 += ("circle(" + RA.to_string(unit=u.hour, sep=':') + "," +
                     Dec.to_string(unit=u.degree, sep=':') + "," +
-                    str(R_max/u.deg*3600) + '")\n')
+                    str(R_max.to(u.arcsec).value) + '")\n')
         
         with open('ds9_fk5.reg', 'a') as file :
             file.write(ds9_fk5) # create the ds9_fk5.reg file for further use
