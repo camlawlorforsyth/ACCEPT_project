@@ -16,6 +16,7 @@ warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
 
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
+eps = 1e-3
 
 #..........................................................................main
 def main(file, right_ascension, declination, redshift, Rout_Mpc) :
@@ -41,10 +42,19 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     
     return concentration(max_total, R_max, position, image, world_cs)
 
+#.................................................................concentration
+def concentration(max_total, R_max, position, image, wcs) :
+    
+    # find radius that encompasses 20% of the emission, then the same for 80%
+    r_20, r_20_rel_err = search(0.2*max_total, R_max, position,image,wcs,10000)
+    r_80, r_80_rel_err = search(0.8*max_total, R_max, position,image,wcs,10000)
+    
+    uncertainty = 5/np.log(10) * ( r_20_rel_err + r_80_rel_err )
+    
+    return 5*np.log10(r_80 / r_20), uncertainty
+
 #........................................................................search
 def search(desired_total, R_max, position, image, wcs, num_steps) :
-    
-    eps = 1e-3
     
     aperture = SkyCircularAperture(position, r=0.1*R_max)
     phot_table = aperture_photometry(image, aperture, wcs=wcs)
@@ -116,15 +126,4 @@ def search(desired_total, R_max, position, image, wcs, num_steps) :
         else : # if (desired_total-total) < 0, we've gone too far
                # so we try again with finer steps
             search(desired_total, R_max, position, image, wcs, 10*num_steps)
-
-#.................................................................concentration
-def concentration(max_total, R_max, position, image, wcs) :
-    
-    # find radius that encompasses 20% of the emission, then the same for 80%
-    r_20, r_20_rel_err = search(0.2*max_total, R_max, position, image, wcs, 10000)
-    r_80, r_80_rel_err = search(0.8*max_total, R_max, position, image, wcs, 10000)
-    
-    uncertainty = 5/np.log(10) * ( r_20_rel_err + r_80_rel_err )
-    
-    return 5*np.log10(r_80 / r_20), uncertainty
 #..............................................................end of functions
