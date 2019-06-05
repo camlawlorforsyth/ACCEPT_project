@@ -31,6 +31,8 @@ def clumpiness(image, smoothed) :
     for x in range(0, dim) : # loop for every pixel in the image
         for y in range(0, dim) :
             num = ( image[x,y] - smoothed[x,y] )
+            if num < 0 :
+                num = 0
             num_total += num
             denom = ( image[x,y] )
             denom_total += denom
