@@ -117,7 +117,7 @@ export PERL=/usr/bin/perl
 export PYTHON=/usr/bin/python
 ```
 
-Finally, change to the build directory and configure, make and install HEAsoft (as root):
+Finally, change to the build directory and configure, build and install HEAsoft (as root):
 ```
 cd heasoft-6.26/BUILD_DIR/
 ./configure > config.out 2>&1 &
