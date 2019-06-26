@@ -228,12 +228,14 @@ if quality == "sufficient" :
     subprocess.run("dmimgcalc smoothed_3.fits smoothed_30.fits " +
                    "unsharp_mask.fits sub", shell=True)
     
+    os.chdir("..")
+    
 ## STEP 13 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
     
 # http://cxc.harvard.edu/ciao/gallery/smooth.html
 # https://github.com/jeremysanders/ggm
     
-    os.chdir("../ROI") # move back into the bin=0.5 directory
+    os.chdir("ROI") # move into the bin=0.5 directory
     
     science = fits.open('final.fits') # open the final science image
     image = science[0].data # get the science data that will be used
@@ -302,14 +304,14 @@ else:
     with open('../../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + ",,,,,,")
 
-## STEP 15 - ADDITIONAL CLEANUP ## - delete merged files, unnecessary files
+## STEP 15 - ADDITIONAL CLEANUP ##
 
 cmd = "rm -rf bin bin_2" # delete unnecessary files
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
-    
-    
-    
-    
+
+os.chdir("..") # go back to the data/ directory
+
+
     # start here again, June 25, 2019
     
     
