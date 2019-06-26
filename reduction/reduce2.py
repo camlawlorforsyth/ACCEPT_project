@@ -1,149 +1,378 @@
 # this script assumes Python 3.5 is in use
 
 '''
+For information regarding how this script is initialized, see the 'README.md'
+file in reduction/README.md.
+
 The calling code used in cas_process_all_data.py for this file, is of the form:
-python reduce/reduce2.py 1E_0657-56 0.296 1.1945 complete
-argv[-]    argv[0]       argv[1]   argv[2] argv[3] argv[4]
+subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','sufficient'])
+                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]    argv[6]
 '''
 
 # imports
-import sys
 import os
-from math import *
+import sys
+import subprocess
 
-#sources_mod.reg ciao&physical bk.reg
-#The following is adapted from the Chandra imaging diffuse emission thread
-clusterName = sys.argv[1]
-redshift = sys.argv[2]
-ROIout = sys.argv[3]
-bad = sys.argv[4]
+import concen_calc
+import asymm_calc
+import clumpy_calc
 
-os.chdir(clusterName)
+from astropy.cosmology import FlatLambdaCDM
+from astropy.io import fits
+import astropy.units as u
 
-f = open("data.txt", "r")
-f.readline()
-stat = clusterName + "," + f.readline().split(' ')[-1].strip() + "," + f.readline().split(' ')[-1].strip() + ","
+# constants
+cluster = sys.argv[1] # the cluster name, as indicated
+RA = float(sys.argv[2]) # the right ascension of the cluster
+Dec = float(sys.argv[3]) # the declination of the cluster
+redshift = float(sys.argv[4]) # the given redshift
+Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
+quality = sys.argv[6] # quality flag
 
-f.close()
+cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
+pixel_scale = 0.984*u.arcsec # 1 pixel = 0.984" for Chandra
+scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
+                             # scales. See paper for more information
 
-if bad == "d":
-    os.chdir('expcor_mosaic')
+## STEP 1 - MOVE INTO CLUSTER DIRECTORY IF DATA QUALITY IS SUFFICIENT ##
 
+if quality == "sufficient" :
+    
+    os.chdir(cluster)
+    
+## STEPS 2-5 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
+    
+    os.chdir("bin")
+    
+## STEP 2 - CONVERT SOURCE LIST TO FITS FORMAT ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
+    
+    subprocess.run("punlearn dmmakereg", shell=True) # restore system defaults
+    subprocess.run("dmmakereg 'region(../sources_mod.reg)' sources_mod.fits " +
+                   "wcsfile=broad_flux.fits", shell=True) # convert
+    # the modified source list into FITS format
+    
+## STEP 3 - CREATE SOURCE AND BACKGROUND REGIONS ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/roi.html
+    
+    subprocess.run("mkdir sources", shell=True)
+    subprocess.run("punlearn roi", shell=True) # restore system defaults
+    subprocess.run("pset roi infile=sources_mod.fits", shell=True)
+    subprocess.run("pset roi outsrcfile=sources/src%d.fits", shell=True)
+    subprocess.run("pset roi bkgfactor=0.5", shell=True)
+    subprocess.run("roi infile=sources_mod.fits fovregion='' " +
+                   "streakregion='' outsrcfile=sources/srd%d.fits "+
+                   "radiusmode=mul bkgradius=3", shell=True) # create source
+    # and background regions for each source, combine nearby regions
+    
+## STEP 4 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/splitroi.html
+    
+    subprocess.run("splitroi 'sources/src*.fits' exclude", shell=True)
+    
+## STEP 5 - FILL IN HOLES ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmfilth.html
+    
+    subprocess.run("punlearn dmfilth", shell=True) # restore system defaults
+    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=diffuse.fits", shell=True)    
+    subprocess.run("pset dmfilth method=POISSON", shell=True)
+    subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
+    subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
+    subprocess.run("pset dmfilth randseed=0", shell=True)
+    subprocess.run("dmfilth infile=broad_flux.fits " +
+                   "outfile=diffuse.fits method=POISSON " +
+                   "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
+                   shell=True) # remove regions and fill with Poisson
+    # distribution of the background
+    
+    os.chdir("..") # move back up to the cluster directory
+    
+## STEP 6 - REPEAT STEPS 2-5 FOR bin=2 IMAGE ##
+    
+    os.chdir("bin_2")
+    
+    subprocess.run("punlearn dmmakereg", shell=True)
+    subprocess.run("dmmakereg 'region(../sources_mod.reg)' sources_mod.fits " +
+                   "wcsfile=broad_flux.fits", shell=True)
+    
+    subprocess.run("mkdir sources", shell=True)
+    subprocess.run("punlearn roi", shell=True)
+    subprocess.run("pset roi infile=sources_mod.fits", shell=True)
+    subprocess.run("pset roi outsrcfile=sources/src%d.fits", shell=True)
+    subprocess.run("pset roi bkgfactor=0.5", shell=True)
+    subprocess.run("roi infile=sources_mod.fits fovregion='' " +
+                   "streakregion='' outsrcfile=sources/srd%d.fits "+
+                   "radiusmode=mul bkgradius=3", shell=True)
+    
+    subprocess.run("splitroi 'sources/src*.fits' exclude", shell=True)
+    
+    subprocess.run("punlearn dmfilth", shell=True)
+    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=diffuse.fits", shell=True)    
+    subprocess.run("pset dmfilth method=POISSON", shell=True)
+    subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
+    subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
+    subprocess.run("pset dmfilth randseed=0", shell=True)
+    subprocess.run("dmfilth infile=broad_flux.fits " +
+                   "outfile=diffuse.fits method=POISSON " +
+                   "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
+                   shell=True)
+    
+    os.chdir("..")
+    
+## STEP 7 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
+    
+    subprocess.run("mkdir ROI", shell=True) # trim the images to the ROI
+    subprocess.run("mkdir ROI_2", shell=True)
+    
+    subprocess.run("punlearn dmcopy", shell=True) # restore system defaults
+    subprocess.run("dmcopy 'bin/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/diffuse.fits", shell=True)
+    subprocess.run("dmcopy 'bin/broad_flux_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+                   "ROI/background.fits", shell=True)
+    
+    subprocess.run("dmcopy 'bin_2/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/diffuse.fits", shell=True)
+    subprocess.run("dmcopy 'bin_2/broad_flux_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+                   "ROI_2/background.fits", shell=True)
+    
+## STEP 8 - BACKGROUND SUBTRACTION ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("dmimgcalc ROI/diffuse.fits ROI/background.fits " +
+                   "ROI/final.fits sub", shell=True) # subtract background of
+    # region of interest from diffuse emission image, thus creating final
+    # merged, exposure-corrected, background-subtracted cluster image
+    
+    subprocess.run("punlearn dmimgcalc", shell=True)
+    subprocess.run("dmimgcalc ROI_2/diffuse.fits ROI_2/background.fits " +
+                   "ROI_2/final.fits sub", shell=True)
+    
+## STEP 9 - COMPUTE CONCENTRATION PARAMETER ##
+    
+# could alternatively use ecf_calc to determine radii for 20% and 80% of counts
+# http://cxc.harvard.edu/ciao/ahelp/ecf_calc.html
+    
+    os.chdir("ROI_2") # move into the bin=2 directory
+    concen,concen_err = concen_calc.main('final.fits',RA,Dec,redshift,Rout_Mpc)
+    
+## STEP 10 - COMPUTE ASYMMETRY PARAMETER ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmregrid.html
+# http://cxc.harvard.edu/ciao/ahelp/dmregrid2.html
+    
+    science = fits.open('final.fits') # open the final science image
+    image = science[0].data # get the science data that will be used
+    science.close()
+    
+    x_length = image.shape[1] # images might not be perfectly square
+    y_length = image.shape[0]
+    x_center = x_length/2
+    y_center = y_length/2
+    
+    subprocess.run("punlearn dmregrid2", shell=True) # restore system defaults
+    subprocess.run("dmregrid2 final.fits rot.fits resolution=0 " +
+                   "theta=180 rotxcenter=" + str(x_center) + " rotycenter=" +
+                   str(y_center), shell=True)
+    
+    asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
+    
+## STEP 11 - COMPUTE CLUMPINESS PARAMETER ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/csmooth.html
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    scale = (cosmo.arcsec_per_kpc_proper(redshift) *
+             scale_of_interest/pixel_scale).value # determine number of pixels
+             # that correspond to 15 kpc in projected size, to highlight
+             # AGN driven features like bubbles and cavities
+    
+    subprocess.run("punlearn csmooth", shell=True) # restore system defaults
+    subprocess.run("csmooth final.fits outfile=smoothed.fits " +
+                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
+                   "sclmin=" + str(scale) + " sclmax=" + str(scale) +
+                   " sclmode=compute", shell=True)    
+    
+#    subprocess.run("punlearn dmcopy", shell=True)
+#    subprocess.run("dmcopy 'smoothed.fits[sky=region(../ds9_fk5.reg)]' " +
+#                   "smoothed.fits") # retrim to get rid of edge effects
+    
+    clumpy, clumpy_err = clumpy_calc.main('final.fits', 'smoothed.fits')
+    
+## STEP 12 - CREATE UNSHARP MASK (UM) IMAGE ##
+    
+# http://cxc.harvard.edu/ciao/gallery/smooth.html
+# http://cxc.harvard.edu/ciao/ahelp/aconvolve.html
+# http://cxc.harvard.edu/ciao/ahelp/csmooth.html
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    subprocess.run("punlearn csmooth", shell=True)
+    subprocess.run("csmooth final.fits outfile=smoothed_3.fits " +
+                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
+                   "sclmin=3 sclmax=3 sclmode=compute", shell=True)
+    subprocess.run("csmooth final.fits outfile=smoothed_30.fits " +
+                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
+                   "sclmin=30 sclmax=30 sclmode=compute", shell=True)
+    
+    subprocess.run("punlearn dmimgcalc", shell=True)
+    subprocess.run("dmimgcalc smoothed_3.fits smoothed_30.fits " +
+                   "unsharp_mask.fits sub", shell=True)
+    
+## STEP 13 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
+    
+# http://cxc.harvard.edu/ciao/gallery/smooth.html
+# https://github.com/jeremysanders/ggm
+    
+    os.chdir("../ROI") # move back into the bin=0.5 directory
+    
+    science = fits.open('final.fits') # open the final science image
+    image = science[0].data # get the science data that will be used
+    science.close()
+    
+    x_length = image.shape[1] # images might not be perfectly square
+    y_length = image.shape[0]
+    x_cent = x_length/2
+    y_cent = y_length/2
+    
+    for sigma in [1,2,4,8,16,32] :
+        outfilename = cluster + "_" + str(sigma) + ".fits"
+        subprocess.run(['python',
+                        '../../reduction/ggm/gaussian_gradient_magnitude.py',
+                        'final.fits', outfilename, str(sigma)])
+    
+    file = open('input.yml','w') # open for writing
+    file.write("image:\n")
+    file.write("        centre: [" + str(x_cent) + "," + str(y_cent) + "]\n")
+    file.write("        outfilename: " + cluster + "_ggm.fits\n")
+    file.write("data:\n")
+    
+    dim = min(x_cent, y_cent)
+    
+    radii = "[0,"
+    for sigma in [32,16,8,4,2,1] :
+        radii += str( int(dim/sigma) ) + ","
+    radii += str( int(dim) ) + "]\n"
+    
+    file.write("        - filename: " + cluster + "_1.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [1,1,0,0,0,0,0,0]\n")
+    
+    file.write("        - filename: " + cluster + "_2.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [2,2,2,0,0,0,0,0]\n")
+    
+    file.write("        - filename: " + cluster + "_4.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [0,4,4,4,0,0,0,0]\n")
+    
+    file.write("        - filename: " + cluster + "_8.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [0,0,8,8,8,0,0,0]\n")
+    
+    file.write("        - filename: " + cluster + "_16.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [0,0,0,10,10,10,0,0]\n")
+    
+    file.write("        - filename: " + cluster + "_32.fits\n")
+    file.write("          weightrad: " + radii)
+    file.write("          weightvals: [0,0,0,0,10,10,10,10]\n")
+    
+    file.close()
+    
+    subprocess.run(['python','uninteractive.py','input.yml'])
+    
+## STEP 14 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+    
+    with open('../../CAS_parameters_v1.txt', 'a') as file :
+        file.write(cluster + "," + str(concen) + "," + str(concen_err) +
+                   "," + str(asymm) + "," + str(asymm_err) +
+                   "," + str(clumpy) + "," + str(clumpy_err) )
+    
+else:
+    with open('../../CAS_parameters_v1.txt', 'a') as file :
+        file.write(cluster + ",,,,,,")
 
+## STEP 15 - ADDITIONAL CLEANUP ## - delete merged files, unnecessary files
 
-
-    for i in range(0,2):
-	    os.system("punlearn dmmakereg")
-	    os.system("dmmakereg \"region(sources_mod.reg)\" sources_mod.fits")
-	    os.system("dmlist sources_mod.fits cols")				#convert region file to fits format
-	    os.system("mkdir sources")
-	    os.system("punlearn roi")								#combine nearby sources
-	    os.system("pset roi infile=sources_mod.fits")
-	    os.system("pset roi outsrcfile=sources/src%d.fits")
-	    os.system("pset roi bkgfactor=0.5")
-	    #os.system("roi") 										#press enter through all of the prompts 
-	    os.system("roi infile=sources_mod.fits fovregion=\"\" streakregion=\"\" outsrcfile=sources/src%d.fits radiusmode=mul bkgradius=3")
-
-	    os.system("pget roi num_srcs")							#number of sources after roi combines nearby sources
-	    os.system("dmlist sources_mod.fits counts")				#original number of sources
-     
-	    os.system("splitroi \"sources/src*.fits\" exclude")		#split region into source and backgroun
-	    os.system("dmmakereg \"region(exclude.bg.reg)\" exclude.bg.fits")
-
-	    os.system("punlearn dmfilth")
-	    os.system("pset dmfilth infile=broad_thresh.img")		#remove regions and fill with poission dist of background
-	    os.system("pset dmfilth outfile=broad_thresh_nps.fits")
-	    os.system("pset dmfilth method=POISSON")
-	    os.system("pset dmfilth srclist=@exclude.src.reg")
-	    os.system("pset dmfilth bkglist=@exclude.bg.reg")
-	    os.system("pset dmfilth randseed=0")
-    #	os.system("dmfilth")									#enter through
-	    os.system("dmfilth infile=broad_thresh.img outfile=broad_thresh_nps.fits method=POISSON srclist=@exclude.src.reg bkglist=@exclude.bg.reg randseed=0")
-
-	    os.system("mv exclude.bg.fits exclude.bg.reg exclude.src.reg \sources")
-
-	    os.chdir('../expcor_mosaic_2')
-
+cmd = "rm -rf bin bin_2" # delete unnecessary files
+subprocess.run(cmd, shell=True) # pass the cleanup command to the system
+    
+    
+    
+    
+    # start here again, June 25, 2019
+    
+    
+    
+    
+# old code, adapt for above
     #BIN=2 ONLY Then create a background image using the region of extraction found before (resaved as bk.reg),
     #only necessary for bin=2 save as ciao&physical.
-
-    os.system("punlearn dmmakereg")
-    os.system("dmmakereg \"region(bk.reg)\" background_reg.fits")
-    os.system("dmlist background_reg.fits cols")
-
-    os.system("mkdir sources_bk")
-    os.system("punlearn roi")		
-    os.system("pset roi infile=background_reg.fits")
-    os.system("pset roi outsrcfile=sources_bk/src%d.fits")
-    os.system("pset roi bkgfactor=0.5")
-    #os.system("roi")
-    os.system("roi infile=background_reg.fits fovregion=\"\" streakregion=\"\" outsrcfile=sources_bk/src%d.fits radiusmode=mul bkgradius=3")
-    os.system("pget roi num_srcs")
-    os.system("dmlist background_reg.fits counts")
-	     
-    os.system("splitroi \"sources_bk/src*.fits\" exclude")
-    os.system("dmmakereg \"region(exclude.bg.reg)\" exclude.bg.fits")
-
-    os.system("punlearn dmfilth")
-    os.system("pset dmfilth infile=broad_thresh_nps.fits")
-    os.system("pset dmfilth outfile=broad_thresh_bkg.fits")			
-    os.system("pset dmfilth method=POISSON")
-    os.system("pset dmfilth srclist=@exclude.src.reg")
-    os.system("pset dmfilth bkglist=@exclude.bg.reg")
-    os.system("pset dmfilth randseed=0")
-    #os.system("dmfilth")
-    os.system("dmfilth infile=broad_thresh_nps.fits outfile=broad_thresh_bkg.fits method=POISSON srclist=@exclude.src.reg bkglist=@exclude.bg.reg randseed=0")
-
-    os.system("mv background_reg.fits bk.reg exclude.bg.fits exclude.bg.reg exclude.src.reg \sources_bk")
-
+    
+    subprocess.run("mv background_reg.fits bk.reg exclude.bg.fits exclude.bg.reg exclude.src.reg \sources_bk")
+    
     #with the bin=2 and bin=0.5 images
-    os.system("dmcopy \"broad_thresh_bkg.fits[sky=region(../ds9_fk.reg)]\" background.fits")		#only for bin=2	 
-    os.system("dmcopy \"broad_thresh_nps.fits[sky=region(../ds9_fk.reg)]\" threshed_broad.fits")	#for bin=2 and bin=0.5
-    os.chdir('../expcor_mosaic')
-    os.system("dmcopy \"broad_thresh_nps.fits[sky=region(../ds9_fk.reg)]\" threshed_broad.fits")
-
+    subprocess.run("dmcopy 'broad_thresh_bkg.fits[sky=region(../ds9_fk5.reg)]' background.fits")		#only for bin=2	 
+    subprocess.run("dmcopy 'broad_thresh_nps.fits[sky=region(../ds9_fk5.reg)]' threshed_broad.fits")	#for bin=2 and bin=0.5
+    os.chdir('../merged')
+    subprocess.run("dmcopy 'broad_thresh_nps.fits[sky=region(../ds9_fk5.reg)]' threshed_broad.fits")
+    
     #make a bin=2 directory
     os.chdir('..')
-    os.system("mkdir bin=2")
+    subprocess.run("mkdir bin=2")
     os.chdir('bin=2')
-    os.system("mkdir concen")
-    os.system("mkdir asymm")
-    os.system("mkdir clumpy")
-    os.system("mkdir UM")	#make a UM directory in the bin=2 directory
-    os.chdir('../expcor_mosaic_2')
-    os.system("mv background.fits ../bin=2") #mv background.fits to bin=2
-    os.system("mv threshed_broad.fits ../bin=2")
-
+    subprocess.run("mkdir concen")
+    subprocess.run("mkdir asymm")
+    subprocess.run("mkdir clumpy")
+    subprocess.run("mkdir UM")	#make a UM directory in the bin=2 directory
+    os.chdir('../merged_2')
+    subprocess.run("mv background.fits ../bin=2") #mv background.fits to bin=2
+    subprocess.run("mv threshed_broad.fits ../bin=2")
+    
     os.chdir('../bin=2')
-    os.system("cp threshed_broad.fits UM")
-
-    os.system("cp threshed_broad.fits concen")
-    os.system("cp background.fits asymm")
-    os.system("cp threshed_broad.fits asymm")
-    os.system("cp background.fits clumpy")
-    os.system("cp threshed_broad.fits clumpy")
-
-    os.chdir('../expcor_mosaic')
-
-    os.system("mv threshed_broad.fits ../ggm_combine")#move threshed in bin0.5 to ggm 
+    subprocess.run("cp threshed_broad.fits UM")
+    
+    subprocess.run("cp threshed_broad.fits concen")
+    subprocess.run("cp background.fits asymm")
+    subprocess.run("cp threshed_broad.fits asymm")
+    subprocess.run("cp background.fits clumpy")
+    subprocess.run("cp threshed_broad.fits clumpy")
+    
+    os.chdir('../merged')
+    
+    subprocess.run("mv threshed_broad.fits ../ggm_combine")#move threshed in bin0.5 to ggm 
     os.chdir('..')
-    os.system("cp ../reduce/concen_calc.py bin=2/concen")
-    os.system("cp ../reduce/asymm_calc.py bin=2/asymm")
-    os.system("cp ../reduce/clumpy_calc.py bin=2/clumpy")
-    #===============================================================================================#
-
-    #================================== 6. APPLY GGM FILTER ========================================#
+    subprocess.run("cp ../reduce/concen_calc.py bin=2/concen")
+    subprocess.run("cp ../reduce/asymm_calc.py bin=2/asymm")
+    subprocess.run("cp ../reduce/clumpy_calc.py bin=2/clumpy")
+    #========================================================
+    
+    #================================== 6. APPLY GGM FILTER =
     #ONLY STEP NEEDS PYTHON-SEPARATE TERMINAL.
-    #run through Gaussian_gradient_magnitude.py with bin=0.5 threshed_broad.img after point source removal, using the bright pixel from above as center
+    #run through Gaussian_gradient_magnitude.py with bin=0.5 threshed_broad.img after point source removal,
+    # using the bright pixel from above as center
     #run ggm_combine to merge all ggm filtered images
     #adjust scaling lengths to match with region of extraction in input.yml. ie set second to last radius to radius of region of extraction 
     #(in image coord pixels) and keep halfing until zero
-
+    
     #after copying /ggm_combine to your current directory
     #will need to be done in a terminal not running ciao
-#    os.system("cp ../reduce/step6.py ggm_combine")
+#    subprocess.run("cp ../reduce/step6.py ggm_combine")
+    
+    # Use same pixel from asymmetry param rotation as center of rotation in image coords
+    
     os.chdir('ggm_combine')
-
+    
     f = open("threshed_broad.fits", "r")
     q = open("temp.txt","w+")
     q.write(f.read(1000))
@@ -152,115 +381,32 @@ if bad == "d":
     q = open("temp.txt","r")
     content = q.readline() #get threshed broad size data + more
     q.close()
-
+    
     contents = content.split("NAXIS") 
     content = contents[2][4:]
     contents = content.split('/')
     content = contents[0].strip()
-
+    
     val = int(content)
     val = val // 2
-    os.system("rm temp.txt")
-
-#    os.system("gnome-terminal -x python step6.py " + clusterName + " " + str(val))
-    #everything below will now use only the bin=2 images
-    #EVERYTHING IN IMAGE COORDS
-    #===============================================================================================#
-
-
-    #=============================== 7. MAKE UNSHARP MASKED IMAGE ==================================#
-    #with the bin=2 images...in bin=2/UM
-    os.chdir('../bin=2/UM')
-    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed_1.fits sclmap=\"\" sclmin=1 sclmax=1 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
-    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed_30.fits sclmap=\"\" sclmin=30 sclmax=30 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
-    os.system("dmimgcalc smoothed_1.fits smoothed_30.fits unsharp.fits SUB")
-    #play with a few different scalings of the larger value to get best results
-    #good for seeing cavities
-    #play around with 30/20 for artifacts
-    #===============================================================================================#
-
-    #================================== 8. ASYMMETRY PARAMTER =====================================#
-    #rotate broad_thresh counts image and subtract from original. Divide square of the residual by square of the original image
-    #Use same pixel from ggm filtering as center of rotation in image coords
-
-    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
-
-    #Must be done in a terminal running ciao
-    os.chdir('../asymm')
-
-    #Need to input your own center of rotation
-    rxc = str(val/4)
-    ryc = str(val/4)
-    #When prompted for rotated image enter: rot.fits
-    #When prompted for background image enter: background.fits
-    os.system("dmregrid2 threshed_broad.fits rot.fits resolution=0 theta=180 rotxcenter=" + rxc + " rotycenter=" + ryc)
-    #num pixels = val/2
-    os.system("python asymm_calc.py threshed_broad.fits rot.fits >> ../../data.txt")#outputs A
-
-    #sum pixels in residual image, subtract the sum of the square of pixels in the background and divide by
-    #twice the sum in the squared original to get the asymmetry A=(Io-Ir)^2/2Io^2
-    #===============================================================================================#
-
-
-
-    #================================= 9. CLUMPINESS PARAMETER =====================================#
-    #Smooth a copy of threshed_broad.fits and subtract from original image to isolate high freq structure
-    f = open("../../data.txt", "r")
-    f.readline()
-    f.readline()
-    D_A_Mpc = f.readline().strip()
-    f.close()
+    subprocess.run("rm temp.txt")
     
-    D_A_kpc = D_A_Mpc*1000.0
+#    subprocess.run("gnome-terminal -x python step6.py " + cluster + " " + str(val))
     
-    pi = 3.141592653589793
-    
-    pixel_scale = (15*180*3600/pi)*(1/0.984)/D_A_kpc
-    
-    scale = pixel_scale
-    
-    string = str(scale)
-    
-    # MUST CREATE A BACKGROUND-SUBTRACTED, (EXPOSURE-CORRECTED) SCIENCE IMAGE
-    
-    os.chdir('../clumpy')
-#    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=20 sclmax=20 sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
-    os.system("csmooth threshed_broad.fits clobber=yes outfile=smoothed.fits sclmap=\"\" sclmin=" + string + " sclmax=" + string + " sclmode=compute outsigfile=. outsclfile=. conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5")
-    os.system("dmcopy \"smoothed.fits[sky=region(../../ds9_fk.reg)]\" smoothed.fits clobber=yes")			#retrim to get rid of edge effects
-    os.system("python clumpy_calc.py threshed_broad.fits smoothed.fits >> ../../data.txt")#sets all negative pixels to zero & outputs S
-    #===============================================================================================#
-
-    #================================ 10. CONCENTRATION PARAMETER ===================================#
-    #isolate region of extraction 
-    #determine radii that contain 20% and 80% of the total counts within the image
-    #alter radius of region until it encompasses 20% and 80% of the total emission in ds9
-    
-    os.chdir('../concen')
-    
-    os.system("python concen_calc.py threshed_broad.fits " + redshift + ROIout + " >> ../../data.txt")
-    
-    #Clumpiness = 5*log(r_80/r_20)		#needs to be calculated manually with ds9 unfortunately
-    #===============================================================================================#
-
-
-    os.chdir('../..')
-    #Cluster_name,R_out,D_A,A,S,C
-    f = open("data.txt", "r")
-    f.readline()
-    f.readline()
-    f.readline()
-    f.readline()
-    f.readline()
-    asym = f.readline().strip()
-    clump = f.readline().strip()
-    concen = f.readline().strip()
-    f.close()
-    stat = stat + concen + "," + asym + "," + clump +",\n"
-    
-else:
-    stat = stat +",,\n"
-    
-
-st = open("../chandrastats.txt", "a")
-st.write(stat)
-st.close()
+#    subprocess.run("dmcopy 'merged/broad_flux.img[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI/broad_flux_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged/broad_thresh.img[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI/broad_thresh_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged/broad_thresh.expmap[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI/broad_thresh_expmap_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged/broad_thresh.psfmap[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI/broad_thresh_psfmap_ROI.fits", shell=True)
+#	
+#    subprocess.run("dmcopy 'merged_2/broad_flux.img[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI_2/broad_flux_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged_2/broad_thresh.img[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI_2/broad_thresh_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged_2/broad_thresh.expmap[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI_2/broad_thresh_expmap_ROI.fits", shell=True)
+#    subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap[sky=region(ds9_fk5.reg)]' " +
+#                   "ROI_2/broad_thresh_psfmap_ROI.fits", shell=True)
