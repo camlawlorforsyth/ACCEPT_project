@@ -105,7 +105,7 @@ gunzip -c heasoft-6.25src.tar.gz | tar xf -
 
 Now install required prerequisite packages as root:
 ```
-yum -y install ncurses-devel libcurl-devel libXt-devel readline6-devel perl-ExtUtils-MakeMaker python-devel redhat-rpm-config
+yum -y install ncurses-devel libcurl-devel libXt-devel python-devel redhat-rpm-config
 ```
 
 Export required compilers as root:
@@ -120,9 +120,9 @@ export PYTHON=/usr/bin/python
 Finally, change to the build directory and configure, build and install HEAsoft (as root):
 ```
 cd heasoft-6.26/BUILD_DIR/
-./configure > config.out 2>&1 &
-make > build.log 2>&1 &
-make install > install.log 2>&1 &
+./configure > config.out 2>&1
+make > build.log 2>&1
+make install > install.log 2>&1
 export HEADAS=/home/user/soft/heasoft-6.26/x86_64-pc-linux-gnu-lib2.12/
 . $HEADAS/headas-init.sh
 ```
