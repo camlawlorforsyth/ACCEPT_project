@@ -160,6 +160,34 @@ python
 
 If everything worked, you should receive no error messages with the last command.
 
+## Install the SPA analysis code ##
+
+Finally, the SPA code itself can be installed. The code can be downloaded directly from http://www.slac.stanford.edu/~amantz/work/morph14/morph.tar, with information regarding the code, installation, and usage available at https://sites.google.com/site/adambmantz/work/morph14.
+
+In the terminal, at the user level directory, move the downloaded `morph.tar` file to the software directory, unzip it, and install it, as user:
+```
+mv Downloads/morph.tar soft
+cd soft
+mkdir morph
+tar -xf morph.tar -C morph
+```
+
+Now move into the `morph/` directory and open the included `Makefile` and edit lines 4-7 to be:
+```
+INCLUDE = -I$(HEADAS)/include -I/usr/local/include -I/home/user/soft/wcstools-3.9.5/libwcs
+
+LIBS = -lgsl -lgslcblas -L/usr/local/lib -L$(HEADAS)/lib -lcfitsio
+WCSLIB = /home/user/soft/wcstools-3.9.5/libwcs/libwcs.a
+```
+Then save and close the `Makefile`.
+
+Lastly, build the software as user:
+```
+make
+```
+
+You should now have a `morphology.exe` executable, which can be used to perform the SPA analysis.
+
 ### Comments ###
 
 The aim of this README was to provide clear and concise installation instructions in order to get a new virtual machine up and running with the Guest Additions, as well as CIAO and HEAsoft in as little time as possible.
