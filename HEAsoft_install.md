@@ -73,9 +73,17 @@ At this point the reduction of *Chandra* data can be completed, and the CAS anal
 
 Before installing HEAsoft itself, we must install required dependencies of the SPA analysis. These include the GNU Scientific Library (GSL) and WCSlib.
 
-To install GSL, open a terminal, and as root:
+The GNU Scientific Library (GSL) can be downloaded directly from ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz, with information about this package available at https://www.gnu.org/software/gsl/.
+
+In the terminal, at the user level directory, move the downloaded `gsl-2.5.tar.gz` file to the software directory, unzip it, configure, build and install it, as root:
 ```
-yum -y install gsl
+mv Downloads/gsl-2.5.tar.gz soft
+cd soft
+gunzip -c gsl-2.5.tar.gz | tar xf -
+cd gsl-2.5
+./configure > config.out 2>&1
+make > build.log 2>&1
+make install > install.log 2>&1
 ```
 
 WCSTools (which includes WCSlib) can be downloaded directly from ftp://cfa-ftp.harvard.edu/pub/gsc/WCSTools/wcstools-3.9.5.tar.gz, with information about this package available at http://tdc-www.harvard.edu/software/wcstools/.
