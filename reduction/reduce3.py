@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in spa_process_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce3.py','1E_0657-56','0.296','4.413023450684035','11.64','5.19e+20','sufficient'])
-                 argv[-]         argv[0]           argv[1]   argv[2]        argv[3]      argv[4]   argv[5]     argv[6]
+subprocess.run(['python','reduction/reduce3.py','1E_0657-56','0.296','4.413023451','11.64','4.89E+20','sufficient'])
+                 argv[-]         argv[0]           argv[1]   argv[2]    argv[3]    argv[4]   argv[5]     argv[6]
 '''
 
 # imports
