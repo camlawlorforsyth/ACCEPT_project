@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in cas_process_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','5.19e+20','sufficient'])
-                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7]    argv[8]
+subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','4.89E+20','sufficient'])
+                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7]     argv[8]
 '''
 
 # imports
