@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in get_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce1.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','554','3184','4984','4985','4986','5355','5356','5357','5358','5361'])
-                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5] argv[6] ... argv[N]
+subprocess.run(['python','reduction/reduce1.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','5.19e+20','554','3184','4984','4985','4986','5355','5356','5357','5358','5361'])
+                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7] argv[8] ... argv[N]
 '''
 
 # imports
@@ -19,14 +19,16 @@ import merged_count
 import ROI_count
 
 # constants
-length = len(sys.argv) # length = 16 for the example above
+length = len(sys.argv) # length = 18 for the example above
 cluster = sys.argv[1] # the cluster name, as indicated
 RA = float(sys.argv[2]) # the right ascension of the cluster
 Dec = float(sys.argv[3]) # the declination of the cluster
 redshift = float(sys.argv[4]) # the given redshift
 Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
+kT = float(sys.argv[6]) # the cluster temperature in keV, from Cavagnolo+
+nH = float(sys.argv[7]) # galactic column density in cm^(-2)
 
-## STEP 1 - CREATE CLUSTER DIRECTORY ##
+## STEP 1 - CREATE CLUSTER DIRECTORY AND MOVE INTO IT ##
 
 # http://cxc.harvard.edu/ciao/threads/all.html
 # http://cxc.harvard.edu/ciao/threads/imag.html
@@ -44,7 +46,7 @@ os.chdir(cluster) # change to the cluster directory
 
 cmd = "download_chandra_obsid " # download Chandra data 
 
-for i in range(6, length-1) :
+for i in range(8, length-1) :
     cmd += str(sys.argv[i]) + "," # creates a comma-separated list of the
                                   # passed ObsIDs
 cmd += str(sys.argv[length-1]) + " -q" # append the last ObsID
@@ -85,7 +87,7 @@ subprocess.run(cmd, shell=True)
 
 ## STEP 5 - CHECK ALL MERGED FILES ARE PRESENT ##
 
-merged_count.main(cluster, length-6) # prints to data/issues.txt
+merged_count.main(cluster, length-8) # prints to data/issues.txt
 
 ## STEP 6 - DEFINE REGION OF INTEREST, MEASURE TOTAL COUNTS, SAVE ROI ##
 
@@ -98,12 +100,15 @@ quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift,Rout_Mpc)
 with open('../cas_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
                "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
-               "','" + str(Rout_Mpc) + "','" + quality + "'])\n" ) # append
-               # quality flag to cas_process_all_data.py
+               "','" + str(Rout_Mpc) + "','" + str(kT) + "','" + str(nH) +
+               "','" + quality + "'])\n" ) # append quality flag to
+                                           # cas_process_all_data.py
     
-## STEP 7 - RENAME AND COPY NECESSARY FILES ##
+## STEP 7 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
 if quality == "sufficient" :
+    
+## STEP 8 - RENAME AND COPY NECESSARY FILES ##
 
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
@@ -129,7 +134,7 @@ if quality == "sufficient" :
     subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap' " +
                    "bin_2/broad_thresh_psfmap.fits", shell=True)
 
-## STEP 8 - DETECT POINT SOURCES ##
+## STEP 9 - DETECT POINT SOURCES ##
     
 # http://cxc.harvard.edu/ciao/guides/esa.html
 # http://cxc.harvard.edu/ciao/threads/detect_overview/
@@ -165,11 +170,11 @@ if quality == "sufficient" :
                    "scales='1 2 4 8 16' " +
                    "psffile=bin/broad_thresh_psfmap.fits", shell=True)
     
-## STEPS 9-12 - CREATE BACKGROUND REGION FOR bin=0.5 REGION OF INTEREST ##
+## STEPS 10-13 - CREATE BACKGROUND REGION FOR bin=0.5 REGION OF INTEREST ##
     
     os.chdir("bin")
     
-## STEP 9 - CONVERT SOURCE LIST TO FITS FORMAT ##
+## STEP 10 - CONVERT SOURCE LIST TO FITS FORMAT ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
     
@@ -178,7 +183,7 @@ if quality == "sufficient" :
                    "wcsfile=broad_flux.fits", shell=True) # convert
     # the modified source list into FITS format
     
-## STEP 10 - CREATE SOURCE AND BACKGROUND REGIONS ##
+## STEP 11 - CREATE SOURCE AND BACKGROUND REGIONS ##
     
 # http://cxc.harvard.edu/ciao/ahelp/roi.html
     
@@ -192,13 +197,13 @@ if quality == "sufficient" :
                    "radiusmode=mul bkgradius=3", shell=True) # create source
     # and background regions for each source, combine nearby regions
     
-## STEP 11 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
+## STEP 12 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
     
 # http://cxc.harvard.edu/ciao/ahelp/splitroi.html
     
     subprocess.run("splitroi 'sources_bk/src*.fits' exclude", shell=True)
     
-## STEP 12 - FILL IN HOLES ##
+## STEP 13 - FILL IN HOLES ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmfilth.html
     
@@ -217,7 +222,7 @@ if quality == "sufficient" :
     
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 13 - REPEAT STEPS 9-12 FOR bin=2 REGION OF INTEREST ##
+## STEP 14 - REPEAT STEPS 10-13 FOR bin=2 REGION OF INTEREST ##
     
     os.chdir("bin_2")
     
@@ -248,17 +253,26 @@ if quality == "sufficient" :
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True)
     
+## STEP 15 - FIND STANDARD DEVIATION OF bin=2 BACKGROUND REGION ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmstat.html
+    
+    subprocess.run("punlearn dmstat", shell=True)
+    subprocess.run("dmstat 'broad_flux_bkg.fits[sky=region(../bk.reg)]' " +
+                   "centroid=no verbose=0", shell=True)
+    subprocess.run("pget dmstat out_sigma > bkg_sigma.txt", shell=True)
+    
     os.chdir("..")
     
-## STEP 14 - CHECK COORDINATES OF REGION FILES ##
+## STEP 16 - CHECK COORDINATES OF REGION FILES ##
     
     check_coords.main(cluster) # prints to data/issues.txt
     
-## STEP 15 - CLEANUP ##
+## STEP 17 - CLEANUP ##
 
 cmd = "rm -rf reproj merged merged_2" # delete unnecessary ObsID files,
                                       # intermediate files
-for i in range(6, length) : # creates a space-separated list of the ObsIDs
+for i in range(8, length) : # creates a space-separated list of the ObsIDs
     cmd += " " + str(sys.argv[i])
 
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
