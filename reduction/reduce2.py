@@ -41,10 +41,9 @@ kpc_per_pixel = 1/(cosmo.arcsec_per_kpc_proper(redshift).value)
 
 with open('../spa_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
-               "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
-               "','" + str(kpc_per_pixel) + "','" + str(kT) + "','" + str(nH) +
-               "','" + quality + "'])\n" ) # append quality flag to
-                                           # spa_process_all_data.p
+               "','" + str(redshift) + "','" + str(kpc_per_pixel) +
+               "','" + str(kT) + "','" + str(nH) + "','" + quality + 
+               "'])\n" ) # append quality flag to spa_process_all_data.p
 
 ## STEP 1 - MOVE INTO CLUSTER DIRECTORY ##
 
@@ -188,13 +187,11 @@ if quality == "sufficient" :
     
     x_length = image.shape[1] # images might not be perfectly square
     y_length = image.shape[0]
-    x_center = x_length/2
-    y_center = y_length/2
     
     subprocess.run("punlearn dmregrid2", shell=True) # restore system defaults
     subprocess.run("dmregrid2 final.fits rot.fits resolution=0 " +
-                   "theta=180 rotxcenter=" + str(x_center) + " rotycenter=" +
-                   str(y_center), shell=True)
+                   "theta=180 rotxcenter=" + str(x_length/2) + " rotycenter=" +
+                   str(y_length/2), shell=True)
     
     asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
     
