@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in cas_process_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','sufficient'])
-                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]    argv[6]
+subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','5.19e+20','sufficient'])
+                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7]    argv[8]
 '''
 
 # imports
@@ -28,24 +28,37 @@ RA = float(sys.argv[2]) # the right ascension of the cluster
 Dec = float(sys.argv[3]) # the declination of the cluster
 redshift = float(sys.argv[4]) # the given redshift
 Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
-quality = sys.argv[6] # quality flag
+kT = float(sys.argv[6]) # the cluster temperature in keV, from Cavagnolo+
+nH = float(sys.argv[7]) # galactic column density in cm^(-2)
+quality = sys.argv[8] # quality flag
 
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
 pixel_scale = 0.984*u.arcsec # 1 pixel = 0.984" for Chandra
 scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
                              # scales. See paper for more information
 
-## STEP 1 - MOVE INTO CLUSTER DIRECTORY IF DATA QUALITY IS SUFFICIENT ##
+kpc_per_pixel = 1/(cosmo.arcsec_per_kpc_proper(redshift).value)
+
+with open('../spa_process_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
+               "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
+               "','" + str(kpc_per_pixel) + "','" + str(kT) + "','" + str(nH) +
+               "','" + quality + "'])\n" ) # append quality flag to
+                                           # spa_process_all_data.p
+
+## STEP 1 - MOVE INTO CLUSTER DIRECTORY ##
+
+os.chdir(cluster)
+
+## STEP 2 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
 if quality == "sufficient" :
     
-    os.chdir(cluster)
-    
-## STEPS 2-5 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
+## STEPS 3-6 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
     
     os.chdir("bin")
     
-## STEP 2 - CONVERT SOURCE LIST TO FITS FORMAT ##
+## STEP 3 - CONVERT SOURCE LIST TO FITS FORMAT ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
     
@@ -54,7 +67,7 @@ if quality == "sufficient" :
                    "wcsfile=broad_flux.fits", shell=True) # convert
     # the modified source list into FITS format
     
-## STEP 3 - CREATE SOURCE AND BACKGROUND REGIONS ##
+## STEP 4 - CREATE SOURCE AND BACKGROUND REGIONS ##
     
 # http://cxc.harvard.edu/ciao/ahelp/roi.html
     
@@ -68,13 +81,13 @@ if quality == "sufficient" :
                    "radiusmode=mul bkgradius=3", shell=True) # create source
     # and background regions for each source, combine nearby regions
     
-## STEP 4 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
+## STEP 5 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
     
 # http://cxc.harvard.edu/ciao/ahelp/splitroi.html
     
     subprocess.run("splitroi 'sources/src*.fits' exclude", shell=True)
     
-## STEP 5 - FILL IN HOLES ##
+## STEP 6 - FILL IN HOLES ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmfilth.html
     
@@ -93,7 +106,7 @@ if quality == "sufficient" :
     
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 6 - REPEAT STEPS 2-5 FOR bin=2 IMAGE ##
+## STEP 7 - REPEAT STEPS 3-6 FOR bin=2 IMAGE ##
     
     os.chdir("bin_2")
     
@@ -126,7 +139,7 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 7 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
+## STEP 8 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
@@ -144,11 +157,9 @@ if quality == "sufficient" :
     subprocess.run("dmcopy 'bin_2/broad_flux_bkg.fits[sky=region(ds9_fk5.reg)]' "+
                    "ROI_2/background.fits", shell=True)
     
-## STEP 8 - BACKGROUND SUBTRACTION ##
+## STEP 9 - BACKGROUND SUBTRACTION ##
     
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("punlearn dmimgcalc", shell=True)
     subprocess.run("dmimgcalc ROI/diffuse.fits ROI/background.fits " +
                    "ROI/final.fits sub", shell=True) # subtract background of
     # region of interest from diffuse emission image, thus creating final
@@ -158,7 +169,7 @@ if quality == "sufficient" :
     subprocess.run("dmimgcalc ROI_2/diffuse.fits ROI_2/background.fits " +
                    "ROI_2/final.fits sub", shell=True)
     
-## STEP 9 - COMPUTE CONCENTRATION PARAMETER ##
+## STEP 10 - COMPUTE CONCENTRATION PARAMETER ##
     
 # could alternatively use ecf_calc to determine radii for 20% and 80% of counts
 # http://cxc.harvard.edu/ciao/ahelp/ecf_calc.html
@@ -166,7 +177,7 @@ if quality == "sufficient" :
     os.chdir("ROI_2") # move into the bin=2 directory
     concen,concen_err = concen_calc.main('final.fits',RA,Dec,redshift,Rout_Mpc)
     
-## STEP 10 - COMPUTE ASYMMETRY PARAMETER ##
+## STEP 11 - COMPUTE ASYMMETRY PARAMETER ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmregrid.html
 # http://cxc.harvard.edu/ciao/ahelp/dmregrid2.html
@@ -187,7 +198,7 @@ if quality == "sufficient" :
     
     asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
     
-## STEP 11 - COMPUTE CLUMPINESS PARAMETER ##
+## STEP 12 - COMPUTE CLUMPINESS PARAMETER ##
     
 # http://cxc.harvard.edu/ciao/ahelp/csmooth.html
 # http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
@@ -209,7 +220,7 @@ if quality == "sufficient" :
     
     clumpy, clumpy_err = clumpy_calc.main('final.fits', 'smoothed.fits')
     
-## STEP 12 - CREATE UNSHARP MASK (UM) IMAGE ##
+## STEP 13 - CREATE UNSHARP MASK (UM) IMAGE ##
     
 # http://cxc.harvard.edu/ciao/gallery/smooth.html
 # http://cxc.harvard.edu/ciao/ahelp/aconvolve.html
@@ -230,7 +241,7 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 13 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
+## STEP 14 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
     
 # http://cxc.harvard.edu/ciao/gallery/smooth.html
 # https://github.com/jeremysanders/ggm
@@ -293,20 +304,22 @@ if quality == "sufficient" :
     
     subprocess.run(['python','uninteractive.py','input.yml'])
     
-## STEP 14 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+    os.chdir("..")
     
-    with open('../../CAS_parameters_v1.txt', 'a') as file :
+## STEP 15 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+    
+    with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(concen) + "," + str(concen_err) +
                    "," + str(asymm) + "," + str(asymm_err) +
                    "," + str(clumpy) + "," + str(clumpy_err) )
     
 else:
-    with open('../../CAS_parameters_v1.txt', 'a') as file :
+    with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + ",,,,,,")
 
-## STEP 15 - ADDITIONAL CLEANUP ##
+## STEP 16 - ADDITIONAL CLEANUP ##
 
-cmd = "rm -rf bin bin_2" # delete unnecessary files
+cmd = "rm -rf bin" # delete unnecessary files
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
 
 os.chdir("..") # go back to the data/ directory
@@ -315,7 +328,7 @@ os.chdir("..") # go back to the data/ directory
     # start here again, June 25, 2019
     
     
-    
+'''
     
 # old code, adapt for above
     #BIN=2 ONLY Then create a background image using the region of extraction found before (resaved as bk.reg),
@@ -412,3 +425,5 @@ os.chdir("..") # go back to the data/ directory
 #                   "ROI_2/broad_thresh_expmap_ROI.fits", shell=True)
 #    subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap[sky=region(ds9_fk5.reg)]' " +
 #                   "ROI_2/broad_thresh_psfmap_ROI.fits", shell=True)
+
+'''
