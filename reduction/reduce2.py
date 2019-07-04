@@ -207,9 +207,10 @@ if quality == "sufficient" :
     
     subprocess.run("punlearn csmooth", shell=True) # restore system defaults
     subprocess.run("csmooth final.fits outfile=smoothed.fits " +
-                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
+                   "outsigfile=clumpy_sig.fits outsclfile=clumpy_scl.fits " +
+                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
                    "sclmin=" + str(scale) + " sclmax=" + str(scale) +
-                   " sclmode=compute", shell=True)    
+                   " sigmin=4 sigmax=5", shell=True)
     
 #    subprocess.run("punlearn dmcopy", shell=True)
 #    subprocess.run("dmcopy 'smoothed.fits[sky=region(../ds9_fk5.reg)]' " +
@@ -226,11 +227,13 @@ if quality == "sufficient" :
     
     subprocess.run("punlearn csmooth", shell=True)
     subprocess.run("csmooth final.fits outfile=smoothed_3.fits " +
-                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
-                   "sclmin=3 sclmax=3 sclmode=compute", shell=True)
+                   "outsigfile=um3_sig.fits outsclfile=um3_scl.fits " +
+                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
+                   "sclmin=3 sclmax=3 sigmin=4 sigmax=5", shell=True)
     subprocess.run("csmooth final.fits outfile=smoothed_30.fits " +
-                   "conmeth=fft conkerneltype=gauss sigmin=4 sigmax=5 " +
-                   "sclmin=30 sclmax=30 sclmode=compute", shell=True)
+                   "outsigfile=um30_sig.fits outsclfile=um30_scl.fits " +
+                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
+                   "sclmin=30 sclmax=30 sigmin=4 sigmax=5", shell=True)
     
     subprocess.run("punlearn dmimgcalc", shell=True)
     subprocess.run("dmimgcalc smoothed_3.fits smoothed_30.fits " +
