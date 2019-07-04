@@ -39,7 +39,7 @@ scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
 
 kpc_per_pixel = 1/(cosmo.arcsec_per_kpc_proper(redshift).value)
 
-with open('../spa_process_all_data.py', 'a') as file :
+with open('spa_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
                "','" + str(redshift) + "','" + str(kpc_per_pixel) +
                "','" + str(kT) + "','" + str(nH) + "','" + quality + 
@@ -76,7 +76,7 @@ if quality == "sufficient" :
     subprocess.run("pset roi outsrcfile=sources/src%d.fits", shell=True)
     subprocess.run("pset roi bkgfactor=0.5", shell=True)
     subprocess.run("roi infile=sources_mod.fits fovregion='' " +
-                   "streakregion='' outsrcfile=sources/srd%d.fits "+
+                   "streakregion='' outsrcfile=sources/src%d.fits "+
                    "radiusmode=mul bkgradius=3", shell=True) # create source
     # and background regions for each source, combine nearby regions
     
@@ -119,7 +119,7 @@ if quality == "sufficient" :
     subprocess.run("pset roi outsrcfile=sources/src%d.fits", shell=True)
     subprocess.run("pset roi bkgfactor=0.5", shell=True)
     subprocess.run("roi infile=sources_mod.fits fovregion='' " +
-                   "streakregion='' outsrcfile=sources/srd%d.fits "+
+                   "streakregion='' outsrcfile=sources/src%d.fits "+
                    "radiusmode=mul bkgradius=3", shell=True)
     
     subprocess.run("splitroi 'sources/src*.fits' exclude", shell=True)
@@ -189,9 +189,9 @@ if quality == "sufficient" :
     y_length = image.shape[0]
     
     subprocess.run("punlearn dmregrid2", shell=True) # restore system defaults
-    subprocess.run("dmregrid2 final.fits rot.fits resolution=0 " +
-                   "theta=180 rotxcenter=" + str(x_length/2) + " rotycenter=" +
-                   str(y_length/2), shell=True)
+    subprocess.run("dmregrid2 final.fits rot.fits resolution=0 theta=180" +
+                   " rotxcenter=" + str(x_length/2) +
+                   " rotycenter=" + str(y_length/2), shell=True)
     
     asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
     
@@ -251,8 +251,6 @@ if quality == "sufficient" :
     
     x_length = image.shape[1] # images might not be perfectly square
     y_length = image.shape[0]
-    x_cent = x_length/2
-    y_cent = y_length/2
     
     for sigma in [1,2,4,8,16,32] :
         outfilename = cluster + "_" + str(sigma) + ".fits"
@@ -262,11 +260,11 @@ if quality == "sufficient" :
     
     file = open('input.yml','w') # open for writing
     file.write("image:\n")
-    file.write("        centre: [" + str(x_cent) + "," + str(y_cent) + "]\n")
+    file.write("        centre: [" + str(x_length/2) + "," + str(y_length/2) + "]\n")
     file.write("        outfilename: " + cluster + "_ggm.fits\n")
     file.write("data:\n")
     
-    dim = min(x_cent, y_cent)
+    dim = min(x_length/2, y_length/2)
     
     radii = "[0,"
     for sigma in [32,16,8,4,2,1] :
