@@ -24,12 +24,9 @@ def asymmetry(image, rotated) :
     denom_total = 0
     values = []
     
-    dim = min(image.shape[0], image.shape[1]) # images might not be perfectly
-                                              # square
-    
     # pixel coordinates are of the form image[y,x]
-    for x in range(0, dim) : # loop for every pixel in the image
-        for y in range(0, dim) :
+    for x in range(0, image.shape[0]) : # loop for every pixel in the image
+        for y in range(0, image.shape[1]) :
             num = ( image[x,y] - rotated[x,y] )**2
             num_total += num
             denom = 2*( ( image[x,y] )**2 )
