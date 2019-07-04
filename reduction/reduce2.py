@@ -206,7 +206,7 @@ if quality == "sufficient" :
              # AGN driven features like bubbles and cavities
     
     subprocess.run("punlearn csmooth", shell=True) # restore system defaults
-    subprocess.run("csmooth final.fits outfile=smoothed.fits " +
+    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed.fits " +
                    "outsigfile=clumpy_sig.fits outsclfile=clumpy_scl.fits " +
                    "sclmode=compute conmeth=fft conkerneltype=gauss " +
                    "sclmin=" + str(scale) + " sclmax=" + str(scale) +
@@ -226,11 +226,11 @@ if quality == "sufficient" :
 # http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
     
     subprocess.run("punlearn csmooth", shell=True)
-    subprocess.run("csmooth final.fits outfile=smoothed_3.fits " +
+    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed_3.fits " +
                    "outsigfile=um3_sig.fits outsclfile=um3_scl.fits " +
                    "sclmode=compute conmeth=fft conkerneltype=gauss " +
                    "sclmin=3 sclmax=3 sigmin=4 sigmax=5", shell=True)
-    subprocess.run("csmooth final.fits outfile=smoothed_30.fits " +
+    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed_30.fits " +
                    "outsigfile=um30_sig.fits outsclfile=um30_scl.fits " +
                    "sclmode=compute conmeth=fft conkerneltype=gauss " +
                    "sclmin=30 sclmax=30 sigmin=4 sigmax=5", shell=True)
