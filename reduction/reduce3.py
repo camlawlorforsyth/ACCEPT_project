@@ -106,11 +106,11 @@ if quality == "sufficient" :
     with open('../SPA_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(sym) + "," + str(sym_err) +
                    "," + str(peak) + "," + str(peak_err) +
-                   "," + str(align) + "," + str(align_err) )
+                   "," + str(align) + "," + str(align_err) + "\n")
     
 else:
     with open('../SPA_parameters_v1.txt', 'a') as file :
-        file.write(cluster + ",,,,,,")
+        file.write(cluster + ",,,,,,\n")
 
 os.chdir("..") # go back to the data/ directory
 
