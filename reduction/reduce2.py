@@ -309,11 +309,11 @@ if quality == "sufficient" :
     with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(concen) + "," + str(concen_err) +
                    "," + str(asymm) + "," + str(asymm_err) +
-                   "," + str(clumpy) + "," + str(clumpy_err) )
+                   "," + str(clumpy) + "," + str(clumpy_err) + "\n" )
     
 else:
     with open('../CAS_parameters_v1.txt', 'a') as file :
-        file.write(cluster + ",,,,,,")
+        file.write(cluster + ",,,,,,\n")
 
 ## STEP 16 - ADDITIONAL CLEANUP ##
 
