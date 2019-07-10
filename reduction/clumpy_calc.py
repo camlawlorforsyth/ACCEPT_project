@@ -20,20 +20,28 @@ def main(file, smooth) :
 #....................................................................clumpiness
 def clumpiness(image, smoothed) :
     
-    num_total = 0
-    denom_total = 0
-    values = []
+    numer = image - smoothed
+    numer = np.ma.masked_where(numer < 0, numer)
+    np.ma.set_fill_value(numer, 0)
+    numer = numer.filled()
+    denom = image
+    clumpy = np.sum(numer)/np.sum(denom)
     
-    # pixel coordinates are of the form image[y,x]
-    for x in range(0, image.shape[0]) : # loop for every pixel in the image
-        for y in range(0, image.shape[1]) :
-            num = ( image[x,y] - smoothed[x,y] )
-            if num < 0 :
-                num = 0
-            num_total += num
-            denom = ( image[x,y] )
-            denom_total += denom
-            values.append( num / denom )
+    numer_flat = numer.flatten()
+    denom_flat = denom.flatten()
+    numer_len = len(numer_flat)
+    denom_len = len(denom_flat)
     
-    return num_total/denom_total, num_total/denom_total*np.std(np.array(values), ddof=1)
+    # bootstrap
+    clumpys = []
+    for i in range(10000) :
+        numer_resample = np.random.choice(numer_flat,size=numer_len,replace=True)
+        denom_resample = np.random.choice(denom_flat,size=denom_len,replace=True)
+        clumpy_resample = np.sum(numer_resample)/np.sum(denom_resample)
+        clumpys.append(clumpy_resample)
+    
+    clumpys = np.array(clumpys)
+    std_dev = np.std(clumpys)
+    
+    return clumpy, std_dev
 #..............................................................end of functions
