@@ -20,18 +20,25 @@ def main(file, rot) :
 #.....................................................................asymmetry
 def asymmetry(image, rotated) :
     
-    num_total = 0
-    denom_total = 0
-    values = []
+    numer = (image - rotated)**2
+    denom = image**2
+    asymm = 0.5*np.sum(numer)/np.sum(denom)
     
-    # pixel coordinates are of the form image[y,x]
-    for x in range(0, image.shape[0]) : # loop for every pixel in the image
-        for y in range(0, image.shape[1]) :
-            num = ( image[x,y] - rotated[x,y] )**2
-            num_total += num
-            denom = 2*( ( image[x,y] )**2 )
-            denom_total += denom
-            values.append( num / denom )
+    numer_flat = numer.flatten()
+    denom_flat = denom.flatten()
+    numer_len = len(numer_flat)
+    denom_len = len(denom_flat)
     
-    return num_total/denom_total, num_total/denom_total*np.std(np.array(values), ddof=1)
+    # bootstrap
+    asymms = []
+    for i in range(10000) :
+        numer_resample = np.random.choice(numer_flat,size=numer_len,replace=True)
+        denom_resample = np.random.choice(denom_flat,size=denom_len,replace=True)
+        asymm_resample = 0.5*np.sum(numer_resample)/np.sum(denom_resample)
+        asymms.append(asymm_resample)
+    
+    asymms = np.array(asymms)
+    std_dev = np.std(asymms)
+    
+    return asymm, std_dev
 #..............................................................end of functions
