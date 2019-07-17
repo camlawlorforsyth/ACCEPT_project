@@ -109,7 +109,7 @@ with open('../cas_process_all_data.py', 'a') as file :
 if quality == "sufficient" :
     
 ## STEP 8 - RENAME AND COPY NECESSARY FILES ##
-
+    
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
     subprocess.run("mkdir bin", shell=True)
@@ -133,7 +133,7 @@ if quality == "sufficient" :
                    "bin_2/broad_thresh_expmap.fits", shell=True)
     subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap' " +
                    "bin_2/broad_thresh_psfmap.fits", shell=True)
-
+    
 ## STEP 9 - DETECT POINT SOURCES ##
     
 # http://cxc.harvard.edu/ciao/guides/esa.html
@@ -208,21 +208,31 @@ if quality == "sufficient" :
 # http://cxc.harvard.edu/ciao/ahelp/dmfilth.html
     
     subprocess.run("punlearn dmfilth", shell=True)
-    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=broad_flux_bkg.fits", shell=True)
+    subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=broad_thresh_bkg.fits", shell=True)
     subprocess.run("pset dmfilth method=POISSON", shell=True)
     subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
     subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
     subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_flux.fits " +
-                   "outfile=broad_flux_bkg.fits method=POISSON " +
+    subprocess.run("dmfilth infile=broad_thresh.fits " +
+                   "outfile=broad_thresh_bkg.fits method=POISSON " +
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True) # remove regions and fill with Poisson
     # distribution of the background
     
+    subprocess.run("mv exclude.bg.reg exclude.src.reg sources_bk", shell=True)
+    
+## STEP 14 - EXPOSURE CORRECT IMAGE ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("dmimgcalc broad_thresh_bkg.fits broad_thresh_expmap.fits " +
+                   "diffuse_bkg.fits div", shell=True)
+    
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 14 - REPEAT STEPS 10-13 FOR bin=2 REGION OF INTEREST ##
+## STEP 15 - REPEAT STEPS 10-14 FOR bin=2 REGION OF INTEREST ##
     
     os.chdir("bin_2")
     
@@ -242,33 +252,39 @@ if quality == "sufficient" :
     subprocess.run("splitroi 'sources_bk/src*.fits' exclude", shell=True)
     
     subprocess.run("punlearn dmfilth", shell=True)
-    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=broad_flux_bkg.fits", shell=True)
+    subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=broad_thresh_bkg.fits", shell=True)
     subprocess.run("pset dmfilth method=POISSON", shell=True)
     subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
     subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
     subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_flux.fits " +
-                   "outfile=broad_flux_bkg.fits method=POISSON " +
+    subprocess.run("dmfilth infile=broad_thresh.fits " +
+                   "outfile=broad_thresh_bkg.fits method=POISSON " +
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True)
     
-## STEP 15 - FIND STANDARD DEVIATION OF bin=2 BACKGROUND REGION ##
+    subprocess.run("mv exclude.bg.reg exclude.src.reg sources_bk", shell=True)
+    
+    subprocess.run("punlearn dmimgcalc", shell=True)
+    subprocess.run("dmimgcalc broad_thresh_bkg.fits broad_thresh_expmap.fits " +
+                   "diffuse_bkg.fits div", shell=True)
+    
+## STEP 16 - FIND STANDARD DEVIATION OF bin=2 BACKGROUND REGION ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmstat.html
     
     subprocess.run("punlearn dmstat", shell=True)
-    subprocess.run("dmstat 'broad_flux_bkg.fits[sky=region(../bk.reg)]' " +
+    subprocess.run("dmstat 'diffuse_bkg.fits[sky=region(../bk.reg)]' " +
                    "centroid=no verbose=0", shell=True)
     subprocess.run("pget dmstat out_sigma > bkg_sigma.txt", shell=True)
     
     os.chdir("..")
     
-## STEP 16 - CHECK COORDINATES OF REGION FILES ##
+## STEP 17 - CHECK COORDINATES OF REGION FILES ##
     
     check_coords.main(cluster) # prints to data/issues.txt
     
-## STEP 17 - CLEANUP ##
+## STEP 18 - CLEANUP ##
 
 cmd = "rm -rf reproj merged merged_2" # delete unnecessary ObsID files,
                                       # intermediate files
