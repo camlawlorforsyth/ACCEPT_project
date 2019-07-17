@@ -29,23 +29,23 @@ def main(cluster) :
         newfile = open("bk.reg", "r")
         newfile.readline()
         f6 = newfile.read(6)
-        if (f6 != "circle") :
+        if (f6 != "global") :
             file.write(cluster +
                        "'s bk.reg file is saved in the wrong coordinates.\n")
         newfile.close()
     
     # check for sources_mod.reg file
-    if (not os.path.isfile("merged/sources_mod.reg")) :
-        file.write(cluster +
-                   " is labelled correctly, but 'sources_mod.reg' is missing.\n")
-    else :
-        newfile = open("merged/sources_mod.reg", "r")
-        newfile.readline()
-        f6 = newfile.read(6)
-        if (f6 != "circle") :
-            file.write(cluster +
-                       "'s 'sources_mod.reg' file is saved in the wrong coordinates.\n")
-        newfile.close()
+#    if (not os.path.isfile("merged/sources_mod.reg")) :
+#        file.write(cluster +
+#                   " is labelled correctly, but 'sources_mod.reg' is missing.\n")
+#    else :
+#        newfile = open("merged/sources_mod.reg", "r")
+#        newfile.readline()
+#        f6 = newfile.read(6)
+#        if (f6 != "circle") :
+#            file.write(cluster +
+#                       "'s 'sources_mod.reg' file is saved in the wrong coordinates.\n")
+#        newfile.close()
     
     file.close()
     
