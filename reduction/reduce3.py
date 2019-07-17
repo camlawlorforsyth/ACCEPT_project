@@ -31,7 +31,7 @@ os.chdir(cluster)
 ## STEP 2 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
 if quality == "sufficient" :
-
+    
 ## STEP 3-9 - COMPUTE SPA PARAMETERS FOR bin=2 IMAGE ##
     
     os.chdir("bin_2")
