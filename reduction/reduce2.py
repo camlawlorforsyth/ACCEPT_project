@@ -53,7 +53,7 @@ os.chdir(cluster)
 
 if quality == "sufficient" :
     
-## STEPS 3-6 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
+## STEPS 3-7 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
     
     os.chdir("bin")
     
@@ -91,21 +91,29 @@ if quality == "sufficient" :
 # http://cxc.harvard.edu/ciao/ahelp/dmfilth.html
     
     subprocess.run("punlearn dmfilth", shell=True) # restore system defaults
-    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=diffuse.fits", shell=True)    
+    subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=broad_thresh_nps.fits", shell=True)    
     subprocess.run("pset dmfilth method=POISSON", shell=True)
     subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
     subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
     subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_flux.fits " +
-                   "outfile=diffuse.fits method=POISSON " +
+    subprocess.run("dmfilth infile=broad_thresh.fits " +
+                   "outfile=broad_thresh_nps.fits method=POISSON " +
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True) # remove regions and fill with Poisson
     # distribution of the background
     
+## STEP 7 - EXPOSURE CORRECT IMAGE ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("dmimgcalc broad_thresh_nps.fits broad_thresh_expmap.fits " +
+                   "diffuse.fits div", shell=True)
+    
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 7 - REPEAT STEPS 3-6 FOR bin=2 IMAGE ##
+## STEP 8 - REPEAT STEPS 3-7 FOR bin=2 IMAGE ##
     
     os.chdir("bin_2")
     
@@ -125,20 +133,24 @@ if quality == "sufficient" :
     subprocess.run("splitroi 'sources/src*.fits' exclude", shell=True)
     
     subprocess.run("punlearn dmfilth", shell=True)
-    subprocess.run("pset dmfilth infile=broad_flux.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=diffuse.fits", shell=True)    
+    subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=broad_thresh_nps.fits", shell=True)    
     subprocess.run("pset dmfilth method=POISSON", shell=True)
     subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
     subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
     subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_flux.fits " +
-                   "outfile=diffuse.fits method=POISSON " +
+    subprocess.run("dmfilth infile=broad_thresh.fits " +
+                   "outfile=broad_thresh_nps.fits method=POISSON " +
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True)
     
+    subprocess.run("punlearn dmimgcalc", shell=True)
+    subprocess.run("dmimgcalc broad_thresh_nps.fits broad_thresh_expmap.fits " +
+                   "diffuse.fits div", shell=True)
+    
     os.chdir("..")
     
-## STEP 8 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
+## STEP 9 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
@@ -148,15 +160,17 @@ if quality == "sufficient" :
     subprocess.run("punlearn dmcopy", shell=True) # restore system defaults
     subprocess.run("dmcopy 'bin/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
                    "ROI/diffuse.fits", shell=True)
-    subprocess.run("dmcopy 'bin/broad_flux_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+    subprocess.run("dmcopy 'bin/diffuse_bkg.fits[sky=region(ds9_fk5.reg)]' "+
                    "ROI/background.fits", shell=True)
     
     subprocess.run("dmcopy 'bin_2/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
                    "ROI_2/diffuse.fits", shell=True)
-    subprocess.run("dmcopy 'bin_2/broad_flux_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+    subprocess.run("dmcopy 'bin_2/diffuse_bkg.fits[sky=region(ds9_fk5.reg)]' "+
                    "ROI_2/background.fits", shell=True)
     
-## STEP 9 - BACKGROUND SUBTRACTION ##
+## STEP 10 - BACKGROUND SUBTRACTION ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
     
     subprocess.run("punlearn dmimgcalc", shell=True)
     subprocess.run("dmimgcalc ROI/diffuse.fits ROI/background.fits " +
@@ -168,7 +182,7 @@ if quality == "sufficient" :
     subprocess.run("dmimgcalc ROI_2/diffuse.fits ROI_2/background.fits " +
                    "ROI_2/final.fits sub", shell=True)
     
-## STEP 10 - COMPUTE CONCENTRATION PARAMETER ##
+## STEP 11 - COMPUTE CONCENTRATION PARAMETER ##
     
 # could alternatively use ecf_calc to determine radii for 20% and 80% of counts
 # http://cxc.harvard.edu/ciao/ahelp/ecf_calc.html
@@ -176,7 +190,7 @@ if quality == "sufficient" :
     os.chdir("ROI_2") # move into the bin=2 directory
     concen,concen_err = concen_calc.main('final.fits',RA,Dec,redshift,Rout_Mpc)
     
-## STEP 11 - COMPUTE ASYMMETRY PARAMETER ##
+## STEP 12 - COMPUTE ASYMMETRY PARAMETER ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmregrid.html
 # http://cxc.harvard.edu/ciao/ahelp/dmregrid2.html
@@ -195,7 +209,7 @@ if quality == "sufficient" :
     
     asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
     
-## STEP 12 - COMPUTE CLUMPINESS PARAMETER ##
+## STEP 13 - COMPUTE CLUMPINESS PARAMETER ##
     
 # http://cxc.harvard.edu/ciao/ahelp/csmooth.html
 # http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
@@ -218,7 +232,7 @@ if quality == "sufficient" :
     
     clumpy, clumpy_err = clumpy_calc.main('final.fits', 'smoothed.fits')
     
-## STEP 13 - CREATE UNSHARP MASK (UM) IMAGE ##
+## STEP 14 - CREATE UNSHARP MASK (UM) IMAGE ##
     
 # http://cxc.harvard.edu/ciao/gallery/smooth.html
 # http://cxc.harvard.edu/ciao/ahelp/aconvolve.html
@@ -241,7 +255,7 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 14 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
+## STEP 15 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
     
 # http://cxc.harvard.edu/ciao/gallery/smooth.html
 # https://github.com/jeremysanders/ggm
@@ -300,11 +314,11 @@ if quality == "sufficient" :
     
     file.close()
     
-    subprocess.run(['python','uninteractive.py','input.yml'])
+    subprocess.run(['python','interactive.py','input.yml'])
     
     os.chdir("..")
     
-## STEP 15 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+## STEP 16 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
     
     with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(concen) + "," + str(concen_err) +
@@ -315,7 +329,7 @@ else:
     with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + ",,,,,,\n")
 
-## STEP 16 - ADDITIONAL CLEANUP ##
+## STEP 17 - ADDITIONAL CLEANUP ##
 
 cmd = "rm -rf bin" # delete unnecessary files
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
