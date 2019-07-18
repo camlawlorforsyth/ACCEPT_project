@@ -57,7 +57,7 @@ In the terminal:
 ```
 ciao
 pip3 freeze > $ASCDS_INSTALL/constraints.txt
-pip3 install -c $ASCDS_INSTALL/constraints.txt 'astropy<3.1' scipy pyyaml
+pip3 install -c $ASCDS_INSTALL/constraints.txt 'astropy<3.1' scipy pyyaml sip PyQt5
 ```
 
 After Astropy (and SciPy) have successfully been installed, photutils can now be installed to perform photometry (required by the [concen_calc.py](/reduction/reduce/concen_calc.py) script). General installation instructions for photutils can be found at https://photutils.readthedocs.io/en/stable/install.html.
