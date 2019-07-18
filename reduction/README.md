@@ -1,70 +1,85 @@
 # README #
 
-These steps outline the procedure to run an automated reduction process which will reduce archival *Chandra* data, compute the concentration, asymmetry, and clumpiness (CAS) parameters, and create Gaussian-Gradient Magnitude (GGM) and unsharp-masked (UM) images for clusters of galaxies present in the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. This reduction adopts the standard Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
+These steps outline the procedure to run an automated reduction process which will reduce archival *Chandra* data, compute the concentration, asymmetry, and clumpiness (CAS) parameters, the symmetry, peakiness, and alignment (SPA) parameters, and create Gaussian-Gradient Magnitude (GGM) and unsharp-masked (UM) images for clusters of galaxies present in the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. This reduction adopts the standard flat Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
 
-## Step 0 ##
+## Step 0 - Preparation ##
 
-Create a new data/ directory:
+Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/camlawlorforsyth/ggm) from GitHub, save them into your Downloads directory, and unzip them.
+```
+unzip -qq Downloads/ACCEPT_project-master.zip
+unzip -qq Downloads/ggm-master.zip
+```
+
+Next, create a new data (`data/`) directory in the user level directory (ie. `/home/user/`):
 ```
 mkdir data
 ```
-Copy [reduce/](reduce), [checks/](checks), and [ggm_combine/](ggm_combine) into it.
 
-Copy the following files from the newly copied directories:
+Copy the [reduction/](.) directory into it, and the [ggm/](https://github.com/camlawlorforsyth/ggm) directory into the [reduction/](.) directory.
 ```
-cp /checks/verify_*.py .
-cp /reduce/*_all_data.py .
+cp -a Downloads/ACCEPT_project-master/reduction/. data/reduction/
+cp -a Downloads/ggm-master/. data/reduction/ggm/
 ```
 
-Your data/ directory will now contain three (3) subdirectories (and files therein), and five (5) files.
+Copy the "get_all_data.py" file from the newly copied reduction/ directory into the data/ directory:
+```
+cp data/reduction/get_all_data.py data/
+```
 
-## Step 1 ##
+## Step 1 - Reduction ##
 
-Open a terminal and navigate to your data/ directory, and start CIAO by entering `ciao` into the terminal.
+Open a terminal and navigate to your data/ directory, start CIAO and run `python get_all_data.py` once CIAO is confirmed to be running.
+```
+cd data/
+ciao
+python get_all_data.py
+```
 
-Once CIAO is confirmed to be running, run `python get_all_data.py`.
+Upon completion of the previous command, check "data/issues.txt" for any error messages. If an error is recorded, re-run the necessary line from [get_all_data.py](reduction/get_all_data.py) for that cluster, in the terminal. Flags in the "data/issues.txt" file are irrelevant for subsequent steps, and are not used in any way.
 
-Upon completion of the previous command, run `python verify_reproj.py` and check "data/issues.txt" for any error messages. If an error is recorded, you will have to re-download, reprocess, reproject, and merge (see: `download_chandra_obsid`, `chandra_repro`, `reproject_obs`, `flux_obs`) the data for that cluster. This is accomplished by running the necessary line from [get_all_data.py](reduce/get_all_data.py) for that cluster, in the terminal. Flags in this verify file are irrelevant and are not read in, in subsequent steps.
+Once the desired data has been downloaded, reduced to level 2, reprojected, exposure-corrected, the region-of-interest (ROI) has been created, the point sources have been detected (see [reduce1.py](reduction/reduce1.py)), and there are no error messages present in "data/issues.txt", move on the further analysis steps below.
 
-## Step 2 ##
+## Step 2 - Point Source Verification ##
 
-#### Step 2a ####
+Before continuing with the automated reduction and analysis scripts, we must verify the detected point sources. The sources in "[cluster]/sources.reg" can be viewed in DS9 and any spurious detections can be deleted.
+```
+ciao
+ds9 [cluster]/bin_2/broad_flux.fits -cmap bb -scale log -region [cluster]/sources.reg
+```
+Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format with 'physical' coordinates.
 
-Once the desired data has been downloaded, reduced to level 2, reprojected and exposure-corrected (see [reduce1.py](reduce/reduce1.py)), and there are no error messages present in "data/issues.txt", the region-of-interest (ROI) and point source analysis can be started. See the [POINT_README](reduce/POINT_README.md) in [reduce/](reduce) for additional information.
+## Step 3 - CAS Analysis ##
 
-#### Step 2b ####
-
-Upon completion of the ROI and point source analysis, ensure the proper flags for clusters with insufficient data (`'skip'`) and done clusters (`'complete'`) are correctly appended in [verify_coords.py](checks/verify_coords.py). 'Complete' clusters are those that had sufficient counts for analysis, while clusters that had insufficient counts for statistically significant analysis should be 'skip(ped)' for the rest of the analysis.
-
-Next, run `python verify_coords.py` to check that the region files are in the proper coordinates. If there are any issues, re-save the region files in the proper coordinates and re-run `python verify_coords.py`.
-
-Once there are no errors present in "data/issues.txt", continue to Step 3 below.
-
-## Step 3 ##
-
-In [cas_process_all_data.py](reduce/cas_process_all_data.py), ensure the proper flags for clusters to skip (`'skip'`) and complete clusters (`'complete'`) are correctly appended.
+We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](reduction/cas_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
+```
+ciao
+python cas_process_all_data.py
+```
 
-Upon completion of the previous command, there will be a file "data/chandrastats.txt" which contains relevant information about each cluster. This file also includes the values for the Asymmetry and Clumpiness parameters for each cluster. 'Skip(ped)' clusters will have ",,," in the "data/chandrastats.txt" file, where the CAS parameters would normally be present for 'complete' clusters.
+Upon completion of the previous command, there will be a file "data/CAS_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Concentration, Asymmetry, and Clumpiness parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," in the "data/CAS_parameters_v1.txt" file.
 
-An unsharp-masked (UM) image ("unsharp.fits") will also be created, and can be found in [cluster_name]/bin=2/UM.
+An unsharp-masked (UM) image ("unsharp_mask.fits") will be created, and can be found in [cluster]/ROI_2/.
 
-As the concentration parameter must be computed by hand, navigate to each cluster's directory and open the requisite image. Refer to [concentration_README](reduce/concentration_README.md) for further instructions to compute the concentration value. The corresponding value must then be recorded in "chandrastats.txt".
+A Gaussian gradient magnitude (GGM) image ("[cluster]\_ggm.fits") will also be created, and can be found in [cluster]/ROI/. This image can be used to probe both small- and large-scale structure of the ICM.
 
-## Step 4 ##
+## Step 4 - SPA Analysis ##
 
-As in Step 3, ensure that flags in [ggm_all_data.py](reduce/ggm_all_data.py) are corrrect for clusters to skip (`'skip'`) and complete clusters (`'complete'`).
+We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](reduction/spa_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
 
-It is important to ensure that CIAO **is not running** for this step. It is recommended to simply open a new terminal.
+Ensure that CIAO is **not** running by simply opening a new terminal, start HEAsoft, and then run `python spa_process_all_data.py`.
+```
+cd data
+heainit
+python spa_process_all_data.py
+```
 
-From within data/, as with all other steps, run `python ggm_all_data.py`
-
-This will produce several images in the cluster's own ggm_combine/ folder. The image of primary interest is "[cluster_name]\_ggm\_filtered.fits", which can be used to probe both small- and large-scale structure of the ICM.
+Upon completion of the previous command, there will be a file "data/SPA_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Symmetry, Peakiness, and Alignment parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," in the "data/SPA_parameters_v1.txt" file.
 
 ## Conclusion ##
 
-The purpose of this guide was to assist in downloading, reducing, and analyzing archival *Chandra* data, while creating GGM-filtered and UM images, as well as determining the CAS parameters. Hopefully it was both an informative and useful tool in this regard. Comments, suggestions, and prospective improvements can be sent to C. Lawlor-Forsyth at [lawlorfc@myumanitoba.ca](mailto:lawlorfc@myumanitoba.ca).
+The purpose of this guide was to assist in downloading, reducing, and analyzing archival *Chandra* data, while creating GGM-filtered and UM images, as well as determining the CAS and SPA parameters. Hopefully it was both an informative and useful tool in this regard. Comments, suggestions, and prospective improvements can be sent to C. Lawlor-Forsyth at [lawlorfc@myumanitoba.ca](mailto:lawlorfc@myumanitoba.ca).
 
 ### Acknowledgements ###
-Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The automation process was completed by C. McRae. Formatting, presentation, and subsequent revisions and maintenance by C. Lawlor-Forsyth.
+Much of the early work developing the reduction pipeline was completed by M. Radica, with help from G. Tremblay. The initial automation process was completed by C. McRae. Formatting, presentation, subsequent revisions (including automation) and maintenance by C. Lawlor-Forsyth.
