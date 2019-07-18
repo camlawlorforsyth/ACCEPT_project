@@ -38,7 +38,6 @@ if quality == "sufficient" :
     
 ## STEP 3 - START HEASOFT TOOLS, CALCULATE K-CORRECTION ##
     
-    subprocess.run("heainit", shell=True)
     subprocess.run("python ~/soft/morph/K_nH_correction.py " +
                    "--kT " + str(kT) + " --nH " + str(nH) + " --Eobs 0.5-7.0" +
                    " --Ez 0.1-50.0 " + str(redshift) + " > K_correction.txt",
