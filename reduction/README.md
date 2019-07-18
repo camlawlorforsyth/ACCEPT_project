@@ -6,8 +6,10 @@ These steps outline the procedure to run an automated reduction process which wi
 
 Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/camlawlorforsyth/ggm) from GitHub, save them into your Downloads directory, and unzip them.
 ```
-unzip -qq Downloads/ACCEPT_project-master.zip
-unzip -qq Downloads/ggm-master.zip
+cd Downloads
+unzip -qq ACCEPT_project-master.zip
+unzip -qq ggm-master.zip
+cd ..
 ```
 
 Next, create a new data (`data/`) directory in the user level directory (ie. `/home/user/`):
@@ -52,6 +54,14 @@ Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format w
 
 We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](reduction/cas_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
 
+We need to edit the "cas_process_all_data.py" file to ensure it runs properly. Open gedit (`gedit cas_process_all_data.py`) and add the following lines to the top of the file, then save and close it:
+```
+# this script assumes Python 3.5 is in use
+
+# imports
+import subprocess
+```
+
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
 ciao
@@ -67,6 +77,14 @@ A Gaussian gradient magnitude (GGM) image ("[cluster]\_ggm.fits") will also be c
 ## Step 4 - SPA Analysis ##
 
 We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](reduction/spa_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
+
+We need to edit the "spa_process_all_data.py" file to ensure it runs properly. Open gedit (`gedit spa_process_all_data.py`) and add the following lines to the top of the file, then save and close it:
+```
+# this script assumes Python 3.5 is in use
+
+# imports
+import subprocess
+```
 
 Ensure that CIAO is **not** running by simply opening a new terminal, start HEAsoft, and then run `python spa_process_all_data.py`.
 ```
