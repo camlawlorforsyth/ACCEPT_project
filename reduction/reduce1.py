@@ -294,10 +294,3 @@ for i in range(8, length) : # creates a space-separated list of the ObsIDs
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
 
 os.chdir("..") # go back to the data/ directory
-
-'''
-the sources in sources.reg can now be viewed in ds9 and any spurious detections
-can be deleted. now save this file as 'sources_mod.reg' in CIAO+physical
-
-ds9 ROI_2/broad_flux_ROI.fits -cmap bb -scale log -region sources.reg
-'''
