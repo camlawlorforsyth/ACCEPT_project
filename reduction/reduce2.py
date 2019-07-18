@@ -314,7 +314,8 @@ if quality == "sufficient" :
     
     file.close()
     
-    subprocess.run(['python','interactive.py','input.yml'])
+    subprocess.run(['python','../../reduction/ggm/ggm_combine/interactive.py',
+                    'input.yml'])
     
     os.chdir("..")
     
