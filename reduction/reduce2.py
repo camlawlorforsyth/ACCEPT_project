@@ -318,7 +318,22 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 16 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+## STEP 16 - BACKGROUND SUBTRACTION USING STANDARD DEVIATION OF CAS REGION ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    os.chdir("bin_2")
+    
+    with open('bkg_sigma.txt', 'r') as file :
+        bkg_sigma = float( file.read() )
+    
+    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("dmimgcalc infile=diffuse.fits op='imgout=img1-" +
+                   str(bkg_sigma) + "' out='final_SPA.fits' mode=h",shell=True)
+    
+    os.chdir("..")    
+    
+## STEP 17 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
     
     with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(concen) + "," + str(concen_err) +
