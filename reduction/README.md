@@ -62,6 +62,25 @@ We need to edit the "cas_process_all_data.py" file to ensure it runs properly. O
 import subprocess
 ```
 
+Before we run the CAS processing script, we must edit a few GGM scripts to ensure they work properly.
+Comment out lines 38, 90, 108, 121-124, 173-174, 195, 206 of `reduction/ggm/ggm_combine/interactive.py`.
+Change line 91 of `reduction/ggm/ggm_combine/interactive.py` to (ie. unindent it once):
+```
+        hdr.totextfile('tmp' + some_random_str, overwrite=False)
+```
+Change line 140 of `reduction/ggm/ggm_combine/interactive.py` to:
+```
+            self.pars = pars = yaml.load(f, Loader=yaml.FullLoader)
+```
+Additionally, change lines 12-15 of `reduction/ggm/ggm_combine/qt.py` to:
+```
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
+```
+Now the GGM automation will work correctly. We can now run the CAS processing script.
+
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
 ciao
