@@ -4,7 +4,7 @@ These steps outline the procedure to run an automated reduction process which wi
 
 ## Step 0 - Preparation ##
 
-Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/camlawlorforsyth/ggm) from GitHub, save them into your Downloads directory, and unzip them.
+Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/granttremblay/ggm) from GitHub, save them into your Downloads directory, and unzip them.
 ```
 cd Downloads
 unzip -qq ACCEPT_project-master.zip
@@ -17,7 +17,7 @@ Next, create a new data (`data/`) directory in the user level directory (ie. `/h
 mkdir data
 ```
 
-Copy the [reduction/](.) directory into it, and the [ggm/](https://github.com/camlawlorforsyth/ggm) directory into the [reduction/](.) directory.
+Copy the [reduction/](.) directory into it, and the ggm/ directory into the [reduction/](.) directory.
 ```
 cp -a Downloads/ACCEPT_project-master/reduction/. data/reduction/
 cp -a Downloads/ggm-master/. data/reduction/ggm/
