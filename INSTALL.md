@@ -94,7 +94,7 @@ mv Downloads/wcstools-3.9.5.tar.gz soft
 cd soft
 gunzip -c wcstools-3.9.5.tar.gz | tar xf -
 cd wcstools-3.9.5
-make all
+make all > build.log 2>&1
 ```
 
 We can now install HEASOFT, which includes FTOOLS (and FITSIO), as well as Xspec (and PyXspec), as required by the SPA analysis.
