@@ -183,7 +183,7 @@ Then save and close the `Makefile`.
 
 Lastly, build the software as user:
 ```
-make
+make > build.log 2>&1
 ```
 
 You should now have a `morphology.exe` executable, which can be used to perform the SPA analysis.
