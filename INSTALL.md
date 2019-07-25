@@ -1,4 +1,4 @@
-# HEAsoft and CIAO Install #
+# CIAO and HEAsoft Install #
 
 Instructions to properly install CIAO, Astropy, photutils, as required for the CAS analysis, as well as GSL, WCSlib, HEAsoft, FTOOLS, and PyXspec, as required by the SPA analysis.
 
@@ -101,14 +101,14 @@ We can now install HEASOFT, which includes FTOOLS (and FITSIO), as well as Xspec
 
 Navigate to https://heasarc.nasa.gov/lheasoft/download.html, and select the source code for CentOS architecture.
 Next, select Xspec and whatever dependencies it automatically includes (ie. HEASPtools and HEAGen) from the desired packages list.
-After submitting the request, a `heasoft-6.26src.tar.gz` file will be ready for download. Download and save this file.
+After submitting the request, a `heasoft-6.26.1src.tar.gz` file will be ready for download. Download and save this file.
 
 For further HEAsoft installation instructions, refer to https://heasarc.nasa.gov/lheasoft/install.html and https://heasarc.nasa.gov/lheasoft/fedora.html for Fedora-derivative based architectures (like CentOS).
 
-Now navigate to the user level directory once again and move the `heasoft-6.26src.tar.gz` file to the software directory and unzip it:
+Now navigate to the user level directory once again and move the `heasoft-6.26.1src.tar.gz` file to the software directory and unzip it:
 ```
-mv Downloads/heasoft-6.26src.tar.gz soft
-gunzip -c heasoft-6.25src.tar.gz | tar xf -
+mv Downloads/heasoft-6.26.1src.tar.gz soft
+gunzip -c heasoft-6.26.1src.tar.gz | tar xf -
 ```
 
 Now install required prerequisite packages as root:
@@ -127,11 +127,11 @@ export PYTHON=/usr/bin/python
 
 Finally, change to the build directory and configure, build and install HEAsoft (as root):
 ```
-cd heasoft-6.26/BUILD_DIR/
+cd heasoft-6.26.1/BUILD_DIR/
 ./configure > config.out 2>&1
 make > build.log 2>&1
 make install > install.log 2>&1
-export HEADAS=/home/user/soft/heasoft-6.26/x86_64-pc-linux-gnu-libc2.12/
+export HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.12/
 . $HEADAS/headas-init.sh
 ```
 Note that the `make` command takes about 20 minutes, and `make install` takes at least 40 minutes.
@@ -141,7 +141,7 @@ Lastly, edit your `.bashrc` file to include the initialization script for HEAsof
 gedit ~/.bashrc
 
 [Add:]
-  HEADAS=/home/user/soft/heasoft-6.26/x86_64-pc-linux-gnu-libc2.12/
+  HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.12/
   export HEADAS
   alias heainit=". $HEADAS/headas-init.sh"
 ```
