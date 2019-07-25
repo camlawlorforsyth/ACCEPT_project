@@ -113,7 +113,7 @@ gunzip -c heasoft-6.26.1src.tar.gz | tar xf -
 
 Now install required prerequisite packages as root:
 ```
-yum -y install ncurses-devel libcurl-devel libXt-devel python-devel redhat-rpm-config
+yum -y install ncurses-devel libcurl-devel libXt-devel perl-ExtUtils-MakeMaker python-devel redhat-rpm-config
 ```
 
 Export required compilers as root:
