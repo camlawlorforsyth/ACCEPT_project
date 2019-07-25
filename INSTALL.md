@@ -131,7 +131,7 @@ cd heasoft-6.26.1/BUILD_DIR/
 ./configure > config.out 2>&1
 make > build.log 2>&1
 make install > install.log 2>&1
-export HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.12/
+export HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/
 . $HEADAS/headas-init.sh
 ```
 Note that the `make` command takes about 20 minutes, and `make install` takes at least 40 minutes.
@@ -141,7 +141,7 @@ Lastly, edit your `.bashrc` file to include the initialization script for HEAsof
 gedit ~/.bashrc
 
 [Add:]
-  HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.12/
+  HEADAS=/home/user/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/
   export HEADAS
   alias heainit=". $HEADAS/headas-init.sh"
 ```
