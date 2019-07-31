@@ -2,32 +2,6 @@
 
 These steps outline the procedure to run an automated reduction process which will reduce archival *Chandra* data, compute the concentration, asymmetry, and clumpiness (CAS) parameters, the symmetry, peakiness, and alignment (SPA) parameters, and create Gaussian-Gradient Magnitude (GGM) and unsharp-masked (UM) images for clusters of galaxies present in the [ACCEPT](https://web.pa.msu.edu/astro/MC2/accept/) sample. This reduction adopts the standard flat Lambda-CDM cosmology, with H_0 = 70 km/s /Mpc, Omega_m = 0.3, and Omega_Lambda = 0.7.
 
-## Step 0 - Preparation ##
-
-Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/granttremblay/ggm) from GitHub, save them into your Downloads directory, and unzip them.
-```
-cd Downloads
-unzip -qq ACCEPT_project-master.zip
-unzip -qq ggm-master.zip
-cd ..
-```
-
-Next, create a new data (`data/`) directory in the user level directory (ie. `/home/user/`):
-```
-mkdir data
-```
-
-Copy the [reduction/](.) directory into it, and the ggm/ directory into the [reduction/](.) directory.
-```
-cp -a Downloads/ACCEPT_project-master/reduction/. data/reduction/
-cp -a Downloads/ggm-master/. data/reduction/ggm/
-```
-
-Copy the "get_all_data.py" file from the newly copied reduction/ directory into the data/ directory:
-```
-cp data/reduction/get_all_data.py data/
-```
-
 ## Step 1 - Reduction ##
 
 Open a terminal and navigate to your data/ directory, start CIAO and run `python get_all_data.py` once CIAO is confirmed to be running.
@@ -62,25 +36,6 @@ We need to edit the "cas_process_all_data.py" file to ensure it runs properly. O
 import subprocess
 ```
 
-Before we run the CAS processing script, we must edit a few GGM scripts to ensure they work properly.
-Comment out lines 38, 90, 108, 121-124, 173-174, 195, 206 of `reduction/ggm/ggm_combine/interactive.py`.
-Change line 91 of `reduction/ggm/ggm_combine/interactive.py` to (ie. unindent it once):
-```
-        hdr.totextfile('tmp' + some_random_str, overwrite=False)
-```
-Change line 140 of `reduction/ggm/ggm_combine/interactive.py` to:
-```
-            self.pars = pars = yaml.load(f, Loader=yaml.FullLoader)
-```
-Additionally, change lines 12-15 of `reduction/ggm/ggm_combine/qt.py` to:
-```
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.uic import loadUi
-```
-Now the GGM automation will work correctly. We can now run the CAS processing script.
-
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
 ciao
@@ -91,7 +46,7 @@ Upon completion of the previous command, there will be a file "data/CAS_paramete
 
 An unsharp-masked (UM) image ("unsharp_mask.fits") will be created, and can be found in [cluster]/ROI_2/.
 
-A Gaussian gradient magnitude (GGM) image ("[cluster]\_ggm.fits") will also be created, and can be found in [cluster]/ROI/. This image can be used to probe both small- and large-scale structure of the ICM.
+A Gaussian gradient magnitude (GGM) image ("ggm.fits") will also be created, and can be found in [cluster]/ROI/. This image can be used to probe both small- and large-scale structure of the ICM.
 
 ## Step 4 - SPA Analysis ##
 
@@ -105,9 +60,11 @@ We need to edit the "spa_process_all_data.py" file to ensure it runs properly. O
 import subprocess
 ```
 
-Ensure that CIAO is **not** running by simply opening a new terminal, start HEAsoft, and then run `python spa_process_all_data.py`.
+Ensure that CIAO is **not** running by simply opening a new terminal, export the shared libraries (for GSL), start HEAsoft, and then run `python spa_process_all_data.py`.
 ```
 cd data
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/home/cam/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/lib
+export LD_LIBRARY_PATH
 heainit
 python spa_process_all_data.py
 ```
