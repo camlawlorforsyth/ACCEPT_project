@@ -278,7 +278,7 @@ if quality == "sufficient" :
     file = open('input.yml','w') # open for writing
     file.write("image:\n")
     file.write("        centre: [" + str(x_length/2) + "," + str(y_length/2) + "]\n")
-    file.write("        outfilename: " + cluster + "_ggm.fits\n")
+    file.write("        outfilename: ggm.fits\n")
     file.write("data:\n")
     
     dim = min(x_length/2, y_length/2)
@@ -323,7 +323,11 @@ if quality == "sufficient" :
     
 # http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
     
-    os.chdir("bin_2")
+    subprocess.run("mkdir SPA", shell=True)
+    subprocess.run("cp bin_2/diffuse.fits SPA/diffuse.fits", shell=True)
+    subprocess.run("cp bin_2/bkg_sigma.txt SPA/bkg_sigma.txt", shell=True)
+    
+    os.chdir("SPA")
     
     with open('bkg_sigma.txt', 'r') as file :
         bkg_sigma = float( file.read() )
@@ -332,7 +336,7 @@ if quality == "sufficient" :
     subprocess.run("dmimgcalc infile=diffuse.fits op='imgout=img1-" +
                    str(bkg_sigma) + "' out='final_SPA.fits' mode=h",shell=True)
     
-    os.chdir("..")    
+    os.chdir("..")
     
 ## STEP 17 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
     
@@ -347,7 +351,7 @@ else:
 
 ## STEP 17 - ADDITIONAL CLEANUP ##
 
-cmd = "rm -rf bin" # delete unnecessary files
+cmd = "rm -rf bin bin_2 sources" # delete unnecessary files
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
 
 os.chdir("..") # go back to the data/ directory
