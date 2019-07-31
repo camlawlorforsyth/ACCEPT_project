@@ -53,25 +53,20 @@ if quality == "sufficient" :
     
     norm = K_corr * kT * (E_z**3) / ((1 + redshift)**4)
     
-## STEP 5 - EXPORT SHARED LIBRARIES ##
+    with open('morph.log', 'w') as file :
+        file.write("SB scaling factor = " + str(norm) + "\n")
     
-    subprocess.run("LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" +
-                   ":/home/cam/soft/heasoft-6.26/x86_64-pc-linux-gnu-libc2.12/lib",
-                   shell=True)
-    subprocess.run("export LD_LIBRARY_PATH", shell=True)
-    
-## STEP 6 - RUN MORPHOLOGY EXECUTABLE ##
+## STEP 5 - RUN MORPHOLOGY EXECUTABLE ##
     
     subprocess.run("~/soft/morph/morphology" +
                    " --isoph-min-level " + str(2.0e-3*norm) +
                    " --isoph-max-level " + str(0.05*norm) +
                    " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
                    " --peaky-flux " + str(0.0475*norm) +
-                   " final_SPA.fits > morph.log", shell=True)
+                   " --obnoxious" +
+                   " final_SPA.fits >> morph.log", shell=True)
     
-## STEP 7 - ANALYZE SPA OUTPUT ##
-    
-    # something to do with 'reduce2.R' script/use python to interpret results
+## STEP 6 - ANALYZE SPA OUTPUT ##
     
     subprocess.run("~/soft/morph/reduce2.R morph.log " +
                    str(redshift) + " > spa_params.txt", shell=True)
@@ -89,7 +84,7 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 8 - WRITE SPA PARAMETER VALUES TO TEXT FILE ##
+## STEP 7 - WRITE SPA PARAMETER VALUES TO TEXT FILE ##
     
     with open('../SPA_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(sym) + "," + str(sym_err) +
@@ -100,9 +95,9 @@ else:
     with open('../SPA_parameters_v1.txt', 'a') as file :
         file.write(cluster + ",,,,,,\n")
 
-## STEP 9 - FINAL CLEANUP ##
+## STEP 8 - FINAL CLEANUP ##
 
-cmd = "rm -rf bin_2" # delete unnecessary files
-subprocess.run(cmd, shell=True) # pass the cleanup command to the system
+#cmd = "rm -rf bin_2" # delete unnecessary files
+#subprocess.run(cmd, shell=True) # pass the cleanup command to the system
 
 os.chdir("..") # go back to the data/ directory
