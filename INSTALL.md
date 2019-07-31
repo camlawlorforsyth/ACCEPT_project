@@ -160,7 +160,7 @@ python
 
 If everything worked, you should receive no error messages with the last command.
 
-## Install the SPA analysis code ##
+## Install the SPA analysis code and R ##
 
 Finally, the SPA code itself can be installed. The code can be downloaded directly from http://www.slac.stanford.edu/~amantz/work/morph14/morph.tar, with information regarding the code, installation, and usage available at https://sites.google.com/site/adambmantz/work/morph14.
 
@@ -188,6 +188,42 @@ make > build.log 2>&1
 
 You should now have a `morphology.exe` executable, which can be used to perform the SPA analysis.
 
+We additionally require R to be installed, as well as the FITSio package.
+At the user level directory (ie. `/home/user/`), as root:
+```
+yum -y install epel-release
+yum -y install R
+
+R
+> install.packages("FITSio")
+```
+
+## Install the CAS and GGM analysis codes ##
+
+Download the ACCEPT project zip file (https://github.com/camlawlorforsyth/ACCEPT_project), and the GGM zip file (https://github.com/camlawlorforsyth/ggm) from GitHub, save them into your Downloads directory, and unzip them.
+```
+cd Downloads
+unzip -qq ACCEPT_project-master.zip
+unzip -qq ggm-master.zip
+cd ..
+```
+
+Next, create a new data (`data/`) directory in the user level directory (ie. `/home/user/`):
+```
+mkdir data
+```
+
+Copy the [reduction/](.) directory into it, and the ggm/ directory into the [reduction/](.) directory.
+```
+cp -a Downloads/ACCEPT_project-master/reduction/. data/reduction/
+cp -a Downloads/ggm-master/. data/reduction/ggm/
+```
+
+Copy the "get_all_data.py" file from the newly copied reduction/ directory into the data/ directory:
+```
+cp data/reduction/get_all_data.py data/
+```
+
 ### Comments ###
 
-The aim of this README was to provide clear and concise installation instructions in order to get a new virtual machine up and running with the Guest Additions, as well as CIAO and HEAsoft in as little time as possible.
+The aim of this README was to provide clear and concise installation instructions in order to get a new virtual machine up and running with the Guest Additions, as well as CIAO, HEAsoft, the CAS and SPA analysis codes in as little time as possible.
