@@ -73,7 +73,7 @@ if quality == "sufficient" :
            " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
            " --peaky-flux " + str(0.0475*norm) +
            " --bg-file background_box.fits 1 0 --expmap expmap_box.fits" +
-           " --boot 3 > morph_boot.dat")
+           " --boot 100 > morph_boot.dat")
     subprocess.run(cmd, shell=True)
     
 ## STEP 6 - ANALYZE SPA OUTPUT ##
