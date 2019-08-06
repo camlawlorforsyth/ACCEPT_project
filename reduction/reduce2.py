@@ -53,7 +53,7 @@ os.chdir(cluster)
 
 if quality == "sufficient" :
     
-## STEPS 3-7 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
+## STEPS 3-6 - REMOVE POINT SOURCES FOR bin=0.5 IMAGE ##
     
     os.chdir("bin")
     
@@ -63,7 +63,7 @@ if quality == "sufficient" :
     
     subprocess.run("punlearn dmmakereg", shell=True) # restore system defaults
     subprocess.run("dmmakereg 'region(../sources_mod.reg)' sources_mod.fits " +
-                   "wcsfile=broad_flux.fits", shell=True) # convert
+                   "wcsfile=broad_thresh.fits", shell=True) # convert
     # the modified source list into FITS format
     
 ## STEP 4 - CREATE SOURCE AND BACKGROUND REGIONS ##
@@ -103,23 +103,15 @@ if quality == "sufficient" :
                    shell=True) # remove regions and fill with Poisson
     # distribution of the background
     
-## STEP 7 - EXPOSURE CORRECT IMAGE ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
-    subprocess.run("dmimgcalc broad_thresh_nps.fits broad_thresh_expmap.fits " +
-                   "diffuse.fits div", shell=True)
-    
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 8 - REPEAT STEPS 3-7 FOR bin=2 IMAGE ##
+## STEP 7 - REPEAT STEPS 3-6 FOR bin=2 IMAGE ##
     
     os.chdir("bin_2")
     
     subprocess.run("punlearn dmmakereg", shell=True)
     subprocess.run("dmmakereg 'region(../sources_mod.reg)' sources_mod.fits " +
-                   "wcsfile=broad_flux.fits", shell=True)
+                   "wcsfile=broad_thresh.fits", shell=True)
     
     subprocess.run("mkdir sources", shell=True)
     subprocess.run("punlearn roi", shell=True)
@@ -144,43 +136,69 @@ if quality == "sufficient" :
                    "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
                    shell=True)
     
-    subprocess.run("punlearn dmimgcalc", shell=True)
-    subprocess.run("dmimgcalc broad_thresh_nps.fits broad_thresh_expmap.fits " +
-                   "diffuse.fits div", shell=True)
+    subprocess.run("cp broad_thresh_nps.fits ../SPA/broad_thresh_nps.fits",
+                   shell=True)
+    
+#    subprocess.run("punlearn dmimgcalc", shell=True)
+#    subprocess.run("dmimgcalc broad_thresh_nps.fits broad_thresh_expmap.fits " +
+#                   "diffuse.fits div", shell=True)
     
     os.chdir("..")
     
-## STEP 9 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc) ##
+## STEP 8 - CONSTRAIN DATA TO REGION OF INTEREST (Rout_Mpc/SPA_box) ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
     subprocess.run("mkdir ROI", shell=True) # trim the images to the ROI
     subprocess.run("mkdir ROI_2", shell=True)
+    subprocess.run("mkdir SPA_box", shell=True)
     
     subprocess.run("punlearn dmcopy", shell=True) # restore system defaults
-    subprocess.run("dmcopy 'bin/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
-                   "ROI/diffuse.fits", shell=True)
-    subprocess.run("dmcopy 'bin/diffuse_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+    subprocess.run("dmcopy 'bin/broad_thresh_nps.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_nps.fits", shell=True)
+    subprocess.run("dmcopy 'bin/broad_thresh_bkg.fits[sky=region(ds9_fk5.reg)]' "+
                    "ROI/background.fits", shell=True)
+    subprocess.run("dmcopy 'bin/broad_thresh_expmap.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_expmap.fits", shell=True)
     
-    subprocess.run("dmcopy 'bin_2/diffuse.fits[sky=region(ds9_fk5.reg)]' " +
-                   "ROI_2/diffuse.fits", shell=True)
-    subprocess.run("dmcopy 'bin_2/diffuse_bkg.fits[sky=region(ds9_fk5.reg)]' "+
+    subprocess.run("dmcopy 'bin_2/broad_thresh_nps.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI_2/broad_thresh_nps.fits", shell=True)
+    subprocess.run("dmcopy 'bin_2/broad_thresh_bkg.fits.fits[sky=region(ds9_fk5.reg)]' "+
                    "ROI_2/background.fits", shell=True)
+    subprocess.run("dmcopy 'bin/broad_thresh_expmap.fits[sky=region(ds9_fk5.reg)]' " +
+                   "ROI/broad_thresh_expmap.fits", shell=True)
     
-## STEP 10 - BACKGROUND SUBTRACTION ##
+    subprocess.run("dmcopy 'SPA/broad_thresh_nps.fits[sky=region(ds9_box.reg)]' " +
+                   "SPA_box/broad_box.fits", shell=True)
+    subprocess.run("dmcopy 'SPA/background[sky=region(ds9_box.reg)]' " +
+                   "SPA_box/background_box.fits", shell=True)
+    subprocess.run("dmcopy 'SPA/broad_expmap.fits[sky=region(ds9_box.reg)]' " +
+                   "SPA_box/expmap_box.fits", shell=True)
+    
+## STEP 9 - BACKGROUND SUBTRACTION ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
     
     subprocess.run("punlearn dmimgcalc", shell=True)
-    subprocess.run("dmimgcalc ROI/diffuse.fits ROI/background.fits " +
-                   "ROI/final.fits sub", shell=True) # subtract background of
-    # region of interest from diffuse emission image, thus creating final
-    # merged, exposure-corrected, background-subtracted cluster image
+    subprocess.run("dmimgcalc ROI/broad_thresh_nps.fits ROI/background.fits " +
+                   "ROI/diffuse.fits sub", shell=True) # subtract background of
+    # region of interest from broad counts image, creating diffuse emission image
     
-    subprocess.run("punlearn dmimgcalc", shell=True)
-    subprocess.run("dmimgcalc ROI_2/diffuse.fits ROI_2/background.fits " +
-                   "ROI_2/final.fits sub", shell=True)
+    subprocess.run("dmimgcalc ROI_2/broad_thresh_nps.fits ROI_2/background.fits " +
+                   "ROI_2/diffuse.fits sub", shell=True)
+    
+## STEP 10 - EXPOSURE CORRECT IMAGES ##
+    
+# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
+    
+    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
+    subprocess.run("dmimgcalc ROI/diffuse.fits ROI/broad_thresh_expmap.fits " +
+                   "ROI/final.fits div", shell=True) # divide diffuse emission
+    # image by exposure map, thus creating final merged, background-subtracted,
+    # exposure-corrected, cluster image
+    
+    subprocess.run("dmimgcalc ROI_2/diffuse.fits ROI_2/broad_thresh_expmap.fits " +
+                   "ROI_2/final.fits div", shell=True)
     
 ## STEP 11 - COMPUTE CONCENTRATION PARAMETER ##
     
@@ -319,26 +337,7 @@ if quality == "sufficient" :
     
     os.chdir("..")
     
-## STEP 16 - BACKGROUND SUBTRACTION USING STANDARD DEVIATION OF CAS REGION ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-    subprocess.run("mkdir SPA", shell=True)
-    subprocess.run("cp bin_2/diffuse.fits SPA/diffuse.fits", shell=True)
-    subprocess.run("cp bin_2/bkg_sigma.txt SPA/bkg_sigma.txt", shell=True)
-    
-    os.chdir("SPA")
-    
-    with open('bkg_sigma.txt', 'r') as file :
-        bkg_sigma = float( file.read() )
-    
-    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
-    subprocess.run("dmimgcalc infile=diffuse.fits op='imgout=img1-" +
-                   str(bkg_sigma) + "' out='final_SPA.fits' mode=h",shell=True)
-    
-    os.chdir("..")
-    
-## STEP 17 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
+## STEP 16 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
     
     with open('../CAS_parameters_v1.txt', 'a') as file :
         file.write(cluster + "," + str(concen) + "," + str(concen_err) +
