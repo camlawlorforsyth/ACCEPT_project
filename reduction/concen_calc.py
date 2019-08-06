@@ -10,7 +10,7 @@ from astropy.io import fits
 import astropy.units as u
 from astropy.wcs import WCS
 from photutils import aperture_photometry
-from photutils import SkyCircularAperture
+from photutils import SkyCircularAperture, CircularAperture
 import warnings
 warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
 
@@ -36,94 +36,96 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     R_max = Angle(Rout/D_A*u.rad) # maximum radius in radians
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
-    aperture = SkyCircularAperture(position, r=R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=world_cs)
+    aperture = SkyCircularAperture(position, r=R_max).to_pixel(world_cs)
+    phot_table = aperture_photometry(image, aperture)
     max_total = phot_table['aperture_sum'][0]
+    radius_pix = aperture.r # maximum radius in pixels
+    centre = aperture.positions # centre in pixels
     
-    return concentration(max_total, R_max, position, image, world_cs)
+    return concentration(max_total, radius_pix, centre, image)
 
 #.................................................................concentration
-def concentration(max_total, R_max, position, image, wcs) :
+def concentration(max_total, radius_pix, centre, image) :
     
     # find radius that encompasses 20% of the emission, then the same for 80%
-    r_20, r_20_rel_err = search(0.2*max_total, R_max, position,image,wcs,10000)
-    r_80, r_80_rel_err = search(0.8*max_total, R_max, position,image,wcs,10000)
+    r_20, r_20_rel_err = search(0.2*max_total, radius_pix, centre, image, 10000)
+    r_80, r_80_rel_err = search(0.8*max_total, radius_pix, centre, image, 10000)
     
     uncertainty = 5/np.log(10) * ( r_20_rel_err + r_80_rel_err )
     
     return 5*np.log10(r_80 / r_20), uncertainty
 
 #........................................................................search
-def search(desired_total, R_max, position, image, wcs, num_steps) :
+def search(desired_total, radius_pix, centre, image, num_steps) :
     
-    aperture = SkyCircularAperture(position, r=0.1*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    ten_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.1*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    ten_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.2*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    twenty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.2*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    twenty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.3*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    thirty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.3*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    thirty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.4*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    forty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.4*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    forty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.5*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    fifty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.5*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    fifty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.6*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    sixty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.6*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    sixty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.7*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    seventy_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.7*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    seventy_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.8*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    eighty_R_max_total = phot_table['aperture_sum'][0]
+    aperture = CircularAperture(centre, r=0.8*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    eighty_radius_pix_total = phot_table['aperture_sum'][0]
     
-    aperture = SkyCircularAperture(position, r=0.9*R_max)
-    phot_table = aperture_photometry(image, aperture, wcs=wcs)
-    ninety_R_max_total = phot_table['aperture_sum'][0]
-
-    if desired_total > ninety_R_max_total :
-        radius = 0.9*R_max
-    elif desired_total > eighty_R_max_total :
-        radius = 0.8*R_max
-    elif desired_total > seventy_R_max_total :
-        radius = 0.7*R_max
-    elif desired_total > sixty_R_max_total :
-        radius = 0.6*R_max
-    elif desired_total > fifty_R_max_total :
-        radius = 0.5*R_max
-    elif desired_total > forty_R_max_total :
-        radius = 0.4*R_max
-    elif desired_total > thirty_R_max_total :
-        radius = 0.3*R_max
-    elif desired_total > twenty_R_max_total :
-        radius = 0.2*R_max
-    elif desired_total > ten_R_max_total :
-        radius = 0.1*R_max
+    aperture = CircularAperture(centre, r=0.9*radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    ninety_radius_pix_total = phot_table['aperture_sum'][0]
+    
+    if desired_total > ninety_radius_pix_total :
+        radius = 0.9*radius_pix
+    elif desired_total > eighty_radius_pix_total :
+        radius = 0.8*radius_pix
+    elif desired_total > seventy_radius_pix_total :
+        radius = 0.7*radius_pix
+    elif desired_total > sixty_radius_pix_total :
+        radius = 0.6*radius_pix
+    elif desired_total > fifty_radius_pix_total :
+        radius = 0.5*radius_pix
+    elif desired_total > forty_radius_pix_total :
+        radius = 0.4*radius_pix
+    elif desired_total > thirty_radius_pix_total :
+        radius = 0.3*radius_pix
+    elif desired_total > twenty_radius_pix_total :
+        radius = 0.2*radius_pix
+    elif desired_total > ten_radius_pix_total :
+        radius = 0.1*radius_pix
     else :
-        radius = Angle(1e-10, u.rad)
+        radius = 1e-10*radius_pix
     
-    while radius <= R_max :
-        aperture = SkyCircularAperture(position, r=radius)
-        phot_table = aperture_photometry(image, aperture, wcs=wcs)
+    while radius <= radius_pix :
+        aperture = CircularAperture(centre, r=radius)
+        phot_table = aperture_photometry(image, aperture)
         total = phot_table['aperture_sum'][0] # the value with no units
         
         if (desired_total-total) > 0 :
             if (desired_total-total) <= eps*max(abs(desired_total),abs(total)) :
-                return radius, (R_max/num_steps)/radius
+                return radius, (radius_pix/num_steps)/radius
             else :
-                radius += R_max/num_steps
+                radius += radius_pix/num_steps
         else : # if (desired_total-total) < 0, we've gone too far
                # so we try again with finer steps
-            search(desired_total, R_max, position, image, wcs, 10*num_steps)
+            search(desired_total, radius_pix, centre, image, 10*num_steps)
 #..............................................................end of functions
