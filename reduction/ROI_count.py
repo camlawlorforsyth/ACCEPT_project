@@ -52,18 +52,19 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
                     "," + Dec.to_string(unit=u.degree, sep=':') +
                     "," + str(R_max.to(u.arcsec).value) + '")\n')
         
-#        ds9_fk5_double = ('# Region file format: DS9 version 4.1\n' +
-#                          'global width=1\n' + 'fk5\n')
+        ds9_box = ('# Region file format: DS9 version 4.1\n' +
+                   'global width=1\n' + 'fk5\n')
         
-#        ds9_fk5_double += ("circle(" + RA.to_string(unit=u.hour, sep=':') +
-#                           "," + Dec.to_string(unit=u.degree, sep=':') +
-#                           "," + str(2*R_max.to(u.arcsec).value) + '")\n')
+        ds9_box += ("box(" + RA.to_string(unit=u.hour, sep=':') +
+                    "," + Dec.to_string(unit=u.degree, sep=':') +
+                    "," + str(4*R_max.to(u.arcsec).value) + '"' +
+                    "," + str(4*R_max.to(u.arcsec).value) + '",360)\n')
         
         with open('ds9_fk5.reg', 'w') as file :
             file.write(ds9_fk5) # create the ds9_fk5.reg file for further use
         
-#        with open('ds9_fk5_double.reg', 'w') as file :
-#            file.write(ds9_fk5_double) # save region with 2*R_max
+        with open('ds9_box.reg', 'w') as file :
+            file.write(ds9_box) # save square region with l=w=2*R_max
         
         # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html    
         
@@ -73,9 +74,9 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
                         # the ds9_fk5.reg file and create a CIAO physical
                         # bk.reg file
         
-#        subprocess.run('dmmakereg "region(ds9_fk5_double.reg)" bk_double.reg '+
-#                       'kernel=ascii wcsfile=merged_2/broad_flux.img',
-#                       shell=True) # take the ds9_fk5_double.reg file and
-                        # create a CIAO physical bk_double.reg file
+        subprocess.run('dmmakereg "region(ds9_box.reg)" bk_box.reg '+
+                       'kernel=ascii wcsfile=merged_2/broad_flux.img',
+                       shell=True) # take the ds9_box.reg file and
+                        # create a CIAO physical bk_box.reg file
         
         return "sufficient"
