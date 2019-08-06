@@ -34,7 +34,7 @@ if quality == "sufficient" :
     
 ## STEP 3-8 - COMPUTE SPA PARAMETERS FOR bin=2 IMAGE ##
     
-    os.chdir("bin_2")
+    os.chdir("SPA_box")
     
 ## STEP 3 - START HEASOFT TOOLS, CALCULATE K-CORRECTION ##
     
@@ -58,18 +58,28 @@ if quality == "sufficient" :
     
 ## STEP 5 - RUN MORPHOLOGY EXECUTABLE ##
     
-    subprocess.run("~/soft/morph/morphology" +
-                   " --isoph-min-level " + str(2.0e-3*norm) +
-                   " --isoph-max-level " + str(0.05*norm) +
-                   " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
-                   " --peaky-flux " + str(0.0475*norm) +
-                   " --obnoxious" +
-                   " final_SPA.fits >> morph.log", shell=True)
+    cmd = ("~/soft/morph/morphology broad_box.fits --obnoxious" +
+           " --isoph-min-level " + str(2.0e-3*norm) +
+           " --isoph-max-level " + str(0.05*norm) +
+           " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
+           " --peaky-flux " + str(0.0475*norm) +
+           " --bg-file background_box.fits 1 0 --expmap expmap_box.fits" +
+           " >> morph.log")
+    subprocess.run(cmd, shell=True)
+    
+    cmd = ("~/soft/morph/morphology broad_box.fits --quiet" +
+           " --isoph-min-level " + str(2.0e-3*norm) +
+           " --isoph-max-level " + str(0.05*norm) +
+           " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
+           " --peaky-flux " + str(0.0475*norm) +
+           " --bg-file background_box.fits 1 0 --expmap expmap_box.fits" +
+           " --boot 3 > morph_boot.dat")
+    subprocess.run(cmd, shell=True)
     
 ## STEP 6 - ANALYZE SPA OUTPUT ##
     
-    subprocess.run("~/soft/morph/reduce2.R morph.log " +
-                   str(redshift) + " > spa_params.txt", shell=True)
+    subprocess.run("~/soft/morph/reduce2.R morph.log " + str(redshift) +
+                   " morph_boot.dat > spa_params.txt", shell=True)
     
     with open('spa_params.txt', 'r') as file :
         relaxed = float( file.readline() ) # read 'relaxed' quality
