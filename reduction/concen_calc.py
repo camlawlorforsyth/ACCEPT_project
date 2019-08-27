@@ -51,11 +51,11 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     
     # monte-carlo
     concens = []
-    for i in range(1000) :
+    for i in range(100) :
         iteration = np.random.normal(image, sigma, size)
         concen_resample = concentration(radius_pix, centre, iteration)
         concens.append(concen_resample)
-        if i == 500 :
+        if i == 50 :
             print("Half completed.")
         
     concens = np.array(concens)
