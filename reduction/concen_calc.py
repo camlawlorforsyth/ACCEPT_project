@@ -37,26 +37,48 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     
     position = SkyCoord(ra=RA, dec=Dec, distance=D_A)
     aperture = SkyCircularAperture(position, r=R_max).to_pixel(world_cs)
-    phot_table = aperture_photometry(image, aperture)
-    max_total = phot_table['aperture_sum'][0]
     radius_pix = aperture.r # maximum radius in pixels
     centre = aperture.positions # centre in pixels
     
-    return concentration(max_total, radius_pix, centre, image)
+    exposure = header['EXPOSURE']
+    image = image*exposure
+    image = np.ma.masked_where(image < 0, image)
+    np.ma.set_fill_value(image, 0)
+    image = image.filled()
+    sigma = np.sqrt(image)
+    size = image.shape
+    concen = concentration(radius_pix, centre, image)
+    
+    # monte-carlo
+    concens = []
+    for i in range(1000) :
+        iteration = np.random.normal(image, sigma, size)
+        concen_resample = concentration(radius_pix, centre, iteration)
+        concens.append(concen_resample)
+        if i == 500 :
+            print("Half completed.")
+        
+    concens = np.array(concens)
+    std_dev = np.std(concens)
+    
+    return concen, std_dev
 
 #.................................................................concentration
-def concentration(max_total, radius_pix, centre, image) :
+def concentration(radius_pix, centre, image) :
     
     # find radius that encompasses 20% of the emission, then the same for 80%
-    r_20, r_20_rel_err = search(0.2*max_total, radius_pix, centre, image, 10000)
-    r_80, r_80_rel_err = search(0.8*max_total, radius_pix, centre, image, 10000)
+    r_20 = search(0.2, radius_pix, centre, image, 10000)
+    r_80 = search(0.8, radius_pix, centre, image, 10000)
     
-    uncertainty = 5/np.log(10) * ( r_20_rel_err + r_80_rel_err )
-    
-    return 5*np.log10(r_80 / r_20), uncertainty
+    return 5*np.log10(r_80 / r_20)
 
 #........................................................................search
-def search(desired_total, radius_pix, centre, image, num_steps) :
+def search(desired_frac, radius_pix, centre, image, num_steps) :
+    
+    aperture = CircularAperture(centre, r=radius_pix)
+    phot_table = aperture_photometry(image, aperture)
+    whole_total = phot_table['aperture_sum'][0]
+    desired_total = whole_total*desired_frac
     
     aperture = CircularAperture(centre, r=0.1*radius_pix)
     phot_table = aperture_photometry(image, aperture)
@@ -122,10 +144,10 @@ def search(desired_total, radius_pix, centre, image, num_steps) :
         
         if (desired_total-total) > 0 :
             if (desired_total-total) <= eps*max(abs(desired_total),abs(total)) :
-                return radius, (radius_pix/num_steps)/radius
+                return radius
             else :
                 radius += radius_pix/num_steps
         else : # if (desired_total-total) < 0, we've gone too far
                # so we try again with finer steps
-            search(desired_total, radius_pix, centre, image, 10*num_steps)
+            search(desired_frac, radius_pix, centre, image, 10*num_steps)
 #..............................................................end of functions
