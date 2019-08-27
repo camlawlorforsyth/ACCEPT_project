@@ -40,43 +40,48 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     
     exposure_time = header['EXPOSURE'] # exposure time in seconds
     
-    minimum_necessary_counts = 20000*(1 + redshift)**4
+    minimum_necessary_counts = 20000
     
     if (total_counts_per_second*exposure_time) < minimum_necessary_counts :
+        
+        with open('insufficient.txt', 'w') as file :
+            file.write("Actual counts: " +
+                       str(total_counts_per_second*exposure_time))
+        
         return "skip"
     else :
-        ds9_fk5 = ('# Region file format: DS9 version 4.1\n' +
+        roi_sky = ('# Region file format: DS9 version 4.1\n' +
                    'global width=1\n' + 'fk5\n')
         
-        ds9_fk5 += ("circle(" + RA.to_string(unit=u.hour, sep=':') +
+        roi_sky += ("circle(" + RA.to_string(unit=u.hour, sep=':') +
                     "," + Dec.to_string(unit=u.degree, sep=':') +
                     "," + str(R_max.to(u.arcsec).value) + '")\n')
         
-        ds9_box = ('# Region file format: DS9 version 4.1\n' +
+        box_sky = ('# Region file format: DS9 version 4.1\n' +
                    'global width=1\n' + 'fk5\n')
         
-        ds9_box += ("box(" + RA.to_string(unit=u.hour, sep=':') +
+        box_sky += ("box(" + RA.to_string(unit=u.hour, sep=':') +
                     "," + Dec.to_string(unit=u.degree, sep=':') +
                     "," + str(4*R_max.to(u.arcsec).value) + '"' +
                     "," + str(4*R_max.to(u.arcsec).value) + '",360)\n')
         
-        with open('ds9_fk5.reg', 'w') as file :
-            file.write(ds9_fk5) # create the ds9_fk5.reg file for further use
+        with open('roi_sky.reg', 'w') as file :
+            file.write(roi_sky) # create the roi_sky.reg file for further use
         
-        with open('ds9_box.reg', 'w') as file :
-            file.write(ds9_box) # save square region with l=w=2*R_max
+        with open('box_sky.reg', 'w') as file :
+            file.write(box_sky) # save square region with l=w=2*R_max
         
         # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html    
         
         subprocess.run("punlearn dmmakereg", shell=True)
-        subprocess.run('dmmakereg "region(ds9_fk5.reg)" bk.reg kernel=ascii ' +
-                       'wcsfile=merged_2/broad_flux.img', shell=True) # take
-                        # the ds9_fk5.reg file and create a CIAO physical
-                        # bk.reg file
+        subprocess.run("dmmakereg 'region(roi_sky.reg)' roi_phys.reg " +
+                       "kernel=ascii wcsfile=merged_2/broad_flux.img",
+                       shell=True) # take the roi_sky.reg file and create a
+                                   # CIAO physical roi_phys.reg file
         
-        subprocess.run('dmmakereg "region(ds9_box.reg)" bk_box.reg '+
-                       'kernel=ascii wcsfile=merged_2/broad_flux.img',
-                       shell=True) # take the ds9_box.reg file and
-                        # create a CIAO physical bk_box.reg file
+        subprocess.run("dmmakereg 'region(box_sky.reg)' box_phys.reg "+
+                       "kernel=ascii wcsfile=merged_2/broad_flux.img",
+                       shell=True) # take the box_sky.reg file and create a
+                                   # CIAO physical box_phys.reg file
         
         return "sufficient"

@@ -48,17 +48,19 @@ if quality == "sufficient" :
     
 ## STEP 4 - CALCULATE HUBBLE PARAMETER, SUFRACE BRIGHTNESS SCALING ##
     
-    E_z = np.sqrt(0.3*((1 + redshift)**3) + 0.7) # normalized Hubble parameter,
-    # see https://ui.adsabs.harvard.edu/abs/2008A%26A...483...35S/abstract
+# https://ui.adsabs.harvard.edu/abs/2008A%26A...483...35S/abstract
+# https://ui.adsabs.harvard.edu/abs/2015MNRAS.449..199M/abstract
     
-    norm = K_corr * kT * (E_z**3) / ((1 + redshift)**4)
+    E_z = np.sqrt(0.3*((1 + redshift)**3) + 0.7) # normalized Hubble parameter 
+    
+    norm = K_corr * kT * (E_z**3) / ((1 + redshift)**4) # 'f_s' in Mantz et al.
     
     with open('morph.log', 'w') as file :
         file.write("SB scaling factor = " + str(norm) + "\n")
     
 ## STEP 5 - RUN MORPHOLOGY EXECUTABLE ##
     
-    cmd = ("~/soft/morph/morphology broad_box.fits --obnoxious" +
+    cmd = ("~/soft/morph/morphology broad_nps_box.fits --obnoxious" +
            " --isoph-min-level " + str(2.0e-3*norm) +
            " --isoph-max-level " + str(0.05*norm) +
            " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
@@ -67,7 +69,7 @@ if quality == "sufficient" :
            " >> morph.log")
     subprocess.run(cmd, shell=True)
     
-    cmd = ("~/soft/morph/morphology broad_box.fits --quiet" +
+    cmd = ("~/soft/morph/morphology broad_nps_box.fits --quiet" +
            " --isoph-min-level " + str(2.0e-3*norm) +
            " --isoph-max-level " + str(0.05*norm) +
            " --num-isoph 5 --kpc " + str(kpc_per_pixel) +
@@ -105,9 +107,6 @@ else:
     with open('../SPA_parameters_v1.txt', 'a') as file :
         file.write(cluster + ",,,,,,\n")
 
-## STEP 8 - FINAL CLEANUP ##
-
-#cmd = "rm -rf bin_2" # delete unnecessary files
-#subprocess.run(cmd, shell=True) # pass the cleanup command to the system
+## STEP 8 - RETURN TO THE DATA DIRECTORY ##
 
 os.chdir("..") # go back to the data/ directory

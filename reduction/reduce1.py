@@ -42,13 +42,11 @@ os.chdir(cluster) # change to the cluster directory
 # http://cxc.harvard.edu/ciao/threads/archivedownload/
 # http://cxc.harvard.edu/ciao/ahelp/download_chandra_obsid.html
 
-cmd = "download_chandra_obsid " # download Chandra data 
-
+cmd = "download_chandra_obsid " # download Chandra data
 for i in range(8, length-1) :
     cmd += str(sys.argv[i]) + "," # creates a comma-separated list of the
                                   # passed ObsIDs
 cmd += str(sys.argv[length-1]) + " -q" # append the last ObsID
-
 subprocess.run(cmd, shell=True) # pass the download command to the system
 
 ## STEP 3 - REDUCE/REPROCESS DATA TO LEVEL=2 ##
@@ -56,9 +54,8 @@ subprocess.run(cmd, shell=True) # pass the download command to the system
 # http://cxc.harvard.edu/ciao/threads/createL2/
 # http://cxc.harvard.edu/ciao/ahelp/chandra_repro.html
 
-cmd = "chandra_repro '*' outdir=''" # reprocess all ObsIDs, do not save
-                                    # intermediate files
-subprocess.run(cmd, shell=True) # pass the reprocess command to the system
+subprocess.run("chandra_repro '*' outdir='' set_ardlib=no", shell=True)
+    # reprocess all ObsIDs, do not save intermediate files
 
 ## STEP 4 - REPROJECT AND COMBINE ##
 
@@ -71,28 +68,24 @@ subprocess.run(cmd, shell=True) # pass the reprocess command to the system
 # http://cxc.harvard.edu/ciao/ahelp/flux_obs.html
 
 subprocess.run("punlearn reproject_obs", shell=True) # restore system default
-                                                     # parameter values
-cmd = "reproject_obs '*/repro/*evt2*' reproj/" # reproject all ObsIDs
-subprocess.run(cmd, shell=True)
+    # parameter values
+subprocess.run("reproject_obs '*/repro/*evt2*' reproj/", shell=True) # reproject
+    # all ObsIDs
 
 subprocess.run("punlearn flux_obs", shell=True)  # restore system defaults
-cmd = ("flux_obs 'reproj/*reproj_evt.fits' merged/ bin=0.5 units=time " + 
-       "psfecf=0.393") # psfmerge=expmap doesn't work # for GGM filtering
-subprocess.run(cmd, shell=True)
-cmd = ("flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2 units=time " +
-       "psfecf=0.393") # for CAS analysis and unsharp mask
-subprocess.run(cmd, shell=True)
-cmd = ("flux_obs 'reproj/*reproj_evt.fits' SPA_temp/ bin=2 units=area " +
-       "psfecf=0.393") # for SPA, requires exposure map with units of cm^2
-subprocess.run(cmd, shell=True)
+subprocess.run("flux_obs 'reproj/*reproj_evt.fits' merged_2/ bin=2 " +
+               "units=time psfecf=0.393", shell=True) # for CAS analysis and UM
+subprocess.run("flux_obs 'reproj/*reproj_evt.fits' SPA_temp/ bin=2 units=area",
+               shell=True) # for SPA, requires exposure map with units of cm^2
 
 ## STEP 5 - DEFINE REGION OF INTEREST, MEASURE TOTAL COUNTS, SAVE ROI ##
 
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
 
-quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift,Rout_Mpc)
+quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift, Rout_Mpc)
     # determine if cluster has sufficient data
-    # if data is sufficient, create ds9_fk5.reg file, and bk.reg file
+    # if data is sufficient, create roi_sky.reg file, roi_phys.reg file,
+    # box_sky.reg file, and box_phys.reg file
 
 with open('../cas_process_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
@@ -100,7 +93,7 @@ with open('../cas_process_all_data.py', 'a') as file :
                "','" + str(Rout_Mpc) + "','" + str(kT) + "','" + str(nH) +
                "','" + quality + "'])\n" ) # append quality flag to
                                            # cas_process_all_data.py
-    
+
 ## STEP 6 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
 if quality == "sufficient" :
@@ -109,86 +102,69 @@ if quality == "sufficient" :
     
 # http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
     
-    subprocess.run("mkdir bin", shell=True)
     subprocess.run("mkdir bin_2", shell=True)
     subprocess.run("mkdir SPA", shell=True)
-    
-    subprocess.run("punlearn dmcopy", shell=True)
-#    subprocess.run("dmcopy 'merged/broad_flux.img' bin/broad_flux.fits",
-#                   shell=True)
-    subprocess.run("dmcopy 'merged/broad_thresh.img' bin/broad_thresh.fits",
-                   shell=True)
-    subprocess.run("dmcopy 'merged/broad_thresh.expmap' " +
-                   "bin/broad_thresh_expmap.fits", shell=True)
-    subprocess.run("dmcopy 'merged/broad_thresh.psfmap' " +
-                   "bin/broad_thresh_psfmap.fits", shell=True)
 	
-#    subprocess.run("dmcopy 'merged_2/broad_flux.img' bin_2/broad_flux.fits",
-#                   shell=True)
-    subprocess.run("dmcopy 'merged_2/broad_thresh.img' bin_2/broad_thresh.fits",
-                   shell=True)
+    subprocess.run("punlearn dmcopy", shell=True)
+    subprocess.run("dmcopy 'merged_2/broad_thresh.img' " +
+                   "bin_2/broad_thresh.fits", shell=True)
     subprocess.run("dmcopy 'merged_2/broad_thresh.expmap' " +
-                   "bin_2/broad_thresh_expmap.fits", shell=True)
-#    subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap' " +
-#                   "bin_2/broad_thresh_psfmap.fits", shell=True)
+                   "bin_2/broad_expmap.fits", shell=True)
+    subprocess.run("dmcopy 'merged_2/broad_thresh.psfmap' " +
+                   "bin_2/broad_psfmap.fits", shell=True)
     
-#    subprocess.run("dmcopy 'SPA_temp/broad_flux.img' SPA/broad_flux.fits",
-#                   shell=True)
-    subprocess.run("dmcopy 'SPA_temp/broad_thresh.img' SPA/broad_thresh.fits",
-                   shell=True)
+    subprocess.run("dmcopy 'SPA_temp/broad_thresh.img' " +
+                   "SPA/broad_thresh.fits", shell=True)
     subprocess.run("dmcopy 'SPA_temp/broad_thresh.expmap' " +
                    "SPA/broad_expmap.fits", shell=True)
-#    subprocess.run("dmcopy 'SPA_temp/broad_thresh.psfmap' " +
-#                   "SPA/broad_psfmap.fits", shell=True)
     
 ## STEP 8 - DETECT POINT SOURCES ##
     
+# http://cxc.harvard.edu/ciao/ahelp/dmcopy.html
 # http://cxc.harvard.edu/ciao/guides/esa.html
 # http://cxc.harvard.edu/ciao/threads/detect_overview/
 # http://cxc.harvard.edu/ciao/threads/wavdetect/
 # http://cxc.harvard.edu/ciao/threads/wavdetect_merged/
 # http://cxc.harvard.edu/ciao/ahelp/wavdetect.html
-	
+    
     subprocess.run("mkdir sources", shell=True)
     
+    subprocess.run("punlearn dmcopy", shell=True)
+    subprocess.run("dmcopy 'bin_2/broad_thresh.fits[sky=region(box_sky.reg)]' " +
+                   "sources/broad.fits", shell=True)
+    subprocess.run("dmcopy 'bin_2/broad_expmap.fits[sky=region(box_sky.reg)]' " +
+                   "sources/expmap.fits", shell=True)
+    subprocess.run("dmcopy 'bin_2/broad_psfmap.fits[sky=region(box_sky.reg)]' " +
+                   "sources/psfmap.fits", shell=True)
+    
     subprocess.run("punlearn wavdetect", shell=True) # restore system defaults
-    subprocess.run("pset wavdetect infile=bin/broad_thresh.fits",
-                   shell=True) # wavdetect will not work with fluxed images
-    subprocess.run("pset wavdetect psffile=bin/broad_thresh_psfmap.fits",
-                   shell=True)
-    subprocess.run("pset wavdetect expfile=bin/broad_thresh_expmap.fits",
-                   shell=True)
+    subprocess.run("pset wavdetect infile=sources/broad.fits", shell=True)
+    subprocess.run("pset wavdetect psffile=sources/psfmap.fits", shell=True)
+    subprocess.run("pset wavdetect expfile=sources/expmap.fits", shell=True)
     subprocess.run("pset wavdetect scales='1 2 4 8 16'", shell=True)
-    subprocess.run("pset wavdetect outfile=sources/broad_thresh_src.fits",
-                   shell=True)
-    subprocess.run("pset wavdetect scellfile=sources/broad_thresh_scell.fits",
-                   shell=True)
-    subprocess.run("pset wavdetect imagefile=sources/broad_thresh_recon.fits",
-                   shell=True)
-    subprocess.run("pset wavdetect defnbkgfile=sources/broad_thresh_nbkgd.fits",
-                   shell=True)
+    subprocess.run("pset wavdetect outfile=sources/broad_src.fits", shell=True)
+    subprocess.run("pset wavdetect scellfile=sources/broad_scell.fits", shell=True)
+    subprocess.run("pset wavdetect imagefile=sources/broad_recon.fits", shell=True)
+    subprocess.run("pset wavdetect defnbkgfile=sources/broad_nbkgd.fits", shell=True)
     subprocess.run("pset wavdetect regfile=sources.reg", shell=True)
     subprocess.run("pset wavdetect ellsigma=4", shell=True)
-    subprocess.run("wavdetect infile=bin/broad_thresh.fits " +
-                   "outfile=sources/broad_thresh_src.fits " +
-                   "scellfile=sources/broad_thresh_scell.fits " +
-                   "imagefile=sources/broad_thresh_recon.fits " +
-                   "defnbkgfile=sources/broad_thresh_nbkgd.fits " +
-                   "scales='1 2 4 8 16' " +
-                   "psffile=bin/broad_thresh_psfmap.fits", shell=True)
+    subprocess.run("wavdetect mode=h", shell=True) # wavdetect will not work
+    # with fluxed images
     
-## STEPS 9-13 - CREATE BACKGROUND REGION FOR bin=0.5 REGION OF INTEREST ##
+    subprocess.run("rm -rf sources", shell=True) # delete unnecessary files
     
-    os.chdir("bin")
+## STEPS 9-12 - CREATE BACKGROUND REGION FOR bin=2 REGION OF INTEREST ##
+    
+    os.chdir("bin_2")
     
 ## STEP 9 - CONVERT SOURCE LIST TO FITS FORMAT ##
     
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
     
     subprocess.run("punlearn dmmakereg", shell=True) # restore system defaults
-    subprocess.run("dmmakereg 'region(../bk.reg)' bkg_reg.fits " +
-                   "wcsfile=broad_thresh.fits", shell=True) # convert
-    # the modified source list into FITS format
+    subprocess.run("dmmakereg 'region(../roi_phys.reg)' bkg_reg.fits " +
+                   "wcsfile=broad_thresh.fits", shell=True) # convert the
+    # modified source list into FITS format
     
 ## STEP 10 - CREATE SOURCE AND BACKGROUND REGIONS ##
     
@@ -199,10 +175,12 @@ if quality == "sufficient" :
     subprocess.run("pset roi infile=bkg_reg.fits", shell=True)
     subprocess.run("pset roi outsrcfile=sources_bk/src%d.fits", shell=True)
     subprocess.run("pset roi bkgfactor=0.5", shell=True)
-    subprocess.run("roi infile=bkg_reg.fits fovregion='' " +
-                   "streakregion='' outsrcfile=sources_bk/src%d.fits " +
-                   "radiusmode=mul bkgradius=3", shell=True) # create source
-    # and background regions for each source, combine nearby regions
+    subprocess.run("pset roi fovregion=''", shell=True)
+    subprocess.run("pset roi streakregion=''", shell=True)
+    subprocess.run("pset roi radiusmode=mul", shell=True)
+    subprocess.run("pset roi bkgradius=3", shell=True)
+    subprocess.run("roi mode=h", shell=True) # create source and background
+    # regions for each source, combine nearby regions
     
 ## STEP 11 - SPLIT REGIONS INTO SOURCES AND BACKGROUNDS ##
     
@@ -216,76 +194,25 @@ if quality == "sufficient" :
     
     subprocess.run("punlearn dmfilth", shell=True)
     subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=broad_thresh_bkg.fits", shell=True)
+    subprocess.run("pset dmfilth outfile=background.fits", shell=True)
     subprocess.run("pset dmfilth method=POISSON", shell=True)
     subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
     subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
     subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_thresh.fits " +
-                   "outfile=broad_thresh_bkg.fits method=POISSON " +
-                   "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
-                   shell=True) # remove regions and fill with Poisson
-    # distribution of the background
+    subprocess.run("dmfilth mode=h", shell=True) # remove regions and fill with
+    # Poisson distribution of the background
     
-    subprocess.run("mv exclude.bg.reg exclude.src.reg sources_bk", shell=True)
+    subprocess.run("mv exclude.bg.reg exclude.src.reg bkg_reg.fits sources_bk",
+                   shell=True)
     
     os.chdir("..") # move back up to the cluster directory
     
-## STEP 13 - EXPOSURE CORRECT IMAGE ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-#    subprocess.run("punlearn dmimgcalc", shell=True) # restore system defaults
-#    subprocess.run("dmimgcalc broad_thresh_bkg.fits broad_thresh_expmap.fits " +
-#                   "diffuse_bkg.fits div", shell=True)
-    
-#    os.chdir("..")
-    
-## STEP 13 - REPEAT STEPS 9-12 FOR bin=2 REGION OF INTEREST ##
-    
-    os.chdir("bin_2")
-    
-    subprocess.run("punlearn dmmakereg", shell=True)
-    subprocess.run("dmmakereg 'region(../bk.reg)' bkg_reg.fits " +
-                   "wcsfile=broad_thresh.fits", shell=True)
-    
-    subprocess.run("mkdir sources_bk", shell=True)
-    subprocess.run("punlearn roi", shell=True)
-    subprocess.run("pset roi infile=bkg_reg.fits", shell=True)
-    subprocess.run("pset roi outsrcfile=sources_bk/src%d.fits", shell=True)
-    subprocess.run("pset roi bkgfactor=0.5", shell=True)
-    subprocess.run("roi infile=bkg_reg.fits fovregion='' " +
-                   "streakregion='' outsrcfile=sources_bk/src%d.fits " +
-                   "radiusmode=mul bkgradius=3", shell=True)
-    
-    subprocess.run("splitroi 'sources_bk/src*.fits' exclude", shell=True)
-    
-    subprocess.run("punlearn dmfilth", shell=True)
-    subprocess.run("pset dmfilth infile=broad_thresh.fits", shell=True)
-    subprocess.run("pset dmfilth outfile=broad_thresh_bkg.fits", shell=True)
-    subprocess.run("pset dmfilth method=POISSON", shell=True)
-    subprocess.run("pset dmfilth srclist=@exclude.src.reg", shell=True)
-    subprocess.run("pset dmfilth bkglist=@exclude.bg.reg", shell=True)
-    subprocess.run("pset dmfilth randseed=0", shell=True)
-    subprocess.run("dmfilth infile=broad_thresh.fits " +
-                   "outfile=broad_thresh_bkg.fits method=POISSON " +
-                   "srclist=@exclude.src.reg bkglist=@exclude.bg.reg",
-                   shell=True)
-    
-    subprocess.run("mv exclude.bg.reg exclude.src.reg sources_bk", shell=True)
-    
-    os.chdir("..")
-    
-#    subprocess.run("punlearn dmimgcalc", shell=True)
-#    subprocess.run("dmimgcalc broad_thresh_bkg.fits broad_thresh_expmap.fits " +
-#                   "diffuse_bkg.fits div", shell=True)
-    
-## STEP 14 - REPEAT STEPS 9-12 FOR bin=2 SPA REGION ##
+## STEP 13 - REPEAT STEPS 9-12 FOR bin=2 SPA REGION ##
     
     os.chdir("SPA")
     
     subprocess.run("punlearn dmmakereg", shell=True)
-    subprocess.run("dmmakereg 'region(../bk_box.reg)' bkg_reg.fits " +
+    subprocess.run("dmmakereg 'region(../box_phys.reg)' bkg_reg.fits " +
                    "wcsfile=broad_thresh.fits", shell=True)
     
     subprocess.run("mkdir sources_bk", shell=True)
@@ -293,9 +220,11 @@ if quality == "sufficient" :
     subprocess.run("pset roi infile=bkg_reg.fits", shell=True)
     subprocess.run("pset roi outsrcfile=sources_bk/src%d.fits", shell=True)
     subprocess.run("pset roi bkgfactor=0.5", shell=True)
-    subprocess.run("roi infile=bkg_reg.fits fovregion='' " +
-                   "streakregion='' outsrcfile=sources_bk/src%d.fits " +
-                   "radiusmode=mul bkgradius=3", shell=True)
+    subprocess.run("pset roi fovregion=''", shell=True)
+    subprocess.run("pset roi streakregion=''", shell=True)
+    subprocess.run("pset roi radiusmode=mul", shell=True)
+    subprocess.run("pset roi bkgradius=3", shell=True)
+    subprocess.run("roi mode=h", shell=True)
     
     subprocess.run("splitroi 'sources_bk/src*.fits' exclude", shell=True)
     
@@ -308,17 +237,18 @@ if quality == "sufficient" :
     subprocess.run("pset dmfilth randseed=0", shell=True)
     subprocess.run("dmfilth mode=h", shell=True)
     
-    subprocess.run("mv exclude.bg.reg exclude.src.reg sources_bk", shell=True)
+    subprocess.run("mv exclude.bg.reg exclude.src.reg bkg_reg.fits sources_bk",
+                   shell=True)
     
     os.chdir("..")
     
-## STEP 15 - CLEANUP ##
+## STEP 14 - INITIAL CLEANUP ##
 
-cmd = "rm -rf reproj merged merged_2" # delete unnecessary ObsID files,
-                                      # intermediate files
+cmd = "rm -rf reproj merged_2 SPA_temp" # delete unnecessary files
 for i in range(8, length) : # creates a space-separated list of the ObsIDs
     cmd += " " + str(sys.argv[i])
-
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
+
+## STEP 15 - RETURN TO THE DATA DIRECTORY ##
 
 os.chdir("..") # go back to the data/ directory

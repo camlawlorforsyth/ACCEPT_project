@@ -8,7 +8,7 @@ Open a terminal and navigate to your data/ directory, start CIAO and run `python
 ```
 cd data/
 ciao
-python get_all_data.py
+python get_all_data.py > initial.log 2> initial_error.log
 ```
 
 Upon completion of the previous command, check "data/issues.txt" for any error messages. If an error is recorded, re-run the necessary line from [get_all_data.py](reduction/get_all_data.py) for that cluster, in the terminal. Flags in the "data/issues.txt" file are irrelevant for subsequent steps, and are not used in any way.
@@ -39,7 +39,7 @@ import subprocess
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
 ciao
-python cas_process_all_data.py
+python cas_process_all_data.py > CAS_analysis.log 2> CAS_analysis_error.log
 ```
 
 Upon completion of the previous command, there will be a file "data/CAS_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Concentration, Asymmetry, and Clumpiness parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," in the "data/CAS_parameters_v1.txt" file.
@@ -66,7 +66,7 @@ cd data
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/home/cam/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/lib
 export LD_LIBRARY_PATH
 heainit
-python spa_process_all_data.py
+python spa_process_all_data.py > SPA_analysis.log 2> SPA_analysis_error.log
 ```
 
 Upon completion of the previous command, there will be a file "data/SPA_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Symmetry, Peakiness, and Alignment parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," in the "data/SPA_parameters_v1.txt" file.
