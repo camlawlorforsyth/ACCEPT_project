@@ -221,7 +221,7 @@ cp -a Downloads/ggm-master/. data/reduction/ggm/
 
 Copy the "get_all_data.py" file from the newly copied reduction/ directory into the data/ directory:
 ```
-cp data/reduction/get_all_data.py data/
+cp data/reduction/*_all_data.py data/
 ```
 
 ### Comments ###
