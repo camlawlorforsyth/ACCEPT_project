@@ -20,7 +20,7 @@ yum -y update
 ```
 To then ensure the correct compilers are available (again as root):
 ```
-yum -y install gcc gcc-c++ gcc-gfortran
+yum -y install gcc gcc-c++ gcc-gfortran numpy
 ```
 An optional restart may be required here.
 
@@ -57,7 +57,7 @@ In the terminal:
 ```
 ciao
 pip3 freeze > $ASCDS_INSTALL/constraints.txt
-pip3 install -c $ASCDS_INSTALL/constraints.txt 'astropy<3.1' 'scipy==1.2.1' pyyaml sip PyQt5
+pip3 install -c $ASCDS_INSTALL/constraints.txt 'astropy<3.1' 'scipy==1.2.1' pyyaml sip PyQt5 'aplpy<2'
 ```
 
 After Astropy (and SciPy) have successfully been installed, photutils can now be installed to perform photometry (required by the [concen_calc.py](/reduction/concen_calc.py) script). General installation instructions for photutils can be found at https://photutils.readthedocs.io/en/stable/install.html.
