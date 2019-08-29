@@ -213,7 +213,7 @@ Next, create a new data (`data/`) directory in the user level directory (ie. `/h
 mkdir data
 ```
 
-Copy the [reduction/](.) directory into it, and the ggm/ directory into the [reduction/](.) directory.
+Copy the [reduction/](reduction) directory into it, and the ggm/ directory into the [reduction/](reduction) directory.
 ```
 cp -a Downloads/ACCEPT_project-master/reduction/. data/reduction/
 cp -a Downloads/ggm-master/. data/reduction/ggm/

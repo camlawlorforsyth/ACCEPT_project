@@ -11,7 +11,7 @@ ciao
 python get_all_data.py > initial.log 2> initial_error.log
 ```
 
-Upon completion of the previous command, check "data/initial_error.log" for any significant error messages. If an error is recorded, re-run the necessary line from [get_all_data.py](reduction/get_all_data.py) for that cluster, in the terminal.
+Upon completion of the previous command, check "data/initial_error.log" for any significant error messages. If an error is recorded, re-run the necessary line from [get_all_data.py](get_all_data.py) for that cluster, in the terminal.
 
 ## Step 2 - Point Source Verification ##
 
@@ -24,7 +24,7 @@ Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format w
 
 ## Step 3 - CAS Analysis ##
 
-We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](reduction/cas_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
+We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](cas_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [ROI_count.py](ROI_count.py) script.
 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
@@ -40,7 +40,7 @@ A Gaussian gradient magnitude (GGM) image ("ggm.fits") will also be created, and
 
 ## Step 4 - SPA Analysis ##
 
-We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](reduction/spa_process_all_data.py) were determined in [reduce1.py](reduction/reduce1.py) by the [ROI_count.py](reduction/ROI_count.py) script.
+We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](spa_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [ROI_count.py](ROI_count.py) script.
 
 Ensure that CIAO is **not** running by simply opening a new terminal, export the shared libraries (for GSL), start HEAsoft, and then run `python spa_process_all_data.py`.
 ```
