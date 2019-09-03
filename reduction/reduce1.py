@@ -148,6 +148,7 @@ if quality == "sufficient" :
     subprocess.run("pset wavdetect defnbkgfile=sources/broad_nbkgd.fits", shell=True)
     subprocess.run("pset wavdetect regfile=sources.reg", shell=True)
     subprocess.run("pset wavdetect ellsigma=4", shell=True)
+    subprocess.run("pset wavdetect clobber=yes", shell=True)
     subprocess.run("wavdetect mode=h", shell=True) # wavdetect will not work
     # with fluxed images
     

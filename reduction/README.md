@@ -8,7 +8,7 @@ Open a terminal and navigate to your data/ directory, start CIAO and run `python
 ```
 cd data/
 ciao
-python get_all_data.py > initial.log 2> initial_error.log
+python get_all_data.py >> initial.log 2>> initial_error.log
 ```
 
 Upon completion of the previous command, check "data/initial_error.log" for any significant error messages. If an error is recorded, re-run the necessary line from [get_all_data.py](get_all_data.py) for that cluster, in the terminal.
@@ -18,7 +18,7 @@ Upon completion of the previous command, check "data/initial_error.log" for any 
 Before continuing with the automated reduction and analysis scripts, we must verify the detected point sources. The sources in "[cluster]/sources.reg" can be viewed in DS9 and any spurious detections can be deleted.
 ```
 ciao
-ds9 [cluster]/SPA/broad_thresh.fits -cmap bb -scale log -region [cluster]/sources.reg
+ds9 [cluster]/SPA/broad_thresh.fits -scale log -region [cluster]/sources.reg
 ```
 Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format with 'physical' coordinates.
 
@@ -29,7 +29,7 @@ We can now proceed with the CAS analysis of the clusters with sufficient counts 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
 ciao
-python cas_process_all_data.py > CAS_analysis.log 2> CAS_analysis_error.log
+python cas_process_all_data.py >> CAS_analysis.log 2>> CAS_analysis_error.log
 ```
 
 Upon completion of the previous command, there will be a file "data/CAS_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Concentration, Asymmetry, and Clumpiness parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," on their corresponding line in the "data/CAS_parameters_v1.txt" file.
@@ -48,7 +48,7 @@ cd data
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/home/cam/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/lib
 export LD_LIBRARY_PATH
 heainit
-python spa_process_all_data.py > SPA_analysis.log 2> SPA_analysis_error.log
+python spa_process_all_data.py >> SPA_analysis.log 2>> SPA_analysis_error.log
 ```
 
 Upon completion of the previous command, there will be a file "data/SPA_parameters_v1.txt" which contains relevant information about each cluster. This file includes the values for the Symmetry, Peakiness, and Alignment parameters for each cluster, along with associated 1-sigma uncertainties. Clusters with insufficent counts that have been skipped will have ",,,,,," on their corresponding line in the "data/SPA_parameters_v1.txt" file.
