@@ -25,7 +25,7 @@ Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format w
 
 ## Step 3 - Further Reduction ##
 
-The subsequent reduction steps can now be completed. Note that the quality flags appended in [reduce_all_data.py](reduce_all_data.py) were determined in [reduce1.py](reduce1.py) by the [ROI_count.py](ROI_count.py) script.
+The subsequent reduction steps can now be completed. Note that the quality flags appended in [reduce_all_data.py](reduce_all_data.py) were determined in [reduce1.py](reduce1.py) by the [roi_count.py](roi_count.py) script.
 
 Ensure that CIAO is running, and then run `python reduce_all_data.py`.
 ```
@@ -38,7 +38,7 @@ Upon completion of the previous command, check "data/secondary_reduction_error.l
 
 ## Step 4 - CAS Analysis ##
 
-We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](cas_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [ROI_count.py](ROI_count.py) script.
+We can now proceed with the CAS analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [cas_process_all_data.py](cas_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [roi_count.py](roi_count.py) script.
 
 Ensure that CIAO is running, and then run `python cas_process_all_data.py`.
 ```
@@ -51,11 +51,11 @@ Upon completion of the previous command, there will be a file "data/CAS_paramete
 
 An unsharp-masked (UM) image ("unsharp_mask.fits") will be created, and can be found in [cluster]/ROI_2/. This image can be used to probe both small- and large-scale structure of the ICM.
 
-A Gaussian gradient magnitude (GGM) image ("ggm.fits") will also be created, and can be found in [cluster]/ROI/. This image can be used to probe both small- and large-scale structure of the ICM.
+A Gaussian gradient magnitude (GGM) image ("ggm.fits") will also be created, and can be found in [cluster]/ggm/. This image can be used to probe both small- and large-scale structure of the ICM.
 
 ## Step 5 - SPA Analysis ##
 
-We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](spa_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [ROI_count.py](ROI_count.py) script.
+We can now proceed with the SPA analysis of the clusters with sufficient counts for analysis. Note that the quality flags appended in [spa_process_all_data.py](spa_process_all_data.py) were determined in [reduce1.py](reduce1.py) by the [roi_count.py](roi_count.py) script.
 
 Ensure that CIAO is **not** running by simply opening a new terminal. Now export the shared libraries (for GSL), start HEAsoft, and then run `python spa_process_all_data.py`.
 ```

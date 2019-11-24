@@ -14,7 +14,7 @@ import os
 import sys
 import subprocess
 
-import ROI_count
+import roi_count
 
 # constants
 length = len(sys.argv) # length = 18 for the example above
@@ -82,7 +82,7 @@ subprocess.run("flux_obs 'reproj/*reproj_evt.fits' SPA_temp/ bin=2 units=area",
 
 # http://cxc.harvard.edu/ciao/ahelp/dmmakereg.html
 
-quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift, Rout_Mpc)
+quality = roi_count.main('merged_2/broad_flux.img', RA, Dec, redshift, Rout_Mpc)
     # determine if cluster has sufficient data
     # if data is sufficient, create roi_sky.reg file, roi_phys.reg file,
     # box_sky.reg file, and box_phys.reg file
