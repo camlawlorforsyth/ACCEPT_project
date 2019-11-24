@@ -36,7 +36,7 @@ if quality == "sufficient" :
     
     os.chdir("SPA_box") # move into the SPA_box directory
     
-## STEP 3 - START HEASOFT TOOLS, CALCULATE K-CORRECTION ##
+## STEP 3 - CALCULATE AND WRITE K-CORRECTION ##
     
     subprocess.run("python ~/soft/morph/K_nH_correction.py " +
                    "--kT " + str(kT) + " --nH " + str(nH) + " --Eobs 0.5-7.0" +

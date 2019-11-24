@@ -106,7 +106,7 @@ DICT = {
 
 # dictionary to access associated errors
 UNCERTS = {
-           'zz':dat['z_err'], # zz_err, # NEED TO FINISH GETTING
+           'zz':dat['z_err'],
            'K0':dat['K0_err'], # NEED TO FINISH GETTING
            'K100':dat['K100_err'], # NEED TO FINISH GETTING
            'Tx':dat['Tx_err'], # error for Tx: standard dev. of individual temps # FINISH GETTING
@@ -130,15 +130,15 @@ UNCERTS = {
            'twentyfourSFR':dat['24err'],
            'BCGmass':dat['BCGmass_err'], # no error for BCGmass, therefore equal to 0
            
-           'asymm':dat['asymm_v0_err'], # no errors for asymm yet
-           'clump':dat['clump_v0_err'], # no errors for clump yet
-           'concen':dat['concen_v0_err'], # no errors for concen yet
+           'concen':dat['concen_v0_err'],
+           'asymm':dat['asymm_v0_err'],
+           'clump':dat['clump_v0_err'],
            
            'sym':dat['Symm_err'],
            'peak':dat['Peak_err'],
            'align':dat['Align_err'],
-           'cavpow':[dat['complete_err_low'],dat['complete_err_high']],
            
+           'cavpow':[dat['complete_err_low'],dat['complete_err_high']],
            'BCGalt':[dat['mass_low'],dat['mass_high']],
            'SFRalt':[dat['SFR_low'],dat['SFR_high']]
           }
