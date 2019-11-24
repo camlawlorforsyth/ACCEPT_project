@@ -87,12 +87,12 @@ quality = ROI_count.main('merged_2/broad_flux.img', RA, Dec, redshift, Rout_Mpc)
     # if data is sufficient, create roi_sky.reg file, roi_phys.reg file,
     # box_sky.reg file, and box_phys.reg file
 
-with open('../cas_process_all_data.py', 'a') as file :
+with open('../reduce_all_data.py', 'a') as file :
     file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
                "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
                "','" + str(Rout_Mpc) + "','" + str(kT) + "','" + str(nH) +
                "','" + quality + "'])\n" ) # append quality flag to
-                                           # cas_process_all_data.py
+                                           # reduce_all_data.py
 
 ## STEP 6 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
@@ -156,7 +156,7 @@ if quality == "sufficient" :
     
 ## STEPS 9-12 - CREATE BACKGROUND REGION FOR bin=2 REGION OF INTEREST ##
     
-    os.chdir("bin_2")
+    os.chdir("bin_2") # move into the bin_2 directory
     
 ## STEP 9 - CONVERT SOURCE LIST TO FITS FORMAT ##
     

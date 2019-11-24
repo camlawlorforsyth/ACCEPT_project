@@ -17,6 +17,7 @@ warnings.filterwarnings("ignore") # ignore warnings about WCS unit changes
 # constants
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
 
+#..........................................................................main
 def main(file, right_ascension, declination, redshift, Rout_Mpc) :
     
     science = fits.open(file) # open the science image
@@ -85,3 +86,4 @@ def main(file, right_ascension, declination, redshift, Rout_Mpc) :
                                    # CIAO physical box_phys.reg file
         
         return "sufficient"
+#..............................................................end of functions

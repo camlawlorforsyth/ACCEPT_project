@@ -4,7 +4,7 @@
 For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
-The calling code used in cas_process_all_data.py for this file, is of the form:
+The calling code used in reduce_all_data.py for this file, is of the form:
 subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','4.89E+20','sufficient'])
                  argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7]     argv[8]
 '''
@@ -14,13 +14,7 @@ import os
 import sys
 import subprocess
 
-import concen_calc
-import asymm_calc
-import clumpy_calc
-import save_images
-
 from astropy.cosmology import FlatLambdaCDM
-from astropy.io import fits
 import astropy.units as u
 
 # constants
@@ -34,17 +28,13 @@ nH = float(sys.argv[7]) # galactic column density in cm^(-2)
 quality = sys.argv[8] # quality flag
 
 cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
-pixel_scale = 0.984*u.arcsec # 1 pixel = 0.984" for Chandra
+pixel_scale = (1*u.pix)/(0.984*u.arcsec) # 1 pixel = 0.984" for Chandra
 scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
-                             # scales. See paper for more information
-
-kpc_per_pixel = 1/(cosmo.arcsec_per_kpc_proper(redshift).value)
-
-with open('spa_process_all_data.py', 'a') as file :
-    file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
-               "','" + str(redshift) + "','" + str(kpc_per_pixel) +
-               "','" + str(kT) + "','" + str(nH) + "','" + quality + 
-               "'])\n" ) # append quality flag to spa_process_all_data.p
+                             # scales. See Lawlor-Forsyth+ for more information
+scale = cosmo.arcsec_per_kpc_proper(redshift)*scale_of_interest*pixel_scale
+        # determine number of pixels that correspond to 15 kpc in projected
+        # size, to highlight AGN driven features like bubbles and cavities
+kpc_per_pixel = scale_of_interest/scale
 
 ## STEP 1 - MOVE INTO CLUSTER DIRECTORY ##
 
@@ -56,7 +46,7 @@ if quality == "sufficient" :
     
 ## STEPS 3-6 - REMOVE POINT SOURCES FOR bin=2 IMAGE ##
     
-    os.chdir("bin_2")
+    os.chdir("bin_2") # move into the bin_2 directory
     
 ## STEP 3 - CONVERT SOURCE LIST TO FITS FORMAT ##
     
@@ -149,174 +139,23 @@ if quality == "sufficient" :
     # image by exposure map, thus creating final merged, background-subtracted,
     # exposure-corrected, cluster image
     
-## STEP 10 - COMPUTE CONCENTRATION PARAMETER ##
+## STEP 10 - ADDITIONAL CLEANUP ##
     
-    os.chdir("ROI_2") # move into the bin=2 directory
-    concen, concen_err = concen_calc.main('final.fits', RA, Dec, redshift, Rout_Mpc)
+    subprocess.run("rm -rf SPA", shell=True) # delete unnecessary files
     
-## STEP 11 - COMPUTE ASYMMETRY PARAMETER ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/dmregrid2.html
-    
-    science = fits.open('final.fits')
-    header = science[0].header
-    science.close()
-    
-    x_length, y_length = header['NAXIS1'], header['NAXIS2']
-    
-    subprocess.run("punlearn dmregrid2", shell=True) # restore system defaults
-    subprocess.run("dmregrid2 final.fits rot.fits resolution=0 theta=180" +
-                   " rotxcenter=" + str(x_length/2) +
-                   " rotycenter=" + str(y_length/2), shell=True)
-    
-    asymm, asymm_err = asymm_calc.main('final.fits', 'rot.fits')
-    
-## STEP 12 - COMPUTE CLUMPINESS PARAMETER ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/csmooth.html
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-    scale = (cosmo.arcsec_per_kpc_proper(redshift) *
-             scale_of_interest/pixel_scale).value # determine number of pixels
-             # that correspond to 15 kpc in projected size, to highlight
-             # AGN driven features like bubbles and cavities
-    
-    subprocess.run("punlearn csmooth", shell=True) # restore system defaults
-    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed.fits " +
-                   "outsigfile=clumpy_sig.fits outsclfile=clumpy_scl.fits " +
-                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
-                   "sclmin=" + str(scale) + " sclmax=" + str(scale) +
-                   " sigmin=4 sigmax=5", shell=True)
-    
-    clumpy, clumpy_err = clumpy_calc.main('final.fits', 'smoothed.fits')
-    
-## STEP 13 - CREATE UNSHARP MASK (UM) IMAGE ##
-    
-# http://cxc.harvard.edu/ciao/gallery/smooth.html
-# http://cxc.harvard.edu/ciao/ahelp/csmooth.html
-# http://cxc.harvard.edu/ciao/ahelp/dmimgcalc.html
-    
-    subprocess.run("punlearn csmooth", shell=True)
-    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed_3.fits " +
-                   "outsigfile=um3_sig.fits outsclfile=um3_scl.fits " +
-                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
-                   "sclmin=3 sclmax=3 sigmin=4 sigmax=5", shell=True)
-    subprocess.run("csmooth final.fits sclmap='' outfile=smoothed_30.fits " +
-                   "outsigfile=um30_sig.fits outsclfile=um30_scl.fits " +
-                   "sclmode=compute conmeth=fft conkerneltype=gauss " +
-                   "sclmin=30 sclmax=30 sigmin=4 sigmax=5", shell=True)
-    
-    subprocess.run("punlearn dmimgcalc", shell=True)
-    subprocess.run("dmimgcalc smoothed_3.fits smoothed_30.fits " +
-                   "unsharp_mask.fits sub", shell=True)
-    
-    os.chdir("..")
-    
-## STEP 14 - COPY AND REBIN bin=2 FINAL IMAGE FILE TO bin=0.5 DIRECTORY ##
-    
-# http://cxc.harvard.edu/ciao/ahelp/dmregrid.html
-    
-    subprocess.run("mkdir ggm", shell=True)
-    
-    science = fits.open("ROI_2/final.fits") # open the final science image
-    header = science[0].header # get the science header that will be used
-    science.close()
-    
-    xhi, yhi = header['NAXIS1'], header['NAXIS2'] # images might not be square
-    
-    subprocess.run("punlearn dmregrid", shell=True) # restore system defaults
-    subprocess.run("dmregrid 'ROI_2/final.fits' ggm/final.fits '1:" +
-                   str(xhi) + ":0.25,1:" + str(yhi) + ":0.25' rotangle=0 " +
-                   "rotxcenter=0 rotycenter=0 xoffset=0 yoffset=0 npts=0",
-                   shell=True) # for GGM filtering
-    subprocess.run("rm ~/cxcds_param4/dmregrid.par", shell=True)
-    
-## STEP 15 - CREATE GAUSSIAN GRADIENT MAGNITUDE (GGM) IMAGE ##
-    
-# http://cxc.harvard.edu/ciao/gallery/smooth.html
-# https://github.com/jeremysanders/ggm
-# https://github.com/camlawlorforsyth/ggm
-    
-    os.chdir("ggm") # move into the bin=0.5 directory
-    
-    science = fits.open('final.fits')
-    header = science[0].header
-    science.close()
-    
-    x_length, y_length = header['NAXIS1'], header['NAXIS2']
-    
-    for sigma in [1,2,4,8,16,32] :
-        outfilename = cluster + "_" + str(sigma) + ".fits"
-        subprocess.run(['python',
-                        '../../reduction/ggm/gaussian_gradient_magnitude.py',
-                        'final.fits', outfilename, str(sigma)])
-    
-    file = open('input.yml','w') # open for writing
-    file.write("image:\n")
-    file.write("        centre: [" + str(x_length/2) + "," + str(y_length/2) + "]\n")
-    file.write("        outfilename: ggm.fits\n")
-    file.write("data:\n")
-    
-    dim = min(x_length/2, y_length/2)
-    
-    radii = "[0,"
-    for sigma in [32,16,8,4,2,1] :
-        radii += str( int(dim/sigma) ) + ","
-    radii += str( int(dim) ) + "]\n"
-    
-    file.write("        - filename: " + cluster + "_1.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [1,1,0,0,0,0,0,0]\n")
-    
-    file.write("        - filename: " + cluster + "_2.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [2,2,2,0,0,0,0,0]\n")
-    
-    file.write("        - filename: " + cluster + "_4.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [0,4,4,4,0,0,0,0]\n")
-    
-    file.write("        - filename: " + cluster + "_8.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [0,0,8,8,8,0,0,0]\n")
-    
-    file.write("        - filename: " + cluster + "_16.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [0,0,0,10,10,10,0,0]\n")
-    
-    file.write("        - filename: " + cluster + "_32.fits\n")
-    file.write("          weightrad: " + radii)
-    file.write("          weightvals: [0,0,0,0,10,10,10,10]\n")
-    
-    file.close()
-    
-    subprocess.run(['python','../../reduction/ggm/ggm_combine/interactive.py',
-                    'input.yml'])
-    
-    subprocess.run("rm -f " + cluster + "* tmp*", shell=True)
-    
-    os.chdir("..")
-    
-## STEP 16 - SAVE IMAGES TO PDF ##
-    
-    save_images.main('ROI_2/final.fits', 'ggm/ggm.fits',
-                     'ROI_2/unsharp_mask.fits', cluster)
-    
-## STEP 17 - ADDITIONAL CLEANUP ##
-    
-    subprocess.run("rm -rf bin_2 SPA", shell=True) # delete unnecessary files
-    
-## STEP 18 - WRITE CAS PARAMETER VALUES TO TEXT FILE ##
-    
-    with open('../CAS_parameters_v1.txt', 'a') as file :
-        file.write(cluster + "," + str(concen) + "," + str(concen_err) +
-                   "," + str(asymm) + "," + str(asymm_err) +
-                   "," + str(clumpy) + "," + str(clumpy_err) + "\n" )
-    
-else:
-    with open('../CAS_parameters_v1.txt', 'a') as file :
-        file.write(cluster + ",,,,,,\n")
+## STEP 11 - WRITE PROCESSING VALUES TO FILE FOR SUBSEQUENT ANALYSIS ##
 
-## STEP 19 - RETURN TO THE DATA DIRECTORY ##
+with open('../cas_process_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
+               "','" + str(scale.value) + "','" + quality + "'])\n" ) # append
+                # quality flag to cas_process_all_data.py
+
+with open('spa_process_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce4.py','" + cluster +
+               "','" + str(redshift) + "','" + str(kpc_per_pixel.value) +
+               "','" + str(kT) + "','" + str(nH) + "','" + quality + 
+               "'])\n" ) # append quality flag to spa_process_all_data.py
+
+## STEP 12 - RETURN TO THE DATA DIRECTORY ##
 
 os.chdir("..") # go back to the data/ directory

@@ -2,18 +2,18 @@
 
 # imports
 import numpy as np
+from scipy import ndimage
 from astropy.io import fits
 
 #..........................................................................main
-def main(file, smooth) :
+def main(file, scale) :
     
     science = fits.open(file) # open the background-subtracted science image
     image = science[0].data # get the science data that will be used
     science.close()
     
-    smoothed = fits.open(smooth) # open the smoothed image
-    smooth_image = smoothed[0].data # get the smoothed data that will be used
-    smoothed.close()
+    smooth_image = ndimage.gaussian_filter(image, scale) # smooth the original
+                                                # image by the Gaussian kernel
     
     return clumpiness(image, smooth_image)
 
@@ -34,7 +34,7 @@ def clumpiness(image, smoothed) :
     
     # bootstrap
     clumpys = []
-    for i in range(10000) :
+    for i in range(1000) :
         numer_resample = np.random.choice(numer_flat,size=numer_len,replace=True)
         denom_resample = np.random.choice(denom_flat,size=denom_len,replace=True)
         clumpy_resample = np.sum(numer_resample)/np.sum(denom_resample)

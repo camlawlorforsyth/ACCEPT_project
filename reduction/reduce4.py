@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in spa_process_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce3.py','1E_0657-56','0.296','4.413023451','11.64','4.89E+20','sufficient'])
-                 argv[-]         argv[0]           argv[1]   argv[2]    argv[3]    argv[4]   argv[5]     argv[6]
+subprocess.run(['python','reduction/reduce4.py','1E_0657-56','0.296','4.34241507547309','11.64','4.89E+20','sufficient'])
+                 argv[-]         argv[0]           argv[1]   argv[2]       argv[3]      argv[4]   argv[5]     argv[6]
 '''
 
 # imports
@@ -34,7 +34,7 @@ if quality == "sufficient" :
     
 ## STEP 3-8 - COMPUTE SPA PARAMETERS FOR bin=2 IMAGE ##
     
-    os.chdir("SPA_box")
+    os.chdir("SPA_box") # move into the SPA_box directory
     
 ## STEP 3 - START HEASOFT TOOLS, CALCULATE K-CORRECTION ##
     
@@ -67,7 +67,7 @@ if quality == "sufficient" :
            " --peaky-flux " + str(0.0475*norm) +
            " --bg-file background_box.fits 1 0 --expmap expmap_box.fits" +
            " >> morph.log")
-    subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=True) # run morphology executable once
     
     cmd = ("~/soft/morph/morphology broad_nps_box.fits --quiet" +
            " --isoph-min-level " + str(2.0e-3*norm) +
@@ -76,7 +76,7 @@ if quality == "sufficient" :
            " --peaky-flux " + str(0.0475*norm) +
            " --bg-file background_box.fits 1 0 --expmap expmap_box.fits" +
            " --boot 100 > morph_boot.dat")
-    subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=True) # bootstrap to estimate uncertainties
     
 ## STEP 6 - ANALYZE SPA OUTPUT ##
     
@@ -98,13 +98,13 @@ if quality == "sufficient" :
     
 ## STEP 7 - WRITE SPA PARAMETER VALUES TO TEXT FILE ##
     
-    with open('../SPA_parameters_v1.txt', 'a') as file :
+    with open('../SPA_parameters_v2.txt', 'a') as file :
         file.write(cluster + "," + str(sym) + "," + str(sym_err) +
                    "," + str(peak) + "," + str(peak_err) +
                    "," + str(align) + "," + str(align_err) + "\n")
     
 else:
-    with open('../SPA_parameters_v1.txt', 'a') as file :
+    with open('../SPA_parameters_v2.txt', 'a') as file :
         file.write(cluster + ",,,,,,\n")
 
 ## STEP 8 - RETURN TO THE DATA DIRECTORY ##
