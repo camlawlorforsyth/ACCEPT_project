@@ -5,8 +5,8 @@ For information regarding how this script is initialized, see the 'README.md'
 file in reduction/README.md.
 
 The calling code used in reduce_all_data.py for this file, is of the form:
-subprocess.run(['python','reduction/reduce2.py','1E_0657-56','104.6234458','-55.94438611','0.296','1.1945','11.64','4.89E+20','sufficient'])
-                 argv[-]         argv[0]           argv[1]      argv[2]        argv[3]    argv[4]  argv[5]  argv[6]  argv[7]     argv[8]
+subprocess.run(['python','reduction/reduce2.py','1E_0657-56','sufficient'])
+                 argv[-]         argv[0]           argv[1]      argv[2]
 '''
 
 # imports
@@ -14,27 +14,9 @@ import os
 import sys
 import subprocess
 
-from astropy.cosmology import FlatLambdaCDM
-import astropy.units as u
-
 # constants
 cluster = sys.argv[1] # the cluster name, as indicated
-RA = float(sys.argv[2]) # the right ascension of the cluster
-Dec = float(sys.argv[3]) # the declination of the cluster
-redshift = float(sys.argv[4]) # the given redshift
-Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
-kT = float(sys.argv[6]) # the cluster temperature in keV, from Cavagnolo+
-nH = float(sys.argv[7]) # galactic column density in cm^(-2)
-quality = sys.argv[8] # quality flag
-
-cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
-pixel_scale = (1*u.pix)/(0.984*u.arcsec) # 1 pixel = 0.984" for Chandra
-scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
-                             # scales. See Lawlor-Forsyth+ for more information
-scale = cosmo.arcsec_per_kpc_proper(redshift)*scale_of_interest*pixel_scale
-        # determine number of pixels that correspond to 15 kpc in projected
-        # size, to highlight AGN driven features like bubbles and cavities
-kpc_per_pixel = scale_of_interest/scale
+quality = sys.argv[2] # quality flag
 
 ## STEP 1 - MOVE INTO CLUSTER DIRECTORY ##
 
@@ -143,19 +125,6 @@ if quality == "sufficient" :
     
     subprocess.run("rm -rf SPA", shell=True) # delete unnecessary files
     
-## STEP 11 - WRITE PROCESSING VALUES TO FILE FOR SUBSEQUENT ANALYSIS ##
-
-with open('../cas_process_all_data.py', 'a') as file :
-    file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
-               "','" + str(scale.value) + "','" + quality + "'])\n" ) # append
-                # quality flag to cas_process_all_data.py
-
-with open('spa_process_all_data.py', 'a') as file :
-    file.write("subprocess.run(['python','reduction/reduce4.py','" + cluster +
-               "','" + str(redshift) + "','" + str(kpc_per_pixel.value) +
-               "','" + str(kT) + "','" + str(nH) + "','" + quality + 
-               "'])\n" ) # append quality flag to spa_process_all_data.py
-
-## STEP 12 - RETURN TO THE DATA DIRECTORY ##
+## STEP 11 - RETURN TO THE DATA DIRECTORY ##
 
 os.chdir("..") # go back to the data/ directory

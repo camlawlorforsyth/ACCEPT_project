@@ -15,11 +15,20 @@ Upon completion of the previous command, check "data/initial_reduction_error.log
 
 ## Step 2 - Point Source Verification ##
 
-Before continuing with the automated reduction and analysis scripts, we must verify the detected point sources. The sources in "[cluster]/sources.reg" can be viewed in DS9 and any spurious detections can be deleted.
+Before continuing with the automated reduction and analysis scripts, we must verify the detected point sources. First we must verify that all the necessary files are present in the cluster directory.
 ```
 cd data/
 ciao
-ds9 [cluster]/SPA/broad_thresh.fits -scale log -region [cluster]/sources.reg
+python check_all_data.py >> check.log 2>> check_error.log
+```
+
+The above command creates a text file called "data/checks.txt" which shows the number of files present in each cluster directory, as well as the number of lines in each "data/[cluster]/sources.reg" file, if present. If the "sources.reg" file is not present, an error message is appended. Conversely, if the cluster has insufficent data for further analysis, the total amount of insufficient data for that cluster is recorded.
+
+Now the sources in "[cluster]/sources.reg" can be viewed in DS9 and any spurious detections can be deleted.
+```
+cd data/
+ciao
+ds9 [cluster]/SPA/broad_thresh.fits -scale log -region [cluster]/sources.reg -region [cluster]/roi_sky.reg
 ```
 Save the resulting region file as "[cluster]/sources_mod.reg" in 'ciao' format with 'physical' coordinates.
 
@@ -59,7 +68,7 @@ We can now proceed with the SPA analysis of the clusters with sufficient counts 
 
 Ensure that CIAO is **not** running by simply opening a new terminal. Now export the shared libraries (for GSL), start HEAsoft, and then run `python spa_process_all_data.py`.
 ```
-cd data
+cd data/
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/home/cam/soft/heasoft-6.26.1/x86_64-pc-linux-gnu-libc2.17/lib
 export LD_LIBRARY_PATH
 heainit

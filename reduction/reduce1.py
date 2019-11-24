@@ -16,6 +16,9 @@ import subprocess
 
 import roi_count
 
+from astropy.cosmology import FlatLambdaCDM
+import astropy.units as u
+
 # constants
 length = len(sys.argv) # length = 18 for the example above
 cluster = sys.argv[1] # the cluster name, as indicated
@@ -25,6 +28,15 @@ redshift = float(sys.argv[4]) # the given redshift
 Rout_Mpc = float(sys.argv[5]) # the maximum outer radius used by Cavagnolo+
 kT = float(sys.argv[6]) # the cluster temperature in keV, from Cavagnolo+
 nH = float(sys.argv[7]) # galactic column density in cm^(-2)
+
+cosmo = FlatLambdaCDM(H0 = 70, Om0 = 0.3) # specify the cosmology being used
+pixel_scale = (1*u.pix)/(0.984*u.arcsec) # 1 pixel = 0.984" for Chandra
+scale_of_interest = 15*u.kpc # bubbles and cavities are often found on such
+                             # scales. See Lawlor-Forsyth+ for more information
+scale = cosmo.arcsec_per_kpc_proper(redshift)*scale_of_interest*pixel_scale
+        # determine number of pixels that correspond to 15 kpc in projected
+        # size, to highlight AGN driven features like bubbles and cavities
+kpc_per_pixel = scale_of_interest/scale
 
 ## STEP 1 - CREATE CLUSTER DIRECTORY AND MOVE INTO IT ##
 
@@ -86,13 +98,6 @@ quality = roi_count.main('merged_2/broad_flux.img', RA, Dec, redshift, Rout_Mpc)
     # determine if cluster has sufficient data
     # if data is sufficient, create roi_sky.reg file, roi_phys.reg file,
     # box_sky.reg file, and box_phys.reg file
-
-with open('../reduce_all_data.py', 'a') as file :
-    file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
-               "','" + str(RA) + "','" + str(Dec) + "','" + str(redshift) +
-               "','" + str(Rout_Mpc) + "','" + str(kT) + "','" + str(nH) +
-               "','" + quality + "'])\n" ) # append quality flag to
-                                           # reduce_all_data.py
 
 ## STEP 6 - PERFORM NEXT STEPS IF DATA IS OF SUFFICIENT QUALITY ##
 
@@ -250,6 +255,27 @@ for i in range(8, length) : # creates a space-separated list of the ObsIDs
     cmd += " " + str(sys.argv[i])
 subprocess.run(cmd, shell=True) # pass the cleanup command to the system
 
-## STEP 15 - RETURN TO THE DATA DIRECTORY ##
+## STEP 15 - WRITE PROCESSING VALUES TO FILE FOR SUBSEQUENT ANALYSIS ##
+
+with open('../check_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/check.py','" + cluster +
+               "','" + quality + "'])\n" ) # append quality flag to check_all_data.py
+
+with open('../reduce_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce2.py','" + cluster +
+               "','" + quality + "'])\n" ) # append quality flag to reduce_all_data.py
+
+with open('../cas_process_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce3.py','" + cluster +
+               "','" + str(scale.value) + "','" + quality + "'])\n" ) # append
+                # quality flag to cas_process_all_data.py
+
+with open('spa_process_all_data.py', 'a') as file :
+    file.write("subprocess.run(['python','reduction/reduce4.py','" + cluster +
+               "','" + str(redshift) + "','" + str(kpc_per_pixel.value) +
+               "','" + str(kT) + "','" + str(nH) + "','" + quality + 
+               "'])\n" ) # append quality flag to spa_process_all_data.py
+
+## STEP 16 - RETURN TO THE DATA DIRECTORY ##
 
 os.chdir("..") # go back to the data/ directory
